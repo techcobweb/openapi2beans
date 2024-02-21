@@ -3,6 +3,7 @@ package generator
 import (
 	"testing"
 
+	"github.com/cbroglie/mustache"
 	"github.com/galasa-dev/cli/pkg/files"
 	"github.com/stretchr/testify/assert"
 )
@@ -104,3 +105,32 @@ func TestTemplateAcceptsBeanStructure(t *testing.T) {
 	AssertFileGeneratedOk(t, mockFileSystem, storeFilepath, generatedCodeFilePath, objectName)
 }
 
+
+func TestExploringMoustacheMore(t *testing.T) {
+	objectName := "BeanName"
+	var bean Bean
+	bean.object.varName = objectName
+	bean.beanPackage = TARGET_JAVA_PACKAGE
+	bean.object.description = "this is a blank bean"
+
+	randoMap := map[string]string{
+		"planet": "earth",
+	}
+	result, err := mustache.Render("{{planet}}", randoMap)
+
+	assert.Nil(t, err)
+	assert.Equal(t, result, "earth")
+
+	type Planet struct {
+		planetName string
+	}
+
+	planet := Planet {
+		planetName: "earth",
+	}
+
+	result, err = mustache.Render("We are on {{planet.planetName}}", planet)
+
+	assert.Nil(t, err)
+	assert.Equal(t, result, "earth")
+}
