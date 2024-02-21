@@ -1,0 +1,11 @@
+package {{.beanPackage}}
+
+{{#.object.description}}
+// {{.}}
+{{/.object.description}}
+public class {{.object.GetName()}} {
+
+    public {{.object.GetName()}} () {
+        
+    }
+}
