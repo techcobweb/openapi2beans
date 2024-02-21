@@ -51,7 +51,7 @@ func generateDirectories(fs files.FileSystem, storeFilepath string) error {
 // Uses go's templating engine to generate Beans u
 func createBeanFile(bean Bean, fs files.FileSystem, storeFilepath string) error {
 	log.Println("Creating bean: " + bean.object.varName + ".java")
-	generatedBeanFileContents, err := mustache.RenderFile("../templates/Javabean", bean)
+	generatedBeanFileContents, err := mustache.RenderFile("../../templates/Javabean", bean)
 	if err == nil {
 		err = fs.WriteTextFile(storeFilepath+"/"+bean.object.varName+".java", generatedBeanFileContents)
 	}
