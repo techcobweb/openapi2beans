@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: EPL-2.0
 #
-all: tests openapi2beans
+all: docs openapi2beans tests
 
 openapi2beans: \
 	bin/openapi2beans-linux-x86_64 \
@@ -26,7 +26,7 @@ build/coverage.txt : build/coverage.out
 
 openapi2beans-source : \
 	./cmd/openapi2beans/*.go \
-	./pkg/utils/*.go 
+	./pkg/generator/*.go 
 
 bin/openapi2beans-linux-x86_64 : openapi2beans-source
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/openapi2beans-linux-x86_64 ./cmd/openapi2beans
@@ -37,6 +37,12 @@ bin/openapi2beans-darwin-x86_64 : openapi2beans-source
 bin/openapi2beans-darwin-arm64 : openapi2beans-source
 	CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o bin/openapi2beans-darwin-arm64 ./cmd/openapi2beans
 
+docs: uml-diagrams
+
+uml-diagrams: uml/schema-types.png uml/java-class.png uml/code-structure.png
+
+uml/%.png: uml/%.plantuml
+	java -jar plantuml.jar -verbose $? 
 
 clean:
 	rm -fr bin/openapi2beans*

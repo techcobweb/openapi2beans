@@ -1,0 +1,36 @@
+@startuml "java-class"
+
+class JavaPackage {
+    {field} name : string
+}
+
+class JavaClass {
+    {field} name : string
+    {field} includes : []string
+}
+
+JavaClass "*" --> "1" JavaPackage : javaPackage
+JavaPackage "1" *--> "*" JavaClass : classes
+
+class DataMember {
+    {field} name : string
+    {field} type : string
+}
+
+JavaClass *--> DataMember : dataMembers
+
+class JavaEnum {
+    {field} name : string
+}
+
+class EnumValue {
+    {field} name : string
+    {field} value : string
+}
+
+JavaEnum "1" *--> "*" EnumValue 
+JavaPackage "1" *--> JavaEnum : enums
+JavaEnum "*" --> "1" JavaPackage : javaPackage
+
+
+@enduml
