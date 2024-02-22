@@ -354,13 +354,8 @@ components:
     myBeanName:
       type: object
       properties:
-<<<<<<< HEAD
         referencingObject:
           $ref: '#/components/schemas/ReferencedObject'
-=======
-        referencingProperty:
-          $ref: #/components/schemas/ReferencedObject
->>>>>>> main
     ReferencedObject:
       type: object
       properties:
