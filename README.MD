@@ -12,7 +12,21 @@ Run this script:
 ./build-locally.sh
 ```
 ## How to run
-openapi2beans --api {filePathToOpenAPI} --outputFolder {outputFolder}
+```
+./bin/openapi2beans-${operatingSystem}-${hardwareArchitecture} \
+  --api ${filePathToOpenAPI} \
+  --outputFolder ${outputFolder}
+```
+
+Where **operatingSystem** is `darwin` or `linux`
+and **hardwareArchitecture** is `x86_64` or `arm64`
+
+For example:
+```
+./bin/openapi2beans-darwin-arm64 \
+  --api myRestApiDefinition.yaml \
+  --outputFolder temp/generated
+```
 
 ## Design
 The tool is split into several parts:
