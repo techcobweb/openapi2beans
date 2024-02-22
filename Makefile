@@ -42,7 +42,7 @@ docs: uml-diagrams
 uml-diagrams: uml/schema-types.png 
 
 uml/%.png: uml/%.plantuml
-	java -jar plantuml.jar $? 
+	java -jar plantuml.jar -verbose $? 
 
 clean:
 	rm -fr bin/openapi2beans*

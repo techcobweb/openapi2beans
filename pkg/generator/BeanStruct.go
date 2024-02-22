@@ -2,12 +2,13 @@ package generator
 
 // TODO: Instead of type Object, Variable, we should be using *Object and *Variable.
 // What we have here will pass by value rather than by reference...
-// Possibly not overly important for performance in this application, but it's inefficient.
+// Possibly not overly important for performance in this application,
+// but just so you know it's inefficient.
 
 type Bean struct {
 	// Would call it 'package' but that's a keyword in go!
 	beanPackage string
-	object      Object // TODO: Rename this to ObjectSchemaType
+	object      Object // TODO: Rename this to ObjectSchemaType? or something which isn't object.
 }
 
 type SchemaPart interface {
