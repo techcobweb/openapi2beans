@@ -23,6 +23,11 @@ The tool is split into several parts:
     - write the in-memory java file image to disk
 - Report overall status
 
+The overall design can be split into components:
+![shows the overall component code structure](./uml/code-structure.png)
+
 The intermediate in-memory structures look like this:
 ![shows the type system used](./uml/schema-types.png)
 
+The generators use templates, and these data structures:
+![shows the data structures used by the file generators](./uml/java-class.png)

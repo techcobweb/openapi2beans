@@ -39,7 +39,7 @@ bin/openapi2beans-darwin-arm64 : openapi2beans-source
 
 docs: uml-diagrams
 
-uml-diagrams: uml/schema-types.png 
+uml-diagrams: uml/schema-types.png uml/java-class.png uml/code-structure.png
 
 uml/%.png: uml/%.plantuml
 	java -jar plantuml.jar -verbose $? 
