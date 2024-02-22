@@ -355,8 +355,8 @@ components:
     myBeanName:
       type: object
       properties:
-        referencedObject:
-          $ref: #/components/schemas/ReferencedObject
+        referencingObject:
+          $ref: '#/components/schemas/ReferencedObject'
     ReferencedObject:
       type: object
       properties:
@@ -371,6 +371,6 @@ components:
 	assert.Nil(t, err)
 	assert.NotEmpty(t, beans[0].object.variables, "Bean must have a variable!")
 	// CURRENTLY REF IS NOT BEING UNMARSHALLED.
-	assert.Equal(t, "referencedObject", beans[0].object.variables["#/components/schemas/myBeanName/referencedObject"].(Object).varName, "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "referencingObject", beans[0].object.variables["#/components/schemas/myBeanName/referencingObject"].(Object).varName, "Wrong bean variable name read out of the yaml!")
 }
 

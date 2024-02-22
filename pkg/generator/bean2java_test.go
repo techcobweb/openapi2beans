@@ -96,6 +96,7 @@ func TestTemplateAcceptsBeanStructure(t *testing.T) {
 	bean.object.varName = objectName
 	bean.beanPackage = "generated"
 	bean.object.description = "this is a blank bean"
+	bean.object.varTypeName = "object"
 
 	// When...
 	err := createBeanFile(bean, mockFileSystem, storeFilepath)
@@ -105,6 +106,12 @@ func TestTemplateAcceptsBeanStructure(t *testing.T) {
 	AssertFileGeneratedOk(t, mockFileSystem, storeFilepath, generatedCodeFilePath, objectName)
 }
 
+type Planet struct {
+	PlanetName string
+}
+func (planet Planet) GetName() (string) {
+	return planet.PlanetName
+}
 
 func TestExploringMoustacheMore(t *testing.T) {
 	objectName := "BeanName"
@@ -121,16 +128,13 @@ func TestExploringMoustacheMore(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, result, "earth")
 
-	type Planet struct {
-		planetName string
-	}
 
 	planet := Planet {
-		planetName: "earth",
+		PlanetName: "earth",
 	}
 
-	result, err = mustache.Render("We are on {{planet.planetName}}", planet)
+	result, err = mustache.Render("We are on {{PlanetName}}", planet)
 
 	assert.Nil(t, err)
-	assert.Equal(t, result, "earth")
+	assert.Equal(t, "We are on earth", result)
 }

@@ -2,6 +2,7 @@ package generator
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"strings"
 
@@ -19,6 +20,13 @@ const (
 	OPENAPI_YAML_KEYWORD_ALLOF = "allOf"
 	OPENAPI_YAML_KEYWORD_REF = "$ref"
 )
+
+func NewError(template string, params ... interface{}) error {
+	msg := fmt.Sprintf(template, params...)
+	log.Print(msg)
+	err := errors.New(msg)
+	return err
+}
 
 func getBeansFromYaml(apiyaml []byte, packageName string) ([]Bean, error) {
 	var beans []Bean
@@ -62,50 +70,45 @@ func retrieveSchemasMapFromEntireYamlMap(entireYamlMap map[string]interface{}) (
 		if isSchemasPresent {
 			schemasMap = schemas.(map[interface{}]interface{})
 		} else {
-			log.Printf("Failed to find required type within %v", entireYamlMap)
-			err = errors.New("failed to find schemas within components section of given yaml")
+			err = NewError("Failed to find schemas within %v", entireYamlMap)
 		}
 	} else {
-		log.Printf("Failed to find components within %v", entireYamlMap)
-		err = errors.New("failed to find components within given yaml")
+		err = NewError("Failed to find components within %v", entireYamlMap)
 	}
 	return schemasMap, err
 }
 
-func retrieveStructuresFromMap(inputMap map[interface{}]interface{}, yamlPath string) (structures map[string]SchemaPart, referencingStructures map[string]SchemaPart, err error) {
-	structures = make(map[string]SchemaPart)
-	referencingStructures = make(map[string]SchemaPart)
+func retrieveStructuresFromMap(inputMap map[interface{}]interface{}, yamlPath string) (schemaParts map[string]SchemaPart, referencingSchemaParts map[string]SchemaPart, err error) {
+	schemaParts = make(map[string]SchemaPart)
+	referencingSchemaParts = make(map[string]SchemaPart)
 
 	for subMapKey, subMapObj := range inputMap {
 		log.Printf("%v\n", subMapObj)
 		subMap := subMapObj.(map[interface{}]interface{})
 		var varType string
-
-		description := retrieveDescription(subMap)
-		varType, err := retrieveVarType(subMap, subMapKey.(string))
+		apiSchemaPartPath := yamlPath + "/" + subMapKey.(string)
 		
+		description := retrieveDescription(subMap)
+		varType, err := retrieveVarType(subMap, apiSchemaPartPath)
 
-		if err == nil && varType == "object" {
-			var variables map[string]SchemaPart
-			newPath := yamlPath + "/" + subMapKey.(string)
-			variables, err = retrieveVariables(subMap, newPath)
-			
-			if err == nil {
-				object := Object {
-					varName: subMapKey.(string),
-					description: description,
-					varTypeName: varType,
-					variables: variables,
+		if err != nil {
+			// do something
+		} else {
+			if varType == "object" {
+				var variables map[string]SchemaPart
+				
+				variables, err = retrieveVariables(subMap, apiSchemaPartPath)
+				
+				if err == nil {
+					object := Object {
+						varName: subMapKey.(string),
+						description: description,
+						varTypeName: varType,
+						variables: variables,
+					}
+					schemaParts[apiSchemaPartPath] = object
 				}
-				objectPath := yamlPath + "/" + object.varName
-				structures[objectPath] = object
-			}
-		} else if err == nil {
-			if varType == "array" {
-				varType, err = retrieveArrayType(subMap, subMapKey.(string))
-			}
-			
-			if err == nil {
+			} else {
 				isSetInConstructor := isSetInConstructor(subMap)
 	
 				variable := Variable {
@@ -115,46 +118,21 @@ func retrieveStructuresFromMap(inputMap map[interface{}]interface{}, yamlPath st
 					isSetInConstructor: isSetInConstructor,
 				}
 
-				varPath := yamlPath + "/" + variable.varName
 				if strings.Split(varType, ":")[0] == "$ref" {
-					referencingStructures[varPath] = variable
+					referencingSchemaParts[apiSchemaPartPath] = variable
 				}
-				structures[varPath] = variable
+				schemaParts[apiSchemaPartPath] = variable
 			}
 		}
 	}
 
-	return structures, referencingStructures, err
+	return schemaParts, referencingSchemaParts, err
 }
 
-// Recieves 2 maps of Structures with the key a reference to it's reference path. The aim is to add the reference to an Object or array.
-// So Object {
-//	varType: object
-//  variables {
-//    Variable {
-//      varName: nestedObject
-//		varType: $ref:#components/schemas/NestedObject
-//   } 
-//
-// }
-// To Object {
-//	varType: object
-//  variables {
-//    Variable {
-//      varName: nestedObject
-//		varType: object
-//		  properties:
-//		    randomVar
-//			  type: string
-//   } 
-//
-// }
-// can we do that by saying that variables are pointers? and then changing the variable that is being pointed to?
-// so for each structure in referencing structures the var type needs to change. (I have had the varType hold the reference)
-func resolveReferences(parsedStructures map[string]SchemaPart, referencingStructures map[string]SchemaPart) (map[string]SchemaPart) {
-	for refPath, schema := range referencingStructures {
-		croppedReference := strings.Split(schema.GetType(), ":")[1]
-		referencedStructure := parsedStructures[croppedReference]
+func resolveReferences(parsedStructures map[string]SchemaPart, referencingSchemaParts map[string]SchemaPart) (map[string]SchemaPart) {
+	for refPath, schema := range referencingSchemaParts {
+		croppedReferencePath := strings.Split(schema.GetType(), ":")[1]
+		referencedStructure := parsedStructures[croppedReferencePath]
 		parsedStructures[refPath] = referencedStructure
 	}
 	return parsedStructures
@@ -172,7 +150,7 @@ func retrieveVariables(subMap map[interface{}]interface{}, yamlPath string) (map
 	return variables, err
 }
 
-func retrieveVarType(variableMap map[interface{}]interface{}, varMapKeyString string) (string, error) {
+func retrieveVarType(variableMap map[interface{}]interface{}, apiSchemaPartPath string) (string, error) {
 	var varType string
 	var err error
 	varTypeObj, isTypePresent := variableMap[OPENAPI_YAML_KEYWORD_TYPE]
@@ -180,18 +158,20 @@ func retrieveVarType(variableMap map[interface{}]interface{}, varMapKeyString st
 
 	if isTypePresent {
 		varType = getJavaReadableType(varTypeObj.(string))
+		if varType == "array" {
+			varType, err = retrieveArrayType(variableMap, apiSchemaPartPath)
+		}
 	} else if isRefPresent {
 		varType = "$ref:" + refObj.(string)
 	} else {
-		log.Printf("Failed to find required type for %v", variableMap)
-		err = errors.New("failed to find required type for " + varMapKeyString)
+		err = NewError("Failed to find required type for %v\n", apiSchemaPartPath)
 	}
+	
 	return varType, err
 }
 
-func retrieveArrayType(subMap map[interface{}]interface{}, subMapKeyString string) (string, error) {
-	var arrayType string
-	var err error
+func retrieveArrayType(subMap map[interface{}]interface{}, schemaPartPath string) (arrayType string, err error) {
+
 	itemsObj, isItemsPresent := subMap[OPENAPI_YAML_KEYWORD_ITEMS]
 	if isItemsPresent {
 		itemsMap := itemsObj.(map[interface{}]interface{})
@@ -207,19 +187,16 @@ func retrieveArrayType(subMap map[interface{}]interface{}, subMapKeyString strin
 		if isArrayTypePresent {
 			arrayType = getJavaReadableType(arrayTypeObj.(string)) + "[]"
 		}else {
-			log.Printf("Failed to find required type within items section for %v", subMap)
-			err = errors.New("failed to find required type within items section for " + subMapKeyString)
+			err = NewError("Failed to find required type within items section for %v\n", schemaPartPath)
 		}
 	} else {
-		log.Printf("Failed to find required items section for %v", subMap)
-		err = errors.New("failed to find required items section for " + subMapKeyString)
+		err = NewError("Failed to find required items section for %v\n", schemaPartPath)
 	}
 
 	return arrayType, err
 }
 
-func retrieveDescription(subMap map[interface{}]interface{}) string {
-	description := ""
+func retrieveDescription(subMap map[interface{}]interface{}) (description string) {
 	descriptionObj, isDescriptionPresent := subMap[OPENAPI_YAML_KEYWORD_DESCRIPTION]
 	if isDescriptionPresent {
 		description = descriptionObj.(string)
@@ -237,8 +214,7 @@ func isSetInConstructor(subMap map[interface{}]interface{}) bool {
 }
 
 // To be expanded on if necessary
-func getJavaReadableType(yamlReadableType string) (string) {
-	var javaReadableType string
+func getJavaReadableType(yamlReadableType string) (javaReadableType string) {
 	if yamlReadableType == "string" {
 		javaReadableType = "String"
 	} else {
