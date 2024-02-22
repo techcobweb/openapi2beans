@@ -28,9 +28,17 @@ class EnumValue {
     {field} value : string
 }
 
-JavaEnum "1" *--> "*" EnumValue 
+JavaEnum "1" *--> "*" EnumValue : enumValues
 JavaPackage "1" *--> JavaEnum : enums
 JavaEnum "*" --> "1" JavaPackage : javaPackage
 
+class JavaInterface {
+    {field} name : string
+}
+
+JavaInterface "*" --> "1" JavaPackage : javaPackage
+JavaPackage "1" *--> "*" JavaInterface : interfaces
+JavaClass "*" --> "1" JavaInterface : inheritedInterface
+JavaInterface "1" *--> "*" JavaClass : classes
 
 @enduml

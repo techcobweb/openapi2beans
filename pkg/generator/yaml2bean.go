@@ -9,18 +9,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-const (
-	OPENAPI_YAML_KEYWORD_COMPONENTS  = "components"
-	OPENAPI_YAML_KEYWORD_SCHEMAS     = "schemas"
-	OPENAPI_YAML_KEYWORD_DESCRIPTION = "description"
-	OPENAPI_YAML_KEYWORD_PROPERTIES  = "properties"
-	OPENAPI_YAML_KEYWORD_TYPE        = "type"
-	OPENAPI_YAML_KEYWORD_REQUIRED    = "required"
-	OPENAPI_YAML_KEYWORD_ITEMS       = "items"
-	OPENAPI_YAML_KEYWORD_ALLOF       = "allOf"
-	OPENAPI_YAML_KEYWORD_REF         = "$ref"
-)
-
 func NewError(template string, params ... interface{}) error {
 	msg := fmt.Sprintf(template, params...)
 	log.Print(msg)
@@ -214,6 +202,7 @@ func isSetInConstructor(subMap map[interface{}]interface{}) bool {
 }
 
 // To be expanded on if necessary
+// Now to be moved to schemtype2javastruct transformer
 func getJavaReadableType(yamlReadableType string) (javaReadableType string) {
 	if yamlReadableType == "string" {
 		javaReadableType = "String"
