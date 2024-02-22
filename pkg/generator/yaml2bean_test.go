@@ -71,7 +71,6 @@ components:
 	// When...
 	beans, err := getBeansFromYaml([]byte(apiYaml), TARGET_JAVA_PACKAGE)
 
-
 	// Then...
 	assert.Nil(t, err)
 	assert.NotEmpty(t, beans[0].object.variables, "Bean must have variable!")
@@ -355,7 +354,7 @@ components:
     myBeanName:
       type: object
       properties:
-        referencedObject:
+        referencingProperty:
           $ref: #/components/schemas/ReferencedObject
     ReferencedObject:
       type: object
@@ -373,4 +372,3 @@ components:
 	// CURRENTLY REF IS NOT BEING UNMARSHALLED.
 	assert.Equal(t, "referencedObject", beans[0].object.variables["#/components/schemas/myBeanName/referencedObject"].(Object).varName, "Wrong bean variable name read out of the yaml!")
 }
-

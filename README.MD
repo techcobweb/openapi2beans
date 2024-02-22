@@ -1,1 +1,28 @@
+# openapi2beans
+
+This is a golang tool to convert bean structures found in an `openapi.yaml` file into java transport beans, for use in the Galasa server.
+
+We do this to make sure that the java code uses the exact same structure as the `openapi.yaml` declares.
+
+During the build of the framework project, the `openapi.yaml` file is obtained, and java transport beans rendered.
+
+## How to build
+Run this script:
+```
+./build-locally.sh
+```
+## How to run
+openapi2beans --api {filePathToOpenAPI} --outputFolder {outputFolder}
+
+## Design
+The tool is split into several parts:
+- read the yaml file from disk into memory
+- convert the yaml data into a set of `SchemaType` in-memory objects
+- for each in-memory `SchemaType` object...
+    - convert the `SchemaType` in-memory object into a `.java` file image in memory
+    - write the in-memory java file image to disk
+- Report overall status
+
+The intermediate in-memory structures look like this:
+![shows the type system used](./uml/schema-types.png)
 

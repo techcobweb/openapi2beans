@@ -9,15 +9,15 @@ import (
 )
 
 const (
-	OPENAPI_YAML_KEYWORD_COMPONENTS = "components"
-	OPENAPI_YAML_KEYWORD_SCHEMAS = "schemas"
+	OPENAPI_YAML_KEYWORD_COMPONENTS  = "components"
+	OPENAPI_YAML_KEYWORD_SCHEMAS     = "schemas"
 	OPENAPI_YAML_KEYWORD_DESCRIPTION = "description"
-	OPENAPI_YAML_KEYWORD_PROPERTIES = "properties"
-	OPENAPI_YAML_KEYWORD_TYPE = "type"
-	OPENAPI_YAML_KEYWORD_REQUIRED = "required"
-	OPENAPI_YAML_KEYWORD_ITEMS = "items"
-	OPENAPI_YAML_KEYWORD_ALLOF = "allOf"
-	OPENAPI_YAML_KEYWORD_REF = "$ref"
+	OPENAPI_YAML_KEYWORD_PROPERTIES  = "properties"
+	OPENAPI_YAML_KEYWORD_TYPE        = "type"
+	OPENAPI_YAML_KEYWORD_REQUIRED    = "required"
+	OPENAPI_YAML_KEYWORD_ITEMS       = "items"
+	OPENAPI_YAML_KEYWORD_ALLOF       = "allOf"
+	OPENAPI_YAML_KEYWORD_REF         = "$ref"
 )
 
 func getBeansFromYaml(apiyaml []byte, packageName string) ([]Bean, error) {
@@ -29,7 +29,7 @@ func getBeansFromYaml(apiyaml []byte, packageName string) ([]Bean, error) {
 
 	if err == nil {
 		schemasMap, err = retrieveSchemasMapFromEntireYamlMap(entireYamlMap)
-		
+
 		if err == nil {
 			var parsedSchemas map[string]SchemaPart
 			var referencingStructures map[string]SchemaPart
@@ -38,8 +38,8 @@ func getBeansFromYaml(apiyaml []byte, packageName string) ([]Bean, error) {
 
 			for _, structure := range parsedSchemas {
 				if structure.GetType() == "object" {
-					bean := Bean {
-						object: structure.(Object),
+					bean := Bean{
+						object:      structure.(Object),
 						beanPackage: packageName,
 					}
 					beans = append(beans, bean)
@@ -83,43 +83,47 @@ func retrieveStructuresFromMap(inputMap map[interface{}]interface{}, yamlPath st
 
 		description := retrieveDescription(subMap)
 		varType, err := retrieveVarType(subMap, subMapKey.(string))
-		
 
-		if err == nil && varType == "object" {
-			var variables map[string]SchemaPart
-			newPath := yamlPath + "/" + subMapKey.(string)
-			variables, err = retrieveVariables(subMap, newPath)
-			
-			if err == nil {
-				object := Object {
-					varName: subMapKey.(string),
-					description: description,
-					varTypeName: varType,
-					variables: variables,
+		if err != nil {
+			log.Printf("Failed to work out the type of the variable.\n")
+		} else {
+
+			if varType == "object" {
+				var variables map[string]SchemaPart
+				newPath := yamlPath + "/" + subMapKey.(string)
+				variables, err = retrieveVariables(subMap, newPath)
+
+				if err == nil {
+					object := Object{
+						varName:     subMapKey.(string),
+						description: description,
+						varTypeName: varType,
+						variables:   variables,
+					}
+					objectPath := yamlPath + "/" + object.varName
+					structures[objectPath] = object
 				}
-				objectPath := yamlPath + "/" + object.varName
-				structures[objectPath] = object
-			}
-		} else if err == nil {
-			if varType == "array" {
-				varType, err = retrieveArrayType(subMap, subMapKey.(string))
-			}
-			
-			if err == nil {
-				isSetInConstructor := isSetInConstructor(subMap)
-	
-				variable := Variable {
-					varName: subMapKey.(string),
-					varDescription: description,
-					varTypeName: varType,
-					isSetInConstructor: isSetInConstructor,
+			} else {
+				if varType == "array" {
+					varType, err = retrieveArrayType(subMap, subMapKey.(string))
 				}
 
-				varPath := yamlPath + "/" + variable.varName
-				if strings.Split(varType, ":")[0] == "$ref" {
-					referencingStructures[varPath] = variable
+				if err == nil {
+					isSetInConstructor := isSetInConstructor(subMap)
+
+					variable := Variable{
+						varName:            subMapKey.(string),
+						varDescription:     description,
+						varTypeName:        varType,
+						isSetInConstructor: isSetInConstructor,
+					}
+
+					varPath := yamlPath + "/" + variable.varName
+					if strings.Split(varType, ":")[0] == "$ref" {
+						referencingStructures[varPath] = variable
+					}
+					structures[varPath] = variable
 				}
-				structures[varPath] = variable
 			}
 		}
 	}
@@ -128,30 +132,32 @@ func retrieveStructuresFromMap(inputMap map[interface{}]interface{}, yamlPath st
 }
 
 // Recieves 2 maps of Structures with the key a reference to it's reference path. The aim is to add the reference to an Object or array.
-// So Object {
-//	varType: object
-//  variables {
-//    Variable {
-//      varName: nestedObject
-//		varType: $ref:#components/schemas/NestedObject
-//   } 
+//
+//	So Object {
+//		varType: object
+//	 variables {
+//	   Variable {
+//	     varName: nestedObject
+//			varType: $ref:#components/schemas/NestedObject
+//	  }
 //
 // }
-// To Object {
-//	varType: object
-//  variables {
-//    Variable {
-//      varName: nestedObject
+//
+//	To Object {
 //		varType: object
-//		  properties:
-//		    randomVar
-//			  type: string
-//   } 
+//	 variables {
+//	   Variable {
+//	     varName: nestedObject
+//			varType: object
+//			  properties:
+//			    randomVar
+//				  type: string
+//	  }
 //
 // }
 // can we do that by saying that variables are pointers? and then changing the variable that is being pointed to?
 // so for each structure in referencing structures the var type needs to change. (I have had the varType hold the reference)
-func resolveReferences(parsedStructures map[string]SchemaPart, referencingStructures map[string]SchemaPart) (map[string]SchemaPart) {
+func resolveReferences(parsedStructures map[string]SchemaPart, referencingStructures map[string]SchemaPart) map[string]SchemaPart {
 	for refPath, schema := range referencingStructures {
 		croppedReference := strings.Split(schema.GetType(), ":")[1]
 		referencedStructure := parsedStructures[croppedReference]
@@ -206,7 +212,7 @@ func retrieveArrayType(subMap map[interface{}]interface{}, subMapKeyString strin
 
 		if isArrayTypePresent {
 			arrayType = getJavaReadableType(arrayTypeObj.(string)) + "[]"
-		}else {
+		} else {
 			log.Printf("Failed to find required type within items section for %v", subMap)
 			err = errors.New("failed to find required type within items section for " + subMapKeyString)
 		}
@@ -237,7 +243,7 @@ func isSetInConstructor(subMap map[interface{}]interface{}) bool {
 }
 
 // To be expanded on if necessary
-func getJavaReadableType(yamlReadableType string) (string) {
+func getJavaReadableType(yamlReadableType string) string {
 	var javaReadableType string
 	if yamlReadableType == "string" {
 		javaReadableType = "String"

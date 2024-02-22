@@ -1,0 +1,34 @@
+@startuml "schema-types"
+
+class SchemaTypes {
+} 
+
+SchemaTypes "1" *--> "*" SchemaType
+
+class SchemaType {
+    {field} name : string
+    {field} path : string
+    {field} description : string
+
+    {method} SchemaType(name,desription)
+}
+
+class Property {
+    {field} name string 
+    {field} description string 
+    {field} typeName string
+    {field} cardinality : Cardinality
+}
+
+SchemaType "1" *--> "1..*" Property : properties >
+
+Property "*" --> "1" SchemaType : isOfType >
+
+enum Cardinality {
+    ZERO_OR_ONE
+    ONE
+    ZERO_OR_MANY
+    ONE_OR_MANY
+}
+
+@enduml
