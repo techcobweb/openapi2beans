@@ -1,4 +1,4 @@
-package generator
+package v1_generator
 
 // TODO: Instead of type Object, Variable, we should be using *Object and *Variable.
 // What we have here will pass by value rather than by reference...
@@ -7,8 +7,8 @@ package generator
 
 type Bean struct {
 	// Would call it 'package' but that's a keyword in go!
-	beanPackage string
-	object      Object // TODO: Rename this to ObjectSchemaType? or something which isn't object.
+	BeanPackage string
+	Object      Object // TODO: Rename this to ObjectSchemaType? or something which isn't object.
 }
 
 type SchemaPart interface {
@@ -67,7 +67,7 @@ type Object struct {
 	// Would call it 'type' but that's a keyword in go!
 	varTypeName string
 	varName     string
-	variables   map[string]SchemaPart
+	Variables   map[string]SchemaPart
 }
 
 func (obj Object) GetType() string {

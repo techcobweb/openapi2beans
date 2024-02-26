@@ -1,11 +1,11 @@
-package {{.beanPackage}}
+package {{BeanPackage}}
 
-{{#.object.description}}
+{{#Object.GetDescription}}
 // {{.}}
-{{/.object.description}}
-public class {{.object.GetName()}} {
+{{/Object.GetDescription}}
+public class {{Object.GetName}} {
 
-    public {{.object.GetName()}} () {
+    public {{Object.GetName}} () {
         
     }
 }

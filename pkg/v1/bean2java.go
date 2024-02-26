@@ -1,4 +1,4 @@
-package generator
+package v1_generator
 
 import (
 	"log"
@@ -25,7 +25,7 @@ func GenerateBeans(fs files.FileSystem, storeFilepath string, apiFilePath string
 				for _, bean := range beanList {
 					nonFatalErr := createBeanFile(bean, fs, storeFilepath)
 					if err != nil {
-						log.Println("Error: failed to create bean: " + bean.object.GetName() + ". Reason is: " + nonFatalErr.Error())
+						log.Println("Error: failed to create bean: " + bean.Object.GetName() + ". Reason is: " + nonFatalErr.Error())
 					}
 				}
 			}
@@ -50,10 +50,10 @@ func generateDirectories(fs files.FileSystem, storeFilepath string) error {
 
 // Uses go's templating engine to generate Beans u
 func createBeanFile(bean Bean, fs files.FileSystem, storeFilepath string) error {
-	log.Println("Creating bean: " + bean.object.varName + ".java")
+	log.Println("Creating bean: " + bean.Object.varName + ".java")
 	generatedBeanFileContents, err := mustache.RenderFile("../../templates/Javabean", bean)
 	if err == nil {
-		err = fs.WriteTextFile(storeFilepath+"/"+bean.object.varName+".java", generatedBeanFileContents)
+		err = fs.WriteTextFile(storeFilepath+"/"+bean.Object.varName+".java", generatedBeanFileContents)
 	}
 	return err
 }

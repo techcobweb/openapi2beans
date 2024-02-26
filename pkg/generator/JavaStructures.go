@@ -30,7 +30,7 @@ type EnumValue struct {
 }
 
 type JavaInterface struct {
-	name        string
-	classes     []JavaClass
-	javaPackage JavaPackage
+	name              string
+	inheritingClasses []JavaClass
+	javaPackage       JavaPackage
 }

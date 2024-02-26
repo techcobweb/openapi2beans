@@ -1,4 +1,4 @@
-package generator
+package v1_generator
 
 import (
 	"testing"
@@ -36,7 +36,7 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.Equal(t, "MyBeanName", beans[0].object.varName, "Wrong bean name read out of the yaml!")
+	assert.Equal(t, "MyBeanName", beans[0].Object.varName, "Wrong bean name read out of the yaml!")
 }
 
 func TestGetBeanFromYamlParsesDescription(t *testing.T) {
@@ -53,7 +53,7 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.Equal(t, "A simple example", beans[0].object.description, "Wrong bean description read out of the yaml!")
+	assert.Equal(t, "A simple example", beans[0].Object.description, "Wrong bean description read out of the yaml!")
 }
 
 func TestGetBeanFromYamlParsesSingleStringVariable(t *testing.T) {
@@ -73,8 +73,8 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.NotEmpty(t, beans[0].object.variables, "Bean must have variable!")
-	variable := beans[0].object.variables["#/components/schemas/MyBeanName/myStringVar"]
+	assert.NotEmpty(t, beans[0].Object.Variables, "Bean must have variable!")
+	variable := beans[0].Object.Variables["#/components/schemas/MyBeanName/myStringVar"]
 	assert.Equal(t, "myStringVar", variable.GetName(), "Wrong bean variable name read out of the yaml!")
 	assert.Equal(t, "String", variable.GetType(), "Wrong bean variable type read out of the yaml!")
 }
@@ -97,7 +97,7 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	variable := beans[0].object.variables["#/components/schemas/MyBeanName/myStringVar"]
+	variable := beans[0].Object.Variables["#/components/schemas/MyBeanName/myStringVar"]
 	assert.Equal(t, "a test string", variable.GetDescription(), "Wrong bean variable description read out of the yaml!")
 }
 
@@ -120,7 +120,7 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.Equal(t, true, beans[0].object.variables["#/components/schemas/MyBeanName/myStringVar"].(Variable).IsSetInConstructor(), "Wrong bean variable description read out of the yaml!")
+	assert.Equal(t, true, beans[0].Object.Variables["#/components/schemas/MyBeanName/myStringVar"].(Variable).IsSetInConstructor(), "Wrong bean variable description read out of the yaml!")
 }
 
 func TestGetBeanFromYamlParsesSingleStringVariableWithFalseRequiredField(t *testing.T) {
@@ -142,7 +142,7 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.Equal(t, false, beans[0].object.variables["#/components/schemas/MyBeanName/myStringVar"].(Variable).IsSetInConstructor(), "Wrong bean variable description read out of the yaml!")
+	assert.Equal(t, false, beans[0].Object.Variables["#/components/schemas/MyBeanName/myStringVar"].(Variable).IsSetInConstructor(), "Wrong bean variable description read out of the yaml!")
 }
 
 func TestGetBeanFromYamlParsesSingleStringVariableWithNoRequiredFieldReturnsFalse(t *testing.T) {
@@ -163,7 +163,7 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.Equal(t, false, beans[0].object.variables["#/components/schemas/MyBeanName/myStringVar"].(Variable).IsSetInConstructor(), "Wrong bean variable description read out of the yaml!")
+	assert.Equal(t, false, beans[0].Object.Variables["#/components/schemas/MyBeanName/myStringVar"].(Variable).IsSetInConstructor(), "Wrong bean variable description read out of the yaml!")
 }
 
 func TestGetBeanFromYamlParsesMultipleStringVariableWithTrueRequiredFields(t *testing.T) {
@@ -189,8 +189,8 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.Equal(t, true, beans[0].object.variables["#/components/schemas/MyBeanName/myStringVar"].(Variable).isSetInConstructor, "Wrong bean variable description read out of the yaml!")
-	assert.Equal(t, true, beans[0].object.variables["#/components/schemas/MyBeanName/myStringVar1"].(Variable).isSetInConstructor, "Wrong bean variable description read out of the yaml!")
+	assert.Equal(t, true, beans[0].Object.Variables["#/components/schemas/MyBeanName/myStringVar"].(Variable).isSetInConstructor, "Wrong bean variable description read out of the yaml!")
+	assert.Equal(t, true, beans[0].Object.Variables["#/components/schemas/MyBeanName/myStringVar1"].(Variable).isSetInConstructor, "Wrong bean variable description read out of the yaml!")
 }
 
 func TestGetBeanFromYamlParsesMultipleStringVariablesWithFalseRequiredFields(t *testing.T) {
@@ -216,8 +216,8 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.Equal(t, false, beans[0].object.variables["#/components/schemas/MyBeanName/myStringVar"].(Variable).isSetInConstructor, "Wrong bean variable description read out of the yaml!")
-	assert.Equal(t, false, beans[0].object.variables["#/components/schemas/MyBeanName/myStringVar1"].(Variable).isSetInConstructor, "Wrong bean variable description read out of the yaml!")
+	assert.Equal(t, false, beans[0].Object.Variables["#/components/schemas/MyBeanName/myStringVar"].(Variable).isSetInConstructor, "Wrong bean variable description read out of the yaml!")
+	assert.Equal(t, false, beans[0].Object.Variables["#/components/schemas/MyBeanName/myStringVar1"].(Variable).isSetInConstructor, "Wrong bean variable description read out of the yaml!")
 }
 
 func TestGetBeanFromYamlParsesMultipleStringVariablesWithMixedRequiredFields(t *testing.T) {
@@ -243,8 +243,8 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.Equal(t, false, beans[0].object.variables["#/components/schemas/MyBeanName/myStringVar"].(Variable).isSetInConstructor, "Wrong bean variable isSetInConstructor read out of the yaml!")
-	assert.Equal(t, true, beans[0].object.variables["#/components/schemas/MyBeanName/myStringVar1"].(Variable).isSetInConstructor, "Wrong bean variable isSetInConstructor read out of the yaml!")
+	assert.Equal(t, false, beans[0].Object.Variables["#/components/schemas/MyBeanName/myStringVar"].(Variable).isSetInConstructor, "Wrong bean variable isSetInConstructor read out of the yaml!")
+	assert.Equal(t, true, beans[0].Object.Variables["#/components/schemas/MyBeanName/myStringVar1"].(Variable).isSetInConstructor, "Wrong bean variable isSetInConstructor read out of the yaml!")
 }
 
 func TestGetBeanFromYamlParsesMultipleStringVariables(t *testing.T) {
@@ -268,11 +268,11 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.NotEmpty(t, beans[0].object.variables, "Bean must have variable!")
-	assert.Equal(t, "mySecondStringVar", beans[0].object.variables["#/components/schemas/MyBeanName/mySecondStringVar"].(Variable).varName, "Wrong bean variable name read out of the yaml!")
-	assert.Equal(t, "String", beans[0].object.variables["#/components/schemas/MyBeanName/mySecondStringVar"].(Variable).varTypeName, "Wrong bean variable type read out of the yaml!")
-	assert.Equal(t, "myStringVar", beans[0].object.variables["#/components/schemas/MyBeanName/myStringVar"].(Variable).varName, "Wrong bean variable name read out of the yaml!")
-	assert.Equal(t, "String", beans[0].object.variables["#/components/schemas/MyBeanName/myStringVar"].(Variable).varTypeName, "Wrong bean variable type read out of the yaml!")
+	assert.NotEmpty(t, beans[0].Object.Variables, "Bean must have variable!")
+	assert.Equal(t, "mySecondStringVar", beans[0].Object.Variables["#/components/schemas/MyBeanName/mySecondStringVar"].(Variable).varName, "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "String", beans[0].Object.Variables["#/components/schemas/MyBeanName/mySecondStringVar"].(Variable).varTypeName, "Wrong bean variable type read out of the yaml!")
+	assert.Equal(t, "myStringVar", beans[0].Object.Variables["#/components/schemas/MyBeanName/myStringVar"].(Variable).varName, "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "String", beans[0].Object.Variables["#/components/schemas/MyBeanName/myStringVar"].(Variable).varTypeName, "Wrong bean variable type read out of the yaml!")
 }
 
 func TestGetBeanFromYamlParsesObjectWithArray(t *testing.T) {
@@ -293,9 +293,9 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.NotEmpty(t, beans[0].object.variables, "Bean must have a variable!")
-	assert.Equal(t, "myTestArray", beans[0].object.variables["#/components/schemas/myBeanName/myTestArray"].(Variable).varName, "Wrong bean variable name read out of the yaml!")
-	assert.Equal(t, "String[]", beans[0].object.variables["#/components/schemas/myBeanName/myTestArray"].(Variable).varTypeName, "Wrong bean variable type read out of the yaml!")
+	assert.NotEmpty(t, beans[0].Object.Variables, "Bean must have a variable!")
+	assert.Equal(t, "myTestArray", beans[0].Object.Variables["#/components/schemas/myBeanName/myTestArray"].(Variable).varName, "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "String[]", beans[0].Object.Variables["#/components/schemas/myBeanName/myTestArray"].(Variable).varTypeName, "Wrong bean variable type read out of the yaml!")
 }
 
 func TestGetBeanFromYamlParsesObjectWithArrayContainingAllOfPart(t *testing.T) {
@@ -317,9 +317,9 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.NotEmpty(t, beans[0].object.variables, "Bean must have a variable!")
-	assert.Equal(t, "myTestArray", beans[0].object.variables["#/components/schemas/myBeanName/myTestArray"].(Variable).varName, "Wrong bean variable name read out of the yaml!")
-	assert.Equal(t, "String[]", beans[0].object.variables["#/components/schemas/myBeanName/myTestArray"].(Variable).varTypeName, "Wrong bean variable type read out of the yaml!")
+	assert.NotEmpty(t, beans[0].Object.Variables, "Bean must have a variable!")
+	assert.Equal(t, "myTestArray", beans[0].Object.Variables["#/components/schemas/myBeanName/myTestArray"].(Variable).varName, "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "String[]", beans[0].Object.Variables["#/components/schemas/myBeanName/myTestArray"].(Variable).varTypeName, "Wrong bean variable type read out of the yaml!")
 }
 
 func TestGetBeanFromYamlParsesNestedObjects(t *testing.T) {
@@ -342,8 +342,8 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.NotEmpty(t, beans[0].object.variables, "Bean must have a variable!")
-	assert.Equal(t, "nestedObject", beans[0].object.variables["#/components/schemas/myBeanName/nestedObject"].(Object).varName, "Wrong bean variable name read out of the yaml!")
+	assert.NotEmpty(t, beans[0].Object.Variables, "Bean must have a variable!")
+	assert.Equal(t, "nestedObject", beans[0].Object.Variables["#/components/schemas/myBeanName/nestedObject"].(Object).varName, "Wrong bean variable name read out of the yaml!")
 }
 
 func TestGetBeanFromYamlParsesReferenceToObject(t *testing.T) {
@@ -368,7 +368,7 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.NotEmpty(t, beans[0].object.variables, "Bean must have a variable!")
+	assert.NotEmpty(t, beans[0].Object.Variables, "Bean must have a variable!")
 	// CURRENTLY REF IS NOT BEING UNMARSHALLED.
-	assert.Equal(t, "referencingObject", beans[0].object.variables["#/components/schemas/myBeanName/referencingObject"].(Object).varName, "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "referencingObject", beans[0].Object.Variables["#/components/schemas/myBeanName/referencingObject"].(Object).varName, "Wrong bean variable name read out of the yaml!")
 }

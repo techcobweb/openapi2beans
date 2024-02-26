@@ -1,4 +1,4 @@
-package generator
+package v1_generator
 
 import (
 	"testing"
@@ -13,10 +13,7 @@ const (
 )
 
 func AssertFileGeneratedOk(t *testing.T, mockFileSystem files.FileSystem, storeFilepath string, generatedCodeFilepath string, objectName string) {
-	exists, err := mockFileSystem.DirExists(storeFilepath)
-	assert.Nil(t, err)
-	assert.True(t, exists)
-	exists, err = mockFileSystem.Exists(generatedCodeFilepath)
+	exists, err := mockFileSystem.Exists(generatedCodeFilepath)
 	assert.Nil(t, err)
 	assert.True(t, exists)
 	generatedFile, err := mockFileSystem.ReadTextFile(generatedCodeFilepath)
@@ -70,11 +67,15 @@ func TestGenerateBeansCreatesEmptyObjectBean(t *testing.T) {
 	// Given...
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
-	apiFilePath := "resources/test.yaml"
-	objectName := "JsonError"
+	apiFilePath := "test-resources/single-bean.yaml"
+	objectName := "MyBeanName"
 	generatedCodeFilePath := storeFilepath + "/" + objectName + ".java"
-	testapiyaml := `JsonError:
-  type: object`
+	testapiyaml := `openapi: 3.0.3
+components:
+  schemas:
+    MyBeanName:
+      type: object
+`
 	mockFileSystem.WriteTextFile(apiFilePath, testapiyaml)
 
 	// When...
@@ -93,10 +94,10 @@ func TestTemplateAcceptsBeanStructure(t *testing.T) {
 	generatedCodeFilePath := storeFilepath + "/" + objectName + ".java"
 
 	var bean Bean
-	bean.object.varName = objectName
-	bean.beanPackage = "generated"
-	bean.object.description = "this is a blank bean"
-	bean.object.varTypeName = "object"
+	bean.Object.varName = objectName
+	bean.BeanPackage = "generated"
+	bean.Object.description = "this is a blank bean"
+	bean.Object.varTypeName = "object"
 
 	// When...
 	err := createBeanFile(bean, mockFileSystem, storeFilepath)
@@ -116,9 +117,9 @@ func (planet Planet) GetName() (string) {
 func TestExploringMoustacheMore(t *testing.T) {
 	objectName := "BeanName"
 	var bean Bean
-	bean.object.varName = objectName
-	bean.beanPackage = TARGET_JAVA_PACKAGE
-	bean.object.description = "this is a blank bean"
+	bean.Object.varName = objectName
+	bean.BeanPackage = TARGET_JAVA_PACKAGE
+	bean.Object.description = "this is a blank bean"
 
 	randoMap := map[string]string{
 		"planet": "earth",
