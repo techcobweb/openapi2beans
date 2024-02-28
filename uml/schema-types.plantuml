@@ -15,9 +15,24 @@ class SchemaType {
 
 
 class Property {
-    {field} name string 
-    {field} description string 
-    {field} typeName string
+    {field} name : string
+    {field} path : string
+    {field} description : string
+    {field} typeName : string
+    {field} possibleValues : []string
+
+    {method} Property(name,path,typeName)
+    {method} GetName() : string
+    {method} GetPath() : string
+    {method} GetDescription() : string
+    {method} GetType() : string
+    {method} GetPossibleValues : string
+    {method} GetResolvedType() : SchemaType
+    {method} GetCardinality() : Cardinality
+    {method} IsSetInConstructor() : bool
+    {method} IsArrayOrList() : bool
+    {method} IsEnum() : bool
+    {method} SetResolvedType(SchemaType)
 }
 
 note top of Property : "For arrays/list, the type is the type of each element in the array"
@@ -30,17 +45,10 @@ Property "1" *--> "1" Cardinality
 class Cardinality {
     {field} min : int
     {field} max : int
-}
 
-class PossibleValues {
-    {field} name string
+    {method} GetMin() : int
+    {method} GetMax() : int
 }
-
-class PossibleValue {
-    {field} value string
-}
-PossibleValues *--> "*" PossibleValue
-Property *--> PossibleValues
 
 class OneOfGroup {
 }

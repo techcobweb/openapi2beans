@@ -1,11 +1,31 @@
 package {{BeanPackage}}
 
-{{#Object.GetDescription}}
+{{#Description}}
 // {{.}}
-{{/Object.GetDescription}}
-public class {{Object.GetName}} {
+{{/Description}}
+public class {{Name}} {
+    {{#Variables}}
+    {{#GetDescription}}
+    // {{.}}
+    {{/GetDescription}}
+    private {{GetType}} {{GetName}}
+    {{/Variables}}
 
-    public {{Object.GetName}} () {
+    public {{Name}} () {
         
     }
+
+    // Getters
+    {{#Variables}}
+    public {{GetType}} Get{{GetName}}() {
+        return this.{{GetName}}
+    }
+    {{/Variables}}
+
+    // Setters
+    {{#Variables}}
+    public void Set{{GetName}} ({{GetType}} {{GetName}}) {
+        this.{{GetName}} = {{GetName}}
+    }
+    {{/Variables}}
 }

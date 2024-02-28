@@ -8,7 +8,14 @@ package v1_generator
 type Bean struct {
 	// Would call it 'package' but that's a keyword in go!
 	BeanPackage string
-	Object      Object // TODO: Rename this to ObjectSchemaType? or something which isn't object.
+	Name        string
+	Description string
+	Variables   map[string]SchemaPart
+}
+
+type Cardinality struct {
+	min int
+	max int
 }
 
 type SchemaPart interface {
@@ -18,11 +25,14 @@ type SchemaPart interface {
 	GetName() string
 	GetDescription() string
 
-	// Is it an array or list of things ?
-	IsMultipleCarinality() bool
+	GetVariables() map[string]SchemaPart
+
+	IsSetInConstructor() bool
+
+	IsArrayOrList() bool
 }
 
-type Variable struct {
+type VariableSchema struct {
 	varDescription string
 
 	// Would call it 'type' but that's a keyword in go!
@@ -32,56 +42,72 @@ type Variable struct {
 	varName string
 
 	// Is the variable multiple values ? ie: An array or list ?
-	isMultipleCardinality bool
-
-	// Do we want it to be set in the constructor ?
-	isSetInConstructor bool
+	// Also determines whether variable is set in constructor i.e. if min cardinality > 0
+	cardinality Cardinality
 }
 
-func (variable Variable) GetType() string {
+func (variable VariableSchema) GetType() string {
 	return variable.varTypeName
 }
 
-func (variable Variable) GetName() string {
+func (variable VariableSchema) GetName() string {
 	return variable.varName
 }
 
-func (variable Variable) GetDescription() string {
+func (variable VariableSchema) GetDescription() string {
 	return variable.varDescription
 }
 
-func (variable Variable) IsSetInConstructor() bool {
-	return variable.isSetInConstructor
+func (variable VariableSchema) IsArrayOrList() bool {
+	isArrayOrList := false
+	if variable.cardinality.max > 1 {
+		isArrayOrList = true
+	}
+	return isArrayOrList
 }
 
-func (variable Variable) IsMultipleCarinality() bool {
-	return variable.isMultipleCardinality
+func (variable VariableSchema) IsSetInConstructor() bool {
+	isSetInConstructor := false
+	if variable.cardinality.min > 0 {
+		isSetInConstructor = true
+	}
+	return isSetInConstructor
 }
 
-func (variable *Variable) SetType(varType string) {
+func (variable VariableSchema) GetVariables() map[string]SchemaPart {
+	return nil
+}
+
+func (variable *VariableSchema) SetType(varType string) {
 	variable.varTypeName = varType
 }
 
-type Object struct {
+type ObjectSchema struct {
 	description string
-	// Would call it 'type' but that's a keyword in go!
-	varTypeName string
 	varName     string
-	Variables   map[string]SchemaPart
+	variables   map[string]SchemaPart
 }
 
-func (obj Object) GetType() string {
-	return obj.varTypeName
+func (obj ObjectSchema) GetType() string {
+	return "object"
 }
 
-func (obj Object) GetName() string {
+func (obj ObjectSchema) GetName() string {
 	return obj.varName
 }
 
-func (obj Object) GetDescription() string {
+func (obj ObjectSchema) GetDescription() string {
 	return obj.description
 }
 
-func (obj Object) IsMultipleCarinality() bool {
+func (obj ObjectSchema) IsSetInConstructor() bool {
+	return false
+}
+
+func (obj ObjectSchema) GetVariables() map[string]SchemaPart {
+	return obj.variables
+}
+
+func (obj ObjectSchema) IsArrayOrList() bool {
 	return false
 }

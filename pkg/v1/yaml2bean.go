@@ -1,11 +1,10 @@
 package v1_generator
 
 import (
-	"errors"
-	"fmt"
 	"log"
 	"strings"
 
+	openapi2beans_errors "github.com/techcobweb/openapi2beans/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
 
@@ -20,13 +19,6 @@ const (
 	OPENAPI_YAML_KEYWORD_ALLOF       = "allOf"
 	OPENAPI_YAML_KEYWORD_REF         = "$ref"
 )
-
-func NewError(template string, params ... interface{}) error {
-	msg := fmt.Sprintf(template, params...)
-	log.Print(msg)
-	err := errors.New(msg)
-	return err
-}
 
 func getBeansFromYaml(apiyaml []byte, packageName string) ([]Bean, error) {
 	var beans []Bean
@@ -47,7 +39,9 @@ func getBeansFromYaml(apiyaml []byte, packageName string) ([]Bean, error) {
 			for _, structure := range parsedSchemas {
 				if structure.GetType() == "object" {
 					bean := Bean{
-						Object:      structure.(Object),
+						Name:      structure.GetName(),
+						Description: structure.GetDescription(),
+						Variables: structure.GetVariables(),
 						BeanPackage: packageName,
 					}
 					beans = append(beans, bean)
@@ -70,10 +64,10 @@ func retrieveSchemasMapFromEntireYamlMap(entireYamlMap map[string]interface{}) (
 		if isSchemasPresent {
 			schemasMap = schemas.(map[interface{}]interface{})
 		} else {
-			err = NewError("Failed to find schemas within %v", entireYamlMap)
+			err = openapi2beans_errors.NewError("Failed to find schemas within %v", entireYamlMap)
 		}
 	} else {
-		err = NewError("Failed to find components within %v", entireYamlMap)
+		err = openapi2beans_errors.NewError("Failed to find components within %v", entireYamlMap)
 	}
 	return schemasMap, err
 }
@@ -100,28 +94,30 @@ func retrieveStructuresFromMap(inputMap map[interface{}]interface{}, yamlPath st
 				variables, err = retrieveVariables(subMap, apiSchemaPartPath)
 				
 				if err == nil {
-					object := Object {
+					object := ObjectSchema {
 						varName: subMapKey.(string),
 						description: description,
-						varTypeName: varType,
-						Variables: variables,
+						variables: variables,
 					}
-					schemaParts[apiSchemaPartPath] = object
+					schemaParts[apiSchemaPartPath] = &object
 				}
 			} else {
-				isSetInConstructor := isSetInConstructor(subMap)
+				minCardinality, maxCardinality := getCardinality(subMap)
 	
-				variable := Variable {
+				variable := VariableSchema {
 					varName: subMapKey.(string),
 					varDescription: description,
 					varTypeName: varType,
-					isSetInConstructor: isSetInConstructor,
+					cardinality: Cardinality {
+						min: minCardinality,
+						max: maxCardinality,
+					},
 				}
 
 				if strings.Split(varType, ":")[0] == "$ref" {
-					referencingSchemaParts[apiSchemaPartPath] = variable
+					referencingSchemaParts[apiSchemaPartPath] = &variable
 				}
-				schemaParts[apiSchemaPartPath] = variable
+				schemaParts[apiSchemaPartPath] = &variable
 			}
 		}
 	}
@@ -164,15 +160,15 @@ func retrieveVarType(variableMap map[interface{}]interface{}, apiSchemaPartPath 
 	} else if isRefPresent {
 		varType = "$ref:" + refObj.(string)
 	} else {
-		err = NewError("Failed to find required type for %v\n", apiSchemaPartPath)
+		err = openapi2beans_errors.NewError("Failed to find required type for %v\n", apiSchemaPartPath)
 	}
 	
 	return varType, err
 }
 
-func retrieveArrayType(subMap map[interface{}]interface{}, schemaPartPath string) (arrayType string, err error) {
+func retrieveArrayType(varMap map[interface{}]interface{}, schemaPartPath string) (arrayType string, err error) {
 
-	itemsObj, isItemsPresent := subMap[OPENAPI_YAML_KEYWORD_ITEMS]
+	itemsObj, isItemsPresent := varMap[OPENAPI_YAML_KEYWORD_ITEMS]
 	if isItemsPresent {
 		itemsMap := itemsObj.(map[interface{}]interface{})
 
@@ -187,10 +183,10 @@ func retrieveArrayType(subMap map[interface{}]interface{}, schemaPartPath string
 		if isArrayTypePresent {
 			arrayType = getJavaReadableType(arrayTypeObj.(string)) + "[]"
 		}else {
-			err = NewError("Failed to find required type within items section for %v\n", schemaPartPath)
+			err = openapi2beans_errors.NewError("Failed to find required type within items section for %v\n", schemaPartPath)
 		}
 	} else {
-		err = NewError("Failed to find required items section for %v\n", schemaPartPath)
+		err = openapi2beans_errors.NewError("Failed to find required items section for %v\n", schemaPartPath)
 	}
 
 	return arrayType, err
@@ -204,13 +200,16 @@ func retrieveDescription(subMap map[interface{}]interface{}) (description string
 	return description
 }
 
-func isSetInConstructor(subMap map[interface{}]interface{}) bool {
-	isSetInConstructor := false
-	requiredObj, isRequiredPresent := subMap[OPENAPI_YAML_KEYWORD_REQUIRED]
+func getCardinality(varMap map[interface{}]interface{}) (minCardinality int, maxCardinality int) {
+	minCardinality = 0
+	maxCardinality = 1
+	requiredObj, isRequiredPresent := varMap[OPENAPI_YAML_KEYWORD_REQUIRED]
 	if isRequiredPresent {
-		isSetInConstructor = requiredObj.(bool)
+		if requiredObj.(bool) {
+			minCardinality = 1
+		}
 	}
-	return isSetInConstructor
+	return minCardinality, maxCardinality
 }
 
 // To be expanded on if necessary

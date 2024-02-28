@@ -3,7 +3,6 @@ package v1_generator
 import (
 	"testing"
 
-	"github.com/cbroglie/mustache"
 	"github.com/galasa-dev/cli/pkg/files"
 	"github.com/stretchr/testify/assert"
 )
@@ -12,7 +11,7 @@ const (
 	TARGET_JAVA_PACKAGE = "main"
 )
 
-func AssertFileGeneratedOk(t *testing.T, mockFileSystem files.FileSystem, storeFilepath string, generatedCodeFilepath string, objectName string) {
+func AssertFileGeneratedOk(t *testing.T, mockFileSystem files.FileSystem, storeFilepath string, generatedCodeFilepath string, objectName string) string {
 	exists, err := mockFileSystem.Exists(generatedCodeFilepath)
 	assert.Nil(t, err)
 	assert.True(t, exists)
@@ -20,6 +19,7 @@ func AssertFileGeneratedOk(t *testing.T, mockFileSystem files.FileSystem, storeF
 	assert.Nil(t, err)
 	assert.Contains(t, generatedFile, "public class "+objectName)
 	assert.Contains(t, generatedFile, "public "+objectName+" ()")
+	return generatedFile
 }
 
 func TestGeneratorCreatesGeneratedDirectory(t *testing.T) {
@@ -90,14 +90,13 @@ func TestTemplateAcceptsBeanStructure(t *testing.T) {
 	// Given...
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
-	objectName := "JsonError"
+	objectName := "MyBeanName"
 	generatedCodeFilePath := storeFilepath + "/" + objectName + ".java"
 
 	var bean Bean
-	bean.Object.varName = objectName
+	bean.Name = objectName
 	bean.BeanPackage = "generated"
-	bean.Object.description = "this is a blank bean"
-	bean.Object.varTypeName = "object"
+	bean.Description = "this is a blank bean"
 
 	// When...
 	err := createBeanFile(bean, mockFileSystem, storeFilepath)
@@ -107,35 +106,31 @@ func TestTemplateAcceptsBeanStructure(t *testing.T) {
 	AssertFileGeneratedOk(t, mockFileSystem, storeFilepath, generatedCodeFilePath, objectName)
 }
 
-type Planet struct {
-	PlanetName string
-}
-func (planet Planet) GetName() (string) {
-	return planet.PlanetName
-}
+// func TestTemplateAcceptsBeanStructureWithVariables(t *testing.T) {
+// 	// Given...
+// 	mockFileSystem := files.NewMockFileSystem()
+// 	storeFilepath := "generated"
+// 	objectName := "MyBeanName"
+// 	generatedCodeFilePath := storeFilepath + "/" + objectName + ".java"
 
-func TestExploringMoustacheMore(t *testing.T) {
-	objectName := "BeanName"
-	var bean Bean
-	bean.Object.varName = objectName
-	bean.BeanPackage = TARGET_JAVA_PACKAGE
-	bean.Object.description = "this is a blank bean"
+// 	variable := VariableSchema {
+// 		varDescription: "random description",
+// 		varTypeName: "String",
+// 		varName: "randomVar",
+// 	}
 
-	randoMap := map[string]string{
-		"planet": "earth",
-	}
-	result, err := mustache.Render("{{planet}}", randoMap)
+// 	var bean Bean
+// 	bean.Name = objectName
+// 	bean.BeanPackage = "generated"
+// 	bean.Description = "this is a blank bean"
+// 	bean.Variables = make(map[string]SchemaPart)
+// 	bean.Variables["insertRandomPath"] = variable
 
-	assert.Nil(t, err)
-	assert.Equal(t, result, "earth")
+// 	// When...
+// 	err := createBeanFile(bean, mockFileSystem, storeFilepath)
 
-
-	planet := Planet {
-		PlanetName: "earth",
-	}
-
-	result, err = mustache.Render("We are on {{PlanetName}}", planet)
-
-	assert.Nil(t, err)
-	assert.Equal(t, "We are on earth", result)
-}
+// 	// Then...
+// 	assert.Nil(t, err)
+// 	generatedFile := AssertFileGeneratedOk(t, mockFileSystem, storeFilepath, generatedCodeFilePath, objectName)
+// 	assert.Contains(t, "something completely wrong", generatedFile)
+// }
