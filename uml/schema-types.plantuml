@@ -7,7 +7,6 @@ SchemaTypes "1" *--> "*" SchemaType
 
 class SchemaType {
     {field} name : string
-    {field} path : string
     {field} description : string
 
     {method} SchemaType(name,desription)

@@ -1,64 +1,201 @@
 package generator
 
-// import "gopkg.in/yaml.v2"
+import (
+	"log"
+	"maps"
+	"strings"
 
-// const (
-// 	OPENAPI_YAML_KEYWORD_COMPONENTS  = "components"
-// 	OPENAPI_YAML_KEYWORD_SCHEMAS     = "schemas"
-// 	OPENAPI_YAML_KEYWORD_DESCRIPTION = "description"
-// 	OPENAPI_YAML_KEYWORD_PROPERTIES  = "properties"
-// 	OPENAPI_YAML_KEYWORD_TYPE        = "type"
-// 	OPENAPI_YAML_KEYWORD_REQUIRED    = "required"
-// 	OPENAPI_YAML_KEYWORD_ITEMS       = "items"
-// 	OPENAPI_YAML_KEYWORD_ALLOF       = "allOf"
-// 	OPENAPI_YAML_KEYWORD_REF         = "$ref"
-// )
+	openapi2beans_errors "github.com/techcobweb/openapi2beans/pkg/errors"
+	"gopkg.in/yaml.v2"
+)
 
-// func getSchemaTypesFromYaml(apiyaml []byte, packageName string) (schemaTypes []SchemaType, err error) {
-// 	var schemasMap map[interface{}]interface{}
-// 	entireYamlMap := make(map[string]interface{})
+const (
+	OPENAPI_YAML_KEYWORD_COMPONENTS  = "components"
+	OPENAPI_YAML_KEYWORD_SCHEMAS     = "schemas"
+	OPENAPI_YAML_KEYWORD_DESCRIPTION = "description"
+	OPENAPI_YAML_KEYWORD_PROPERTIES  = "properties"
+	OPENAPI_YAML_KEYWORD_TYPE        = "type"
+	OPENAPI_YAML_KEYWORD_REQUIRED    = "required"
+	OPENAPI_YAML_KEYWORD_ITEMS       = "items"
+	OPENAPI_YAML_KEYWORD_ALLOF       = "allOf"
+	OPENAPI_YAML_KEYWORD_REF         = "$ref"
+)
 
-// 	err = yaml.Unmarshal(apiyaml, &entireYamlMap)
+func getSchemaTypesFromYaml(apiyaml []byte) (parsedSchemaTypes map[string]*SchemaType, err error) {
+	var schemasMap map[interface{}]interface{}
+	entireYamlMap := make(map[string]interface{})
 
-// 	if err == nil {
-// 		schemasMap, err = retrieveSchemasMapFromEntireYamlMap(entireYamlMap)
+	err = yaml.Unmarshal(apiyaml, &entireYamlMap)
 
-// 		if err == nil {
-// 			var parsedSchemas map[string]SchemaType
-// 			var referencingStructures map[string]SchemaType
-// 			parsedSchemas, referencingStructures, err = retrieveSchemaTypesFromMap(schemasMap, "#/components/schemas")
-// 			parsedSchemas = resolveReferences(parsedSchemas, referencingStructures)
+	if err == nil {
+		schemasMap, err = retrieveSchemasMapFromEntireYamlMap(entireYamlMap)
 
-// 			for _, structure := range parsedSchemas {
-// 				if structure.GetType() == "object" {
-// 					bean := Bean{
-// 						object:      structure.(Object),
-// 						beanPackage: packageName,
-// 					}
-// 					beans = append(beans, bean)
-// 				}
-// 			}
-// 		}
-// 	}
+		if err == nil {
+			var properties map[string]*Property
+			parsedSchemaTypes, properties, err = retrieveSchemaTypesFromMap(schemasMap, "#/components/schemas")
+			resolveReferences(properties)
+		}
+	}
 
-// 	return schemaTypes, err
-// }
+	return parsedSchemaTypes, err
+}
 
-// func retrieveSchemasMapFromEntireYamlMap(entireYamlMap map[string]interface{}) (map[interface{}]interface{}, error) {
-// 	var err error
-// 	schemasMap := make(map[interface{}]interface{})
+func retrieveSchemasMapFromEntireYamlMap(entireYamlMap map[string]interface{}) (map[interface{}]interface{}, error) {
+	var err error
+	schemasMap := make(map[interface{}]interface{})
 
-// 	components, isComponentsPresent := entireYamlMap[OPENAPI_YAML_KEYWORD_COMPONENTS]
-// 	if isComponentsPresent {
-// 		componentsMap := components.(map[interface{}]interface{})
-// 		schemas, isSchemasPresent := componentsMap[OPENAPI_YAML_KEYWORD_SCHEMAS]
-// 		if isSchemasPresent {
-// 			schemasMap = schemas.(map[interface{}]interface{})
-// 		} else {
-// 			err = NewError("Failed to find schemas within %v", entireYamlMap)
-// 		}
-// 	} else {
-// 		err = NewError("Failed to find components within %v", entireYamlMap)
-// 	}
-// 	return schemasMap, err
-// }
+	components, isComponentsPresent := entireYamlMap[OPENAPI_YAML_KEYWORD_COMPONENTS]
+	if isComponentsPresent {
+		componentsMap := components.(map[interface{}]interface{})
+		schemas, isSchemasPresent := componentsMap[OPENAPI_YAML_KEYWORD_SCHEMAS]
+		if isSchemasPresent {
+			schemasMap = schemas.(map[interface{}]interface{})
+		} else {
+			err = openapi2beans_errors.NewError("Failed to find schemas within %v", entireYamlMap)
+		}
+	} else {
+		err = openapi2beans_errors.NewError("Failed to find components within %v", entireYamlMap)
+	}
+	return schemasMap, err
+}
+
+func retrieveSchemaTypesFromMap(inputMap map[interface{}]interface{}, yamlPath string) (schemaTypes map[string]*SchemaType, properties map[string]*Property, err error) {
+	schemaTypes = make(map[string]*SchemaType)
+	properties = make(map[string]*Property)
+
+	for subMapKey, subMapObj := range inputMap {
+		log.Printf("%v\n", subMapObj)
+
+		var typeName string
+		var maxCardinality int
+		subMap := subMapObj.(map[interface{}]interface{})
+		apiSchemaPartPath := yamlPath + "/" + subMapKey.(string)
+		varName := subMapKey.(string)
+
+		description := retrieveDescription(subMap)
+		typeName, maxCardinality, err = retrieveVarType(subMap, apiSchemaPartPath)
+
+		if err != nil {
+			// do something
+		} else {
+			cardinality := Cardinality{
+				min: getMinCardinality(subMap),
+				max: maxCardinality,
+			}
+			var resolvedType *SchemaType
+			property := NewProperty(subMapKey.(string), apiSchemaPartPath, description, typeName, nil, nil, cardinality)
+
+			if typeName == "object" {
+				var nestedProperties map[string]*Property
+				var nestedSchemaTypes map[string]*SchemaType
+
+				nestedSchemaTypes, nestedProperties, err = retrieveNestedProperties(subMap, apiSchemaPartPath)
+
+				if err == nil {
+					resolvedType = NewSchemaType(varName, description, property, nestedProperties)
+					maps.Copy(properties, nestedProperties)
+					// properties = append(properties, nestedPropertes...)
+					maps.Copy(schemaTypes, nestedSchemaTypes)
+					// schemaTypes = append(schemaTypes, nestedSchemaTypes...)
+					// schemaTypes = append(schemaTypes, resolvedType)
+					property.SetResolvedType(resolvedType)
+					schemaTypes[apiSchemaPartPath] = resolvedType
+				}
+			}
+
+			if err == nil {
+				properties[apiSchemaPartPath] = property
+			}
+
+		}
+	}
+
+	return schemaTypes, properties, err
+}
+
+func resolveReferences(properties map[string]*Property) {
+	for _, property := range properties {
+		if property.IsReferencing() {
+			referencingPath := strings.Split(property.GetType(), ":")[1]
+			referencedProp := properties[referencingPath]
+			property.Resolve(referencedProp)
+		}
+	}
+}
+
+func retrieveNestedProperties(subMap map[interface{}]interface{}, yamlPath string) (schemaTypes map[string]*SchemaType, properties map[string]*Property, err error) {
+	var schemaPropertiesMap map[interface{}]interface{}
+
+	propertiesObj, isPropertyPresent := subMap[OPENAPI_YAML_KEYWORD_PROPERTIES]
+	if isPropertyPresent {
+		schemaPropertiesMap = propertiesObj.(map[interface{}]interface{})
+		schemaTypes, properties, err = retrieveSchemaTypesFromMap(schemaPropertiesMap, yamlPath)
+	}
+
+	return schemaTypes, properties, err
+}
+
+func retrieveVarType(variableMap map[interface{}]interface{}, apiSchemaPartPath string) (varType string, maxCardinality int, err error) {
+	maxCardinality = 1
+	varTypeObj, isTypePresent := variableMap[OPENAPI_YAML_KEYWORD_TYPE]
+	refObj, isRefPresent := variableMap[OPENAPI_YAML_KEYWORD_REF]
+
+	if isTypePresent {
+		varType = varTypeObj.(string)
+		if varType == "array" {
+			varType, err = retrieveArrayType(variableMap, apiSchemaPartPath)
+			maxCardinality = 128
+		}
+	} else if isRefPresent {
+		varType = "$ref:" + refObj.(string)
+	} else {
+		err = openapi2beans_errors.NewError("Failed to find required type for %v\n", apiSchemaPartPath)
+	}
+
+	return varType, maxCardinality, err
+}
+
+func retrieveArrayType(varMap map[interface{}]interface{}, schemaPartPath string) (arrayType string, err error) {
+
+	itemsObj, isItemsPresent := varMap[OPENAPI_YAML_KEYWORD_ITEMS]
+	if isItemsPresent {
+		itemsMap := itemsObj.(map[interface{}]interface{})
+
+		allOfObj, isAllOfPresent := itemsMap[OPENAPI_YAML_KEYWORD_ALLOF]
+		if isAllOfPresent {
+			allOfSlice := allOfObj.([]interface{})
+			itemsMap = allOfSlice[0].(map[interface{}]interface{})
+		}
+
+		arrayTypeObj, isArrayTypePresent := itemsMap[OPENAPI_YAML_KEYWORD_TYPE]
+
+		if isArrayTypePresent {
+			arrayType = arrayTypeObj.(string) + "[]"
+		} else {
+			err = openapi2beans_errors.NewError("Failed to find required type within items section for %v\n", schemaPartPath)
+		}
+	} else {
+		err = openapi2beans_errors.NewError("Failed to find required items section for %v\n", schemaPartPath)
+	}
+
+	return arrayType, err
+}
+
+func retrieveDescription(subMap map[interface{}]interface{}) (description string) {
+	descriptionObj, isDescriptionPresent := subMap[OPENAPI_YAML_KEYWORD_DESCRIPTION]
+	if isDescriptionPresent {
+		description = descriptionObj.(string)
+	}
+	return description
+}
+
+func getMinCardinality(varMap map[interface{}]interface{}) (minCardinality int) {
+	minCardinality = 0
+	requiredObj, isRequiredPresent := varMap[OPENAPI_YAML_KEYWORD_REQUIRED]
+	if isRequiredPresent {
+		if requiredObj.(bool) {
+			minCardinality = 1
+		}
+	}
+	return minCardinality
+}
