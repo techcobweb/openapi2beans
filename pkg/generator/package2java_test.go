@@ -41,7 +41,7 @@ func assertEnumFileGeneratedOk(t *testing.T, generatedFile string, javaEnum *Jav
 	assert.Contains(t, generatedFile, "package "+ TARGET_JAVA_PACKAGE)
 	assert.Contains(t, generatedFile, "public enum " + javaEnum.Name)
 	for _, value := range javaEnum.EnumValues {
-		assert.Contains(t, generatedFile, value)
+		assert.Contains(t, generatedFile, value + ",")
 	}
 }
 
@@ -75,8 +75,7 @@ func TestPackageStructParsesToTemplateWithClassWithMember(t *testing.T) {
 		Description: "random member for test purposes",
 		MemberType: "String",
 	}
-	dataMembers := []*DataMember{}
-	dataMembers = append(dataMembers, &dataMember)
+	dataMembers := []*DataMember{&dataMember}
 	class := NewJavaClass(className, "", nil, &javaPackage, nil, dataMembers, nil)
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
@@ -109,8 +108,7 @@ func TestPackageStructParsesToTemplateWithClassWithMultipleMembers(t *testing.T)
 		Description: "random member for test purposes",
 		MemberType: "String",
 	}
-	dataMembers := []*DataMember{}
-	dataMembers = append(dataMembers, &dataMember1, &dataMember2)
+	dataMembers := []*DataMember{&dataMember1, &dataMember2}
 	class := NewJavaClass(className, "", nil, &javaPackage, nil, dataMembers, nil)
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
@@ -137,8 +135,7 @@ func TestPackageStructParsesToTemplateWithClassWithArrayDataMember(t *testing.T)
 		Description: "random member for test purposes",
 		MemberType: "String[]",
 	}
-	dataMembers := []*DataMember{}
-	dataMembers = append(dataMembers, &dataMember1)
+	dataMembers := []*DataMember{&dataMember1}
 	class := NewJavaClass(className, "", nil, &javaPackage, nil, dataMembers, nil)
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
@@ -171,8 +168,7 @@ func TestPackageStructParsesToTemplateWithClassWithMixedArrayAndPrimitiveDataMem
 		Description: "random member for test purposes",
 		MemberType: "String",
 	}
-	dataMembers := []*DataMember{}
-	dataMembers = append(dataMembers, &dataMember1, &dataMember2)
+	dataMembers := []*DataMember{&dataMember1, &dataMember2}
 	class := NewJavaClass(className, "", nil, &javaPackage, nil, dataMembers, nil)
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
@@ -199,8 +195,7 @@ func TestPackageStructParsesToTemplateWithClassWithReferencedClassType(t *testin
 		Description: "random member for test purposes",
 		MemberType: "ReferencedClass",
 	}
-	dataMembers := []*DataMember{}
-	dataMembers = append(dataMembers, &dataMember1)
+	dataMembers := []*DataMember{&dataMember1}
 	class := NewJavaClass(className, "", nil, &javaPackage, nil, dataMembers, nil)
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
@@ -227,8 +222,7 @@ func TestPackageStructParsesToTemplateWithClassWithArrayOfReferencedClassType(t 
 		Description: "random member for test purposes",
 		MemberType: "ReferencedClass[]",
 	}
-	dataMembers := []*DataMember{}
-	dataMembers = append(dataMembers, &dataMember1)
+	dataMembers := []*DataMember{&dataMember1}
 	class := NewJavaClass(className, "", nil, &javaPackage, nil, dataMembers, nil)
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
@@ -291,6 +285,7 @@ func TestPackageStructParsesToJavaEnumTemplate(t *testing.T) {
 	javaEnum := JavaEnum {
 		Name: enumName,
 		Description: enumDesc,
+		EnumValues: []string{"randVal1", "randVal2"},
 		JavaPackage: &javaPackage,
 	}
 	mockFileSystem := files.NewMockFileSystem()
