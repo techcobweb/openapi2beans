@@ -1,36 +1,48 @@
 package generator
 
 type JavaPackage struct {
-	name       string
-	classes    []JavaClass
+	Name       string
+	classes    map[string]*JavaClass
 	enums      []JavaEnum
 	interfaces []JavaInterface
 }
 
 type JavaClass struct {
-	name               string
-	includes           []string
-	javaPackage        JavaPackage
-	inheritedInterface JavaInterface
+	Name               string
+	Description        string
+	Includes           []string
+	JavaPackage        *JavaPackage
+	InheritedInterface *JavaInterface
+	DataMembers        []*DataMember
+}
+
+func NewJavaClass(name string, description string, includes []string, javaPackage *JavaPackage, inheritedInterface *JavaInterface, dataMembers []*DataMember) *JavaClass {
+	javaClass := JavaClass{
+		Name:               name,
+		Description:        description,
+		Includes:           includes,
+		JavaPackage:        javaPackage,
+		InheritedInterface: inheritedInterface,
+		DataMembers: dataMembers,
+	}
+	return &javaClass
 }
 
 type DataMember struct {
-	name       string
-	memberType string
+	Name        string
+	MemberType  string
+	Description string
 }
 
 type JavaEnum struct {
-	name       string
-	enumValues []EnumValue
-}
-
-type EnumValue struct {
-	name  string
-	value string
+	name        string
+	description string
+	enumValues  []string
 }
 
 type JavaInterface struct {
 	name              string
+	description       string
 	inheritingClasses []JavaClass
 	javaPackage       JavaPackage
 }

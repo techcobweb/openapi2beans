@@ -6,6 +6,7 @@ class JavaPackage {
 
 class JavaClass {
     {field} name : string
+    {field} description : string
     {field} includes : []string
 }
 
@@ -15,25 +16,23 @@ JavaPackage "1" *--> "*" JavaClass : classes
 class DataMember {
     {field} name : string
     {field} type : string
+    {field} description : string
 }
 
 JavaClass *--> DataMember : dataMembers
 
 class JavaEnum {
     {field} name : string
+    {field} description : string
+    {field} enumValues : []string
 }
 
-class EnumValue {
-    {field} name : string
-    {field} value : string
-}
-
-JavaEnum "1" *--> "*" EnumValue : enumValues
 JavaPackage "1" *--> JavaEnum : enums
 JavaEnum "*" --> "1" JavaPackage : javaPackage
 
 class JavaInterface {
     {field} name : string
+    {field} description : string
 }
 
 JavaInterface "*" --> "1" JavaPackage : javaPackage

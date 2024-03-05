@@ -19,6 +19,7 @@ const (
 	OPENAPI_YAML_KEYWORD_ITEMS       = "items"
 	OPENAPI_YAML_KEYWORD_ALLOF       = "allOf"
 	OPENAPI_YAML_KEYWORD_REF         = "$ref"
+	OPENAPI_YAML_KEYWORD_ENUM		 = "enum"
 )
 
 func getSchemaTypesFromYaml(apiyaml []byte) (parsedSchemaTypes map[string]*SchemaType, err error) {
@@ -66,25 +67,25 @@ func retrieveSchemaTypesFromMap(inputMap map[interface{}]interface{}, yamlPath s
 	for subMapKey, subMapObj := range inputMap {
 		log.Printf("%v\n", subMapObj)
 
-		var typeName string
-		var maxCardinality int
 		subMap := subMapObj.(map[interface{}]interface{})
 		apiSchemaPartPath := yamlPath + "/" + subMapKey.(string)
 		varName := subMapKey.(string)
 
+		var typeName string
+		var cardinality Cardinality
+		var possibleValues map[string]string
 		description := retrieveDescription(subMap)
-		typeName, maxCardinality, err = retrieveVarType(subMap, apiSchemaPartPath)
+		typeName, cardinality, err = retrieveVarType(subMap, apiSchemaPartPath)
+		possibleValues = retrievePossibleValues(subMap)
 
 		if err != nil {
 			// do something
 		} else {
-			cardinality := Cardinality{
-				min: getMinCardinality(subMap),
-				max: maxCardinality,
-			}
 			var resolvedType *SchemaType
-			property := NewProperty(subMapKey.(string), apiSchemaPartPath, description, typeName, nil, nil, cardinality)
 
+			property := NewProperty(subMapKey.(string), apiSchemaPartPath, description, typeName, possibleValues, nil, cardinality)
+
+			
 			if typeName == "object" {
 				var nestedProperties map[string]*Property
 				var nestedSchemaTypes map[string]*SchemaType
@@ -94,11 +95,9 @@ func retrieveSchemaTypesFromMap(inputMap map[interface{}]interface{}, yamlPath s
 				if err == nil {
 					resolvedType = NewSchemaType(varName, description, property, nestedProperties)
 					maps.Copy(properties, nestedProperties)
-					// properties = append(properties, nestedPropertes...)
 					maps.Copy(schemaTypes, nestedSchemaTypes)
-					// schemaTypes = append(schemaTypes, nestedSchemaTypes...)
-					// schemaTypes = append(schemaTypes, resolvedType)
 					property.SetResolvedType(resolvedType)
+
 					schemaTypes[apiSchemaPartPath] = resolvedType
 				}
 			}
@@ -106,7 +105,6 @@ func retrieveSchemaTypesFromMap(inputMap map[interface{}]interface{}, yamlPath s
 			if err == nil {
 				properties[apiSchemaPartPath] = property
 			}
-
 		}
 	}
 
@@ -135,8 +133,8 @@ func retrieveNestedProperties(subMap map[interface{}]interface{}, yamlPath strin
 	return schemaTypes, properties, err
 }
 
-func retrieveVarType(variableMap map[interface{}]interface{}, apiSchemaPartPath string) (varType string, maxCardinality int, err error) {
-	maxCardinality = 1
+func retrieveVarType(variableMap map[interface{}]interface{}, apiSchemaPartPath string) (varType string, cardinality Cardinality, err error) {
+	maxCardinality := 1
 	varTypeObj, isTypePresent := variableMap[OPENAPI_YAML_KEYWORD_TYPE]
 	refObj, isRefPresent := variableMap[OPENAPI_YAML_KEYWORD_REF]
 
@@ -146,13 +144,14 @@ func retrieveVarType(variableMap map[interface{}]interface{}, apiSchemaPartPath 
 			varType, err = retrieveArrayType(variableMap, apiSchemaPartPath)
 			maxCardinality = 128
 		}
+		cardinality = Cardinality {min: getMinCardinality(variableMap), max: maxCardinality}
 	} else if isRefPresent {
 		varType = "$ref:" + refObj.(string)
 	} else {
 		err = openapi2beans_errors.NewError("Failed to find required type for %v\n", apiSchemaPartPath)
 	}
 
-	return varType, maxCardinality, err
+	return varType, cardinality, err
 }
 
 func retrieveArrayType(varMap map[interface{}]interface{}, schemaPartPath string) (arrayType string, err error) {
@@ -198,4 +197,17 @@ func getMinCardinality(varMap map[interface{}]interface{}) (minCardinality int) 
 		}
 	}
 	return minCardinality
+}
+
+func retrievePossibleValues(varMap map[interface{}]interface{}) (possibleValues map[string]string) {
+	possibleValues = make(map[string]string)
+	enumObj, isEnumPresent := varMap[OPENAPI_YAML_KEYWORD_ENUM]
+	if isEnumPresent {
+		enums := enumObj.([]interface{})
+		for _, enum := range enums {
+			enumName := enum.(string)
+			possibleValues[enumName] = enumName
+		}
+	}
+	return
 }

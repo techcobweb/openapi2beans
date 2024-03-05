@@ -374,4 +374,53 @@ components:
 	assert.Equal(t, "referencingObject", schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()[SCHEMAS_PATH+"MyBeanName/referencingObject"].GetName(), "Wrong bean variable name read out of the yaml!")
 }
 
+func TestGetSchemaTypesFromYamlParsesEnum(t *testing.T) {
+	// Given..
+	apiYaml := `openapi: 3.0.3
+components:
+  schemas:
+    MyBeanName:
+      type: object
+      properties:
+        MyEnum:
+          type: string
+          enum: [randValue1, randValue2]
+`
 
+	// When...
+	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaPath := SCHEMAS_PATH+"MyBeanName"
+	propertyPath := schemaPath + "/MyEnum"
+
+	// Then...
+	assert.Nil(t, err)
+	assert.NotEmpty(t, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties(), "Bean must have a variable!")
+	assert.Equal(t, "randValue1", schemaTypes[schemaPath].GetProperties()[propertyPath].GetPossibleValues()["randValue1"])
+	assert.Equal(t, "randValue2", schemaTypes[schemaPath].GetProperties()[propertyPath].GetPossibleValues()["randValue2"])
+	assert.Equal(t, true, schemaTypes[schemaPath].GetProperties()[propertyPath].IsEnum())
+}
+
+func TestGetSchemaTypesFromYamlParsesEnumAsConstant(t *testing.T) {
+	// Given..
+	apiYaml := `openapi: 3.0.3
+components:
+  schemas:
+    MyBeanName:
+      type: object
+      properties:
+        MyConstant:
+          type: string
+          enum: [randValue1]
+`
+	
+		// When...
+		schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+		schemaPath := SCHEMAS_PATH+"MyBeanName"
+		propertyPath := schemaPath + "/MyConstant"
+	
+		// Then...
+		assert.Nil(t, err)
+		assert.NotEmpty(t, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties(), "Bean must have a variable!")
+		assert.Equal(t, "randValue1", schemaTypes[schemaPath].GetProperties()[propertyPath].GetPossibleValues()["randValue1"])
+		assert.Equal(t, true, schemaTypes[schemaPath].GetProperties()[propertyPath].IsConstant())
+}

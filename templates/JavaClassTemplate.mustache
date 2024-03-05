@@ -1,0 +1,17 @@
+package {{JavaPackage.Name}}
+
+{{#Description}}
+// {{.}}
+{{/Description}}
+public class {{Name}} {
+    {{#DataMembers}}
+    {{#Description}}
+    // {{.}}
+    {{/Description}}
+    private {{MemberType}} {{Name}}
+    {{/DataMembers}}
+
+    public {{Name}} () {
+        
+    }
+}

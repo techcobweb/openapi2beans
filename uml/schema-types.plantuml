@@ -5,12 +5,25 @@ class SchemaTypes {
 
 SchemaTypes "1" *--> "*" SchemaType
 
-class SchemaType {
+interface SchemaType {
+    {method} GetName : string
+    {method} GetDescription : string
+}
+
+class SchemaObject {
     {field} name : string
     {field} description : string
-
     {method} SchemaType(name,desription)
 }
+
+SchemaObject --|> SchemaType
+SchemaObject "1" *--> "1" Property : ownProperty
+
+class SchemaArray {
+}
+
+SchemaArray --|> SchemaType
+
 
 
 class Property {
@@ -46,7 +59,7 @@ class OneOfGroup {
 OneOfGroup --|> SchemaType : isA
 OneOfGroup "*" --> "*" SchemaType : couldBe
 
-SchemaType "1" *--> "1..*" Property : properties >
+
 
 
 @enduml

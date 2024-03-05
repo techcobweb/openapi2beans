@@ -2,8 +2,7 @@ package generator
 
 import "strings"
 
-// SCHEMA TYPE
-//
+// SCHEMA TYPE //
 // SchemaType describes a schema part within swagger yaml that has the type of "object" or could be described as a class in Java
 type SchemaType struct {
 	name        string
@@ -18,6 +17,7 @@ func NewSchemaType(name string, description string, ownProperty *Property, prope
 		name:        name,
 		description: description,
 		ownProperty: ownProperty,
+		properties: properties,
 	}
 	schemaType.properties = make(map[string]*Property)
 	schemaType.SetProperties(properties)
@@ -25,15 +25,15 @@ func NewSchemaType(name string, description string, ownProperty *Property, prope
 }
 
 // Getters
-func (schemaType SchemaType) GetName() string {
+func (schemaType *SchemaType) GetName() string {
 	return schemaType.name
 }
 
-func (schemaType SchemaType) GetDescription() string {
+func (schemaType *SchemaType) GetDescription() string {
 	return schemaType.description
 }
 
-func (schemaType SchemaType) GetProperties() map[string]*Property {
+func (schemaType *SchemaType) GetProperties() map[string]*Property {
 	return schemaType.properties
 }
 
@@ -59,19 +59,20 @@ func (schemaType *SchemaType) SetProperties(properties map[string]*Property) {
 	}
 }
 
-// PROPERTY
+
+// PROPERTY //
 type Property struct {
 	name           string
 	path           string
 	description    string
 	typeName       string
-	possibleValues []string
+	possibleValues map[string]string
 	resolvedType   *SchemaType
 	cardinality    Cardinality
 }
 
 // Constructors
-func NewProperty(name string, path string, description string, typeName string, possibleValues []string, resolvedType *SchemaType, cardinality Cardinality) *Property {
+func NewProperty(name string, path string, description string, typeName string, possibleValues map[string]string, resolvedType *SchemaType, cardinality Cardinality) *Property {
 	property := Property{
 		name:           name,
 		path:           path,
@@ -85,35 +86,35 @@ func NewProperty(name string, path string, description string, typeName string, 
 }
 
 // Getters
-func (prop Property) GetName() string {
+func (prop *Property) GetName() string {
 	return prop.name
 }
 
-func (prop Property) GetPath() string {
+func (prop *Property) GetPath() string {
 	return prop.path
 }
 
-func (prop Property) GetDescription() string {
+func (prop *Property) GetDescription() string {
 	return prop.description
 }
 
-func (prop Property) GetType() string {
+func (prop *Property) GetType() string {
 	return prop.typeName
 }
 
-func (prop Property) GetPossibleValues() []string {
+func (prop *Property) GetPossibleValues() map[string]string {
 	return prop.possibleValues
 }
 
-func (prop Property) GetResolvedType() *SchemaType {
+func (prop *Property) GetResolvedType() *SchemaType {
 	return prop.resolvedType
 }
 
-func (prop Property) GetCardinality() Cardinality {
+func (prop *Property) GetCardinality() Cardinality {
 	return prop.cardinality
 }
 
-func (prop Property) IsSetInConstructor() bool {
+func (prop *Property) IsSetInConstructor() bool {
 	isSetInConstructor := false
 	if prop.cardinality.min > 0 {
 		isSetInConstructor = true
@@ -121,7 +122,7 @@ func (prop Property) IsSetInConstructor() bool {
 	return isSetInConstructor
 }
 
-func (prop Property) IsArrayOrList() bool {
+func (prop *Property) IsCollection() bool {
 	isArrayOrList := false
 	if prop.cardinality.max > 1 {
 		isArrayOrList = true
@@ -129,7 +130,7 @@ func (prop Property) IsArrayOrList() bool {
 	return isArrayOrList
 }
 
-func (prop Property) IsEnum() bool {
+func (prop *Property) IsEnum() bool {
 	isEnum := false
 	if len(prop.possibleValues) > 1 {
 		isEnum = true
@@ -137,7 +138,7 @@ func (prop Property) IsEnum() bool {
 	return isEnum
 }
 
-func (prop Property) IsConstant() bool {
+func (prop *Property) IsConstant() bool {
 	isConstant := false
 	if len(prop.possibleValues) == 1 {
 		isConstant = true
