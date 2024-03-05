@@ -63,48 +63,48 @@ func TestGeneratorReturnsNoErrorWhenFilepathDirectoryAlreadyExistsWithFileIn(t *
 	assert.False(t, exists)
 }
 
-func TestGenerateBeansCreatesEmptyObjectBean(t *testing.T) {
-	// Given...
-	mockFileSystem := files.NewMockFileSystem()
-	storeFilepath := "generated"
-	apiFilePath := "test-resources/single-bean.yaml"
-	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + objectName + ".java"
-	testapiyaml := `openapi: 3.0.3
-components:
-  schemas:
-    MyBeanName:
-      type: object
-`
-	mockFileSystem.WriteTextFile(apiFilePath, testapiyaml)
+// func TestGenerateBeansCreatesEmptyObjectBean(t *testing.T) {
+// 	// Given...
+// 	mockFileSystem := files.NewMockFileSystem()
+// 	storeFilepath := "generated"
+// 	apiFilePath := "test-resources/single-bean.yaml"
+// 	objectName := "MyBeanName"
+// 	generatedCodeFilePath := storeFilepath + "/" + objectName + ".java"
+// 	testapiyaml := `openapi: 3.0.3
+// components:
+//   schemas:
+//     MyBeanName:
+//       type: object
+// `
+// 	mockFileSystem.WriteTextFile(apiFilePath, testapiyaml)
 
-	// When...
-	err := GenerateBeans(mockFileSystem, storeFilepath, apiFilePath, TARGET_JAVA_PACKAGE)
+// 	// When...
+// 	err := GenerateBeans(mockFileSystem, storeFilepath, apiFilePath, TARGET_JAVA_PACKAGE)
 
-	// Then...
-	assert.Nil(t, err)
-	AssertFileGeneratedOk(t, mockFileSystem, storeFilepath, generatedCodeFilePath, objectName)
-}
+// 	// Then...
+// 	assert.Nil(t, err)
+// 	AssertFileGeneratedOk(t, mockFileSystem, storeFilepath, generatedCodeFilePath, objectName)
+// }
 
-func TestTemplateAcceptsBeanStructure(t *testing.T) {
-	// Given...
-	mockFileSystem := files.NewMockFileSystem()
-	storeFilepath := "generated"
-	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + objectName + ".java"
+// func TestTemplateAcceptsBeanStructure(t *testing.T) {
+// 	// Given...
+// 	mockFileSystem := files.NewMockFileSystem()
+// 	storeFilepath := "generated"
+// 	objectName := "MyBeanName"
+// 	generatedCodeFilePath := storeFilepath + "/" + objectName + ".java"
 
-	var bean Bean
-	bean.Name = objectName
-	bean.BeanPackage = "generated"
-	bean.Description = "this is a blank bean"
+// 	var bean Bean
+// 	bean.Name = objectName
+// 	bean.BeanPackage = "generated"
+// 	bean.Description = "this is a blank bean"
 
-	// When...
-	err := createBeanFile(bean, mockFileSystem, storeFilepath)
+// 	// When...
+// 	err := createBeanFile(bean, mockFileSystem, storeFilepath)
 
-	// Then...
-	assert.Nil(t, err)
-	AssertFileGeneratedOk(t, mockFileSystem, storeFilepath, generatedCodeFilePath, objectName)
-}
+// 	// Then...
+// 	assert.Nil(t, err)
+// 	AssertFileGeneratedOk(t, mockFileSystem, storeFilepath, generatedCodeFilePath, objectName)
+// }
 
 // func TestTemplateAcceptsBeanStructureWithVariables(t *testing.T) {
 // 	// Given...

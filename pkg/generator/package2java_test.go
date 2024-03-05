@@ -116,6 +116,33 @@ func TestPackageStructParsesToTemplateWithClassWithArrayDataMember(t *testing.T)
 		Description: "random member for test purposes",
 		MemberType: "String[]",
 	}
+	dataMembers := []*DataMember{}
+	dataMembers = append(dataMembers, &dataMember1)
+	class := NewJavaClass(className, "", nil, &javaPackage, nil, dataMembers)
+	mockFileSystem := files.NewMockFileSystem()
+	storeFilepath := "generated"
+	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
+
+	// When...
+	err := createJavaClassFile(*class, mockFileSystem, storeFilepath)
+
+	// Then...
+	assert.Nil(t, err)
+	generatedFile := assertClassFileGeneratedOk(t, mockFileSystem, generatedCodeFilePath, className)
+	assertVariablesGeneratedOk(t, generatedFile, dataMembers)
+}
+
+func TestPackageStructParsesToTemplateWithClassWithMixedArrayAndPrimitiveDataMembers(t *testing.T) {
+	// Given...
+	className := "MyBean"
+	var javaPackage JavaPackage
+	javaPackage.Name = TARGET_JAVA_PACKAGE
+	memberName1 := "RandMember1"
+	dataMember1 := DataMember {
+		Name: memberName1,
+		Description: "random member for test purposes",
+		MemberType: "String[]",
+	}
 	memberName2 := "RandMember2"
 	dataMember2 := DataMember {
 		Name: memberName2,
@@ -124,6 +151,33 @@ func TestPackageStructParsesToTemplateWithClassWithArrayDataMember(t *testing.T)
 	}
 	dataMembers := []*DataMember{}
 	dataMembers = append(dataMembers, &dataMember1, &dataMember2)
+	class := NewJavaClass(className, "", nil, &javaPackage, nil, dataMembers)
+	mockFileSystem := files.NewMockFileSystem()
+	storeFilepath := "generated"
+	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
+
+	// When...
+	err := createJavaClassFile(*class, mockFileSystem, storeFilepath)
+
+	// Then...
+	assert.Nil(t, err)
+	generatedFile := assertClassFileGeneratedOk(t, mockFileSystem, generatedCodeFilePath, className)
+	assertVariablesGeneratedOk(t, generatedFile, dataMembers)
+}
+
+func TestPackageStructParsesToTemplateWithClassWithReferencedClassType(t *testing.T) {
+	// Given...
+	className := "MyBean"
+	var javaPackage JavaPackage
+	javaPackage.Name = TARGET_JAVA_PACKAGE
+	memberName1 := "RandMember1"
+	dataMember1 := DataMember {
+		Name: memberName1,
+		Description: "random member for test purposes",
+		MemberType: "ReferencedClass",
+	}
+	dataMembers := []*DataMember{}
+	dataMembers = append(dataMembers, &dataMember1)
 	class := NewJavaClass(className, "", nil, &javaPackage, nil, dataMembers)
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
