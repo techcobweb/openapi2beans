@@ -162,3 +162,29 @@ func TestTranslateSchemaTypesToJavaPackageWithClassWithReferenceToOtherClass(t *
 	assertJavaClassCorrectlyRelatesToSchemaType(t, *schemaType, *javaPackage.classes[schemaName])
 }
 
+func TestTranslateSchemaTypesToJavaPackageWithClassWithArrayOfReferenceToClass(t *testing.T) {
+	// Given...
+	schemaTypeMap := make(map[string]*SchemaType)
+	var referencedSchemaType *SchemaType
+	referencedSchemaName := "MyReferencedBean"
+	referencedOwnProp := NewProperty(referencedSchemaName, "#/components/schemas/MyReferencedBean", "", "object", nil, referencedSchemaType, Cardinality{min: 0, max: 100})
+	referencedSchemaType = NewSchemaType(referencedSchemaName, "", referencedOwnProp, nil)
+	schemaTypeMap["#/components/schemas/MyReferencedBean"] = referencedSchemaType
+	propName1 := "MyRandomProperty1"
+	property1 := NewProperty(propName1, "#/components/schemas/MyBean/"+propName1, "", "object", nil, referencedSchemaType, Cardinality{min: 0, max: 1})
+	properties := make(map[string]*Property)
+	properties["#/components/schemas/MyBean/"+propName1] = property1
+	var schemaType *SchemaType
+	schemaName := "MyBean"
+	ownProp := NewProperty(schemaName, "#/components/schemas/MyBean", "", "object", nil, schemaType, Cardinality{min: 0, max: 1})
+	schemaType = NewSchemaType(schemaName, "", ownProp, properties)
+	schemaTypeMap["#/components/schemas/MyBean"] = schemaType
+
+	// When...
+	javaPackage := translateSchemaTypesToJavaPackage(schemaTypeMap, TARGET_JAVA_PACKAGE)
+
+	// Then...
+	assert.Equal(t, "MyBean", javaPackage.classes[schemaName].Name)
+	assertJavaClassCorrectlyRelatesToSchemaType(t, *schemaType, *javaPackage.classes[schemaName])
+}
+

@@ -191,3 +191,30 @@ func TestPackageStructParsesToTemplateWithClassWithReferencedClassType(t *testin
 	generatedFile := assertClassFileGeneratedOk(t, mockFileSystem, generatedCodeFilePath, className)
 	assertVariablesGeneratedOk(t, generatedFile, dataMembers)
 }
+
+func TestPackageStructParsesToTemplateWithClassWithArrayOfReferencedClassType(t *testing.T) {
+	// Given...
+	className := "MyBean"
+	var javaPackage JavaPackage
+	javaPackage.Name = TARGET_JAVA_PACKAGE
+	memberName1 := "RandMember1"
+	dataMember1 := DataMember {
+		Name: memberName1,
+		Description: "random member for test purposes",
+		MemberType: "ReferencedClass[]",
+	}
+	dataMembers := []*DataMember{}
+	dataMembers = append(dataMembers, &dataMember1)
+	class := NewJavaClass(className, "", nil, &javaPackage, nil, dataMembers)
+	mockFileSystem := files.NewMockFileSystem()
+	storeFilepath := "generated"
+	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
+
+	// When...
+	err := createJavaClassFile(*class, mockFileSystem, storeFilepath)
+
+	// Then...
+	assert.Nil(t, err)
+	generatedFile := assertClassFileGeneratedOk(t, mockFileSystem, generatedCodeFilePath, className)
+	assertVariablesGeneratedOk(t, generatedFile, dataMembers)
+}
