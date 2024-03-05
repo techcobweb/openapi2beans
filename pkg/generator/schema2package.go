@@ -2,29 +2,47 @@ package generator
 
 func translateSchemaTypesToJavaPackage(schemaTypes map[string]*SchemaType, packageName string) (javaPackage JavaPackage){
 	javaPackage.Name = packageName
-	javaPackage.classes = make(map[string]*JavaClass)
+	javaPackage.Classes = make(map[string]*JavaClass)
+	javaPackage.Enums = make(map[string]*JavaEnum)
 	for _, schemaType := range schemaTypes {
-		dataMembers := []*DataMember{}
-		requiredMembers := []*RequiredMember{}
-		for _, property := range schemaType.properties {
-			dataMember := DataMember {
-				Name: property.name,
-				MemberType: propertyToJavaType(property),
-				Description: property.description,
+		if schemaType.ownProperty.IsEnum() {
+			enumValues := possibleValuesToEnumValues(schemaType.ownProperty.possibleValues)
+			javaEnum := JavaEnum {
+				Name: schemaType.ownProperty.name,
+				Description: schemaType.ownProperty.description,
+				EnumValues: enumValues,
 			}
-			dataMembers = append(dataMembers, &dataMember)
-			if property.IsSetInConstructor() {
-				requiredMember := RequiredMember {
-					DataMember: &dataMember,
-					IsFirst: len(requiredMembers) == 0,
+			javaPackage.Enums[schemaType.ownProperty.name] = &javaEnum
+		} else {
+			dataMembers := []*DataMember{}
+			requiredMembers := []*RequiredMember{}
+			for _, property := range schemaType.properties {
+				dataMember := DataMember {
+					Name: property.name,
+					MemberType: propertyToJavaType(property),
+					Description: property.description,
 				}
-				requiredMembers = append(requiredMembers, &requiredMember)
+				dataMembers = append(dataMembers, &dataMember)
+				if property.IsSetInConstructor() {
+					requiredMember := RequiredMember {
+						DataMember: &dataMember,
+						IsFirst: len(requiredMembers) == 0,
+					}
+					requiredMembers = append(requiredMembers, &requiredMember)
+				}
 			}
+			javaClass := NewJavaClass(schemaType.name, schemaType.description, nil, &javaPackage, nil, dataMembers, requiredMembers)
+			javaPackage.Classes[schemaType.name] = javaClass
 		}
-		javaClass := NewJavaClass(schemaType.name, schemaType.description, nil, &javaPackage, nil, dataMembers, requiredMembers)
-		javaPackage.classes[schemaType.name] = javaClass
 	}
 	return javaPackage
+}
+
+func possibleValuesToEnumValues(possibleValues map[string]string) (enumValues []string) {
+	for _, value := range possibleValues {
+		enumValues = append(enumValues, value)
+	}
+	return enumValues
 }
 
 func propertyToJavaType(property *Property) string {

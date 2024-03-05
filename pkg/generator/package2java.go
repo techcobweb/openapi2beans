@@ -24,11 +24,20 @@ import (
 // }
 
 // plugs a java class into a moustache template and saves the resulting string in a file
-func createJavaClassFile(javaClass JavaClass, fs files.FileSystem, storeFilepath string) error {
+func createJavaClassFile(javaClass *JavaClass, fs files.FileSystem, storeFilepath string) error {
 	log.Println("Creating bean: " + javaClass.Name + ".java")
 	generatedBeanFileContents, err := mustache.RenderFile("../../templates/JavaClassTemplate.mustache", javaClass)
 	if err == nil {
 		err = fs.WriteTextFile(storeFilepath+"/"+javaClass.Name+".java", generatedBeanFileContents)
+	}
+	return err
+}
+
+func createJavaEnumFile(javaEnum *JavaEnum, fs files.FileSystem, storeFilepath string) error {
+	log.Println("Creating enum: " + javaEnum.Name + ".java")
+	generatedBeanFileContents, err := mustache.RenderFile("../../templates/JavaEnumTemplate.mustache", javaEnum)
+	if err == nil {
+		err = fs.WriteTextFile(storeFilepath+"/"+javaEnum.Name+".java", generatedBeanFileContents)
 	}
 	return err
 }

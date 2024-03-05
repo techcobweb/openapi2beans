@@ -11,16 +11,19 @@ const (
 	TARGET_JAVA_PACKAGE = "generated"
 )
 
-func assertClassFileGeneratedOk(t *testing.T, mockFileSystem files.FileSystem, generatedCodeFilepath string, className string) string {
+func openGeneratedFile(t *testing.T, mockFileSystem files.FileSystem, generatedCodeFilepath string) string{
 	exists, err := mockFileSystem.Exists(generatedCodeFilepath)
 	assert.Nil(t, err)
 	assert.True(t, exists)
 	generatedFile, err := mockFileSystem.ReadTextFile(generatedCodeFilepath)
 	assert.Nil(t, err)
+	return generatedFile
+}
+
+func assertClassFileGeneratedOk(t *testing.T, generatedFile string, className string) {
 	assert.Contains(t, generatedFile, "package "+ TARGET_JAVA_PACKAGE)
 	assert.Contains(t, generatedFile, "public class "+ className)
 	assert.Contains(t, generatedFile, "public "+ className +" (")
-	return generatedFile
 }
 
 func assertVariablesGeneratedOk(t *testing.T, generatedFile string, dataMembers []*DataMember) {
@@ -31,6 +34,14 @@ func assertVariablesGeneratedOk(t *testing.T, generatedFile string, dataMembers 
 		assert.Contains(t, generatedFile, "this." + dataMember.Name + " = " + dataMember.Name)
 		assert.Contains(t, generatedFile, "public void Set" + dataMember.Name + "(" + dataMember.MemberType + " " + dataMember.Name + ") {")
 		assert.Contains(t, generatedFile, "this." + dataMember.Name + " = " + dataMember.Name)
+	}
+}
+
+func assertEnumFileGeneratedOk(t *testing.T, generatedFile string, javaEnum *JavaEnum) {
+	assert.Contains(t, generatedFile, "package "+ TARGET_JAVA_PACKAGE)
+	assert.Contains(t, generatedFile, "public enum " + javaEnum.Name)
+	for _, value := range javaEnum.EnumValues {
+		assert.Contains(t, generatedFile, value)
 	}
 }
 
@@ -45,11 +56,12 @@ func TestPackageStructParsesToTemplate(t *testing.T) {
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
 
 	// When...
-	err := createJavaClassFile(*class, mockFileSystem, storeFilepath)
+	err := createJavaClassFile(class, mockFileSystem, storeFilepath)
 
 	// Then...
 	assert.Nil(t, err)
-	assertClassFileGeneratedOk(t, mockFileSystem, generatedCodeFilePath, className)
+	generatedFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
+	assertClassFileGeneratedOk(t, generatedFile, className)
 }
 
 func TestPackageStructParsesToTemplateWithClassWithMember(t *testing.T) {
@@ -71,11 +83,12 @@ func TestPackageStructParsesToTemplateWithClassWithMember(t *testing.T) {
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
 
 	// When...
-	err := createJavaClassFile(*class, mockFileSystem, storeFilepath)
+	err := createJavaClassFile(class, mockFileSystem, storeFilepath)
 
 	// Then...
 	assert.Nil(t, err)
-	generatedFile := assertClassFileGeneratedOk(t, mockFileSystem, generatedCodeFilePath, className)
+	generatedFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
+	assertClassFileGeneratedOk(t, generatedFile, className)
 	assertVariablesGeneratedOk(t, generatedFile, dataMembers)
 }
 
@@ -104,11 +117,12 @@ func TestPackageStructParsesToTemplateWithClassWithMultipleMembers(t *testing.T)
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
 
 	// When...
-	err := createJavaClassFile(*class, mockFileSystem, storeFilepath)
+	err := createJavaClassFile(class, mockFileSystem, storeFilepath)
 
 	// Then...
 	assert.Nil(t, err)
-	generatedFile := assertClassFileGeneratedOk(t, mockFileSystem, generatedCodeFilePath, className)
+	generatedFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
+	assertClassFileGeneratedOk(t, generatedFile, className)
 	assertVariablesGeneratedOk(t, generatedFile, dataMembers)
 }
 
@@ -131,11 +145,12 @@ func TestPackageStructParsesToTemplateWithClassWithArrayDataMember(t *testing.T)
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
 
 	// When...
-	err := createJavaClassFile(*class, mockFileSystem, storeFilepath)
+	err := createJavaClassFile(class, mockFileSystem, storeFilepath)
 
 	// Then...
 	assert.Nil(t, err)
-	generatedFile := assertClassFileGeneratedOk(t, mockFileSystem, generatedCodeFilePath, className)
+	generatedFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
+	assertClassFileGeneratedOk(t, generatedFile, className)
 	assertVariablesGeneratedOk(t, generatedFile, dataMembers)
 }
 
@@ -164,11 +179,12 @@ func TestPackageStructParsesToTemplateWithClassWithMixedArrayAndPrimitiveDataMem
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
 
 	// When...
-	err := createJavaClassFile(*class, mockFileSystem, storeFilepath)
+	err := createJavaClassFile(class, mockFileSystem, storeFilepath)
 
 	// Then...
 	assert.Nil(t, err)
-	generatedFile := assertClassFileGeneratedOk(t, mockFileSystem, generatedCodeFilePath, className)
+	generatedFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
+	assertClassFileGeneratedOk(t, generatedFile, className)
 	assertVariablesGeneratedOk(t, generatedFile, dataMembers)
 }
 
@@ -191,11 +207,12 @@ func TestPackageStructParsesToTemplateWithClassWithReferencedClassType(t *testin
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
 
 	// When...
-	err := createJavaClassFile(*class, mockFileSystem, storeFilepath)
+	err := createJavaClassFile(class, mockFileSystem, storeFilepath)
 
 	// Then...
 	assert.Nil(t, err)
-	generatedFile := assertClassFileGeneratedOk(t, mockFileSystem, generatedCodeFilePath, className)
+	generatedFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
+	assertClassFileGeneratedOk(t, generatedFile, className)
 	assertVariablesGeneratedOk(t, generatedFile, dataMembers)
 }
 
@@ -218,11 +235,12 @@ func TestPackageStructParsesToTemplateWithClassWithArrayOfReferencedClassType(t 
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
 
 	// When...
-	err := createJavaClassFile(*class, mockFileSystem, storeFilepath)
+	err := createJavaClassFile(class, mockFileSystem, storeFilepath)
 
 	// Then...
 	assert.Nil(t, err)
-	generatedFile := assertClassFileGeneratedOk(t, mockFileSystem, generatedCodeFilePath, className)
+	generatedFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
+	assertClassFileGeneratedOk(t, generatedFile, className)
 	assertVariablesGeneratedOk(t, generatedFile, dataMembers)
 }
 
@@ -251,14 +269,39 @@ func TestPackageStructParsesToTemplateWithClassWithRequiredProperty(t *testing.T
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
 
 	// When...
-	err := createJavaClassFile(*class, mockFileSystem, storeFilepath)
+	err := createJavaClassFile(class, mockFileSystem, storeFilepath)
 
 	// Then...
 	assert.Nil(t, err)
-	generatedFile := assertClassFileGeneratedOk(t, mockFileSystem, generatedCodeFilePath, className)
+	generatedFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
+	assertClassFileGeneratedOk(t, generatedFile, className)
 	assertVariablesGeneratedOk(t, generatedFile, dataMembers)
 	constructor := `public MyBean (String RandMember1) {
         this.RandMember1 = RandMember1;
     }`
 	assert.Contains(t, generatedFile, constructor)
+}
+
+func TestPackageStructParsesToJavaEnumTemplate(t *testing.T) {
+	// Given...
+	enumName := "MyEnum"
+	enumDesc := "test enum"
+	var javaPackage JavaPackage
+	javaPackage.Name = TARGET_JAVA_PACKAGE
+	javaEnum := JavaEnum {
+		Name: enumName,
+		Description: enumDesc,
+		JavaPackage: &javaPackage,
+	}
+	mockFileSystem := files.NewMockFileSystem()
+	storeFilepath := "generated"
+	generatedCodeFilePath := storeFilepath + "/" + enumName + ".java"
+
+	// When...
+	err := createJavaEnumFile(&javaEnum, mockFileSystem, storeFilepath)
+
+	// Then...
+	assert.Nil(t, err)
+	generatedFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
+	assertEnumFileGeneratedOk(t, generatedFile, &javaEnum)
 }

@@ -2,9 +2,9 @@ package generator
 
 type JavaPackage struct {
 	Name       string
-	classes    map[string]*JavaClass
-	enums      []JavaEnum
-	interfaces []JavaInterface
+	Classes    map[string]*JavaClass
+	Enums      map[string]*JavaEnum
+	Interfaces map[string]*JavaInterface
 }
 
 type JavaClass struct {
@@ -14,7 +14,7 @@ type JavaClass struct {
 	JavaPackage        *JavaPackage
 	InheritedInterface *JavaInterface
 	DataMembers        []*DataMember
-	RequiredMembers []*RequiredMember
+	RequiredMembers    []*RequiredMember
 }
 
 func NewJavaClass(name string, description string, includes []string, javaPackage *JavaPackage, inheritedInterface *JavaInterface, dataMembers []*DataMember, requiredMembers []*RequiredMember) *JavaClass {
@@ -24,8 +24,8 @@ func NewJavaClass(name string, description string, includes []string, javaPackag
 		Includes:           includes,
 		JavaPackage:        javaPackage,
 		InheritedInterface: inheritedInterface,
-		DataMembers: dataMembers,
-		RequiredMembers: requiredMembers,
+		DataMembers:        dataMembers,
+		RequiredMembers:    requiredMembers,
 	}
 	return &javaClass
 }
@@ -34,23 +34,24 @@ type DataMember struct {
 	Name        string
 	MemberType  string
 	Description string
-	Required bool
+	Required    bool
 }
 
 type RequiredMember struct {
-	IsFirst bool
+	IsFirst    bool
 	DataMember *DataMember
 }
 
 type JavaEnum struct {
-	name        string
-	description string
-	enumValues  []string
+	Name        string
+	Description string
+	EnumValues  []string
+	JavaPackage *JavaPackage
 }
 
 type JavaInterface struct {
-	name              string
-	description       string
-	inheritingClasses []JavaClass
-	javaPackage       JavaPackage
+	Name              string
+	Description       string
+	InheritingClasses []JavaClass
+	JavaPackage       *JavaPackage
 }

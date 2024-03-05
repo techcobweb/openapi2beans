@@ -81,10 +81,7 @@ func retrieveSchemaTypesFromMap(inputMap map[interface{}]interface{}, yamlPath s
 		if err != nil {
 			// do something
 		} else {
-			var resolvedType *SchemaType
-
 			property := NewProperty(subMapKey.(string), apiSchemaPartPath, description, typeName, possibleValues, nil, cardinality)
-
 			
 			if typeName == "object" {
 				var nestedProperties map[string]*Property
@@ -93,13 +90,17 @@ func retrieveSchemaTypesFromMap(inputMap map[interface{}]interface{}, yamlPath s
 				nestedSchemaTypes, nestedProperties, err = retrieveNestedProperties(subMap, apiSchemaPartPath)
 
 				if err == nil {
-					resolvedType = NewSchemaType(varName, description, property, nestedProperties)
+					resolvedType := NewSchemaType(varName, description, property, nestedProperties)
 					maps.Copy(properties, nestedProperties)
 					maps.Copy(schemaTypes, nestedSchemaTypes)
 					property.SetResolvedType(resolvedType)
 
 					schemaTypes[apiSchemaPartPath] = resolvedType
 				}
+			} else if property.IsEnum() {
+				enumSchemaType := NewSchemaType(varName, description, property, nil)
+				property.SetResolvedType(enumSchemaType)
+				schemaTypes[apiSchemaPartPath] = enumSchemaType
 			}
 
 			if err == nil {
