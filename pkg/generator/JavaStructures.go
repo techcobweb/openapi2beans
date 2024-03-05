@@ -10,18 +10,16 @@ type JavaPackage struct {
 type JavaClass struct {
 	Name               string
 	Description        string
-	Includes           []string
 	JavaPackage        *JavaPackage
 	InheritedInterface *JavaInterface
 	DataMembers        []*DataMember
 	RequiredMembers    []*RequiredMember
 }
 
-func NewJavaClass(name string, description string, includes []string, javaPackage *JavaPackage, inheritedInterface *JavaInterface, dataMembers []*DataMember, requiredMembers []*RequiredMember) *JavaClass {
+func NewJavaClass(name string, description string, javaPackage *JavaPackage, inheritedInterface *JavaInterface, dataMembers []*DataMember, requiredMembers []*RequiredMember) *JavaClass {
 	javaClass := JavaClass{
 		Name:               name,
 		Description:        description,
-		Includes:           includes,
 		JavaPackage:        javaPackage,
 		InheritedInterface: inheritedInterface,
 		DataMembers:        dataMembers,
@@ -52,6 +50,5 @@ type JavaEnum struct {
 type JavaInterface struct {
 	Name              string
 	Description       string
-	InheritingClasses []JavaClass
 	JavaPackage       *JavaPackage
 }

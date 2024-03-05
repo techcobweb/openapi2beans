@@ -31,7 +31,7 @@ func translateSchemaTypesToJavaPackage(schemaTypes map[string]*SchemaType, packa
 					requiredMembers = append(requiredMembers, &requiredMember)
 				}
 			}
-			javaClass := NewJavaClass(schemaType.name, schemaType.description, nil, &javaPackage, nil, dataMembers, requiredMembers)
+			javaClass := NewJavaClass(schemaType.name, schemaType.description, &javaPackage, nil, dataMembers, requiredMembers)
 			javaPackage.Classes[schemaType.name] = javaClass
 		}
 	}

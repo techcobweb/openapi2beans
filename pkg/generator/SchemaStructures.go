@@ -115,43 +115,23 @@ func (prop *Property) GetCardinality() Cardinality {
 }
 
 func (prop *Property) IsSetInConstructor() bool {
-	isSetInConstructor := false
-	if prop.cardinality.min > 0 {
-		isSetInConstructor = true
-	}
-	return isSetInConstructor
+	return prop.cardinality.min > 0
 }
 
 func (prop *Property) IsCollection() bool {
-	isArrayOrList := false
-	if prop.cardinality.max > 1 {
-		isArrayOrList = true
-	}
-	return isArrayOrList
+	return prop.cardinality.max > 1
 }
 
 func (prop *Property) IsEnum() bool {
-	isEnum := false
-	if len(prop.possibleValues) > 1 {
-		isEnum = true
-	}
-	return isEnum
+	return len(prop.possibleValues) > 1
 }
 
 func (prop *Property) IsConstant() bool {
-	isConstant := false
-	if len(prop.possibleValues) == 1 {
-		isConstant = true
-	}
-	return isConstant
+	return len(prop.possibleValues) == 1
 }
 
 func (prop Property) IsReferencing() bool {
-	isReferencing := false
-	if strings.HasPrefix(prop.typeName, "$ref:") {
-		isReferencing = true
-	}
-	return isReferencing
+	return strings.HasPrefix(prop.typeName, "$ref:")
 }
 
 // Setters

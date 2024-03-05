@@ -38,14 +38,13 @@ class JavaEnum {
 JavaPackage "1" *--> JavaEnum : enums
 JavaEnum "*" --> "1" JavaPackage : javaPackage
 
-class JavaInterface {
+class JavaAbstractClass {
     {field} name : string
     {field} description : string
 }
 
-JavaInterface "*" --> "1" JavaPackage : javaPackage
-JavaPackage "1" *--> "*" JavaInterface : interfaces
-JavaClass "*" --> "1" JavaInterface : inheritedInterface
-JavaInterface "1" *--> "*" JavaClass : classes
+JavaAbstractClass "*" --> "1" JavaPackage : javaPackage
+JavaPackage "1" *--> "*" JavaAbstractClass : interfaces
+JavaClass "*" --> "1" JavaAbstractClass : inheritedAbstractClass
 
 @enduml
