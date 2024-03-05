@@ -9,13 +9,29 @@ import (
 func assertJavaClassCorrectlyRelatesToSchemaType(t *testing.T, schemaType SchemaType, class JavaClass) {
 	assert.Equal(t, schemaType.name, class.Name)
 	schemaPath := "#/components/schemas/" + schemaType.name
+	propertiesVisited := 0
+	
 	for _, dataMember := range class.DataMembers {
 		comparisonSchemaProperty := schemaType.properties[schemaPath+"/"+dataMember.Name]
+		propertiesVisited += 1
 		expectedName := comparisonSchemaProperty.name
 		assert.Equal(t, expectedName, dataMember.Name)
 		expectedType := getExpectedType(comparisonSchemaProperty)
 		assert.Equal(t, dataMember.MemberType, expectedType)
 	}
+	assert.Equal(t, len(schemaType.properties), propertiesVisited)
+
+	requiredPropertiesVisited := 0
+	for _, requiredMember := range class.RequiredMembers {
+		comparisonSchemaProperty := schemaType.properties[schemaPath+"/"+requiredMember.DataMember.Name]
+		requiredPropertiesVisited += 1
+		expectedName := comparisonSchemaProperty.name
+		assert.Equal(t, expectedName, requiredMember.DataMember.Name)
+		expectedType := getExpectedType(comparisonSchemaProperty)
+		assert.Equal(t, requiredMember.DataMember.MemberType, expectedType)
+		assert.True(t, comparisonSchemaProperty.IsSetInConstructor())
+	}
+	assert.Equal(t, len(schemaType.properties), requiredPropertiesVisited)
 }
 
 func getExpectedType(schemaProp *Property) string {
@@ -188,3 +204,23 @@ func TestTranslateSchemaTypesToJavaPackageWithClassWithArrayOfReferenceToClass(t
 	assertJavaClassCorrectlyRelatesToSchemaType(t, *schemaType, *javaPackage.classes[schemaName])
 }
 
+func TestTranslateSchemaTypesToJavaPackageWithClassWithRequiredProperty(t *testing.T) {
+	// Given...
+	propName1 := "MyRandomProperty1"
+	property1 := NewProperty(propName1, "#/components/schemas/MyBean/"+propName1, "", "string", nil, nil, Cardinality{min: 1, max: 1})
+	properties := make(map[string]*Property)
+	properties["#/components/schemas/MyBean/"+propName1] = property1
+	schemaTypeMap := make(map[string]*SchemaType)
+	var schemaType *SchemaType
+	schemaName := "MyBean"
+	ownProp := NewProperty(schemaName, "#/components/schemas/MyBean", "", "object", nil, schemaType, Cardinality{min: 0, max: 1})
+	schemaType = NewSchemaType(schemaName, "", ownProp, properties)
+	schemaTypeMap["#/components/schemas/MyBean"] = schemaType
+
+	// When...
+	javaPackage := translateSchemaTypesToJavaPackage(schemaTypeMap, TARGET_JAVA_PACKAGE)
+
+	// Then...
+	assert.Equal(t, "MyBean", javaPackage.classes[schemaName].Name)
+	assertJavaClassCorrectlyRelatesToSchemaType(t, *schemaType, *javaPackage.classes[schemaName])
+}

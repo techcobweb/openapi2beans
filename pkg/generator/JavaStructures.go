@@ -14,9 +14,10 @@ type JavaClass struct {
 	JavaPackage        *JavaPackage
 	InheritedInterface *JavaInterface
 	DataMembers        []*DataMember
+	RequiredMembers []*RequiredMember
 }
 
-func NewJavaClass(name string, description string, includes []string, javaPackage *JavaPackage, inheritedInterface *JavaInterface, dataMembers []*DataMember) *JavaClass {
+func NewJavaClass(name string, description string, includes []string, javaPackage *JavaPackage, inheritedInterface *JavaInterface, dataMembers []*DataMember, requiredMembers []*RequiredMember) *JavaClass {
 	javaClass := JavaClass{
 		Name:               name,
 		Description:        description,
@@ -24,6 +25,7 @@ func NewJavaClass(name string, description string, includes []string, javaPackag
 		JavaPackage:        javaPackage,
 		InheritedInterface: inheritedInterface,
 		DataMembers: dataMembers,
+		RequiredMembers: requiredMembers,
 	}
 	return &javaClass
 }
@@ -32,6 +34,12 @@ type DataMember struct {
 	Name        string
 	MemberType  string
 	Description string
+	Required bool
+}
+
+type RequiredMember struct {
+	IsFirst bool
+	DataMember *DataMember
 }
 
 type JavaEnum struct {

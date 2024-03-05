@@ -17,9 +17,17 @@ class DataMember {
     {field} name : string
     {field} type : string
     {field} description : string
+    {field} required : bool
 }
 
 JavaClass *--> DataMember : dataMembers
+
+class RequiredMember {
+    {field} IsFirst : bool
+}
+
+RequiredMember "1" *--> "1" DataMember : DataMember
+JavaClass "1" *--> "*" RequiredMember : requiredMembers
 
 class JavaEnum {
     {field} name : string

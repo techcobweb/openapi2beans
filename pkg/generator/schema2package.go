@@ -5,6 +5,7 @@ func translateSchemaTypesToJavaPackage(schemaTypes map[string]*SchemaType, packa
 	javaPackage.classes = make(map[string]*JavaClass)
 	for _, schemaType := range schemaTypes {
 		dataMembers := []*DataMember{}
+		requiredMembers := []*RequiredMember{}
 		for _, property := range schemaType.properties {
 			dataMember := DataMember {
 				Name: property.name,
@@ -12,8 +13,15 @@ func translateSchemaTypesToJavaPackage(schemaTypes map[string]*SchemaType, packa
 				Description: property.description,
 			}
 			dataMembers = append(dataMembers, &dataMember)
+			if property.IsSetInConstructor() {
+				requiredMember := RequiredMember {
+					DataMember: &dataMember,
+					IsFirst: len(requiredMembers) == 0,
+				}
+				requiredMembers = append(requiredMembers, &requiredMember)
+			}
 		}
-		javaClass := NewJavaClass(schemaType.name, schemaType.description, nil, &javaPackage, nil, dataMembers)
+		javaClass := NewJavaClass(schemaType.name, schemaType.description, nil, &javaPackage, nil, dataMembers, requiredMembers)
 		javaPackage.classes[schemaType.name] = javaClass
 	}
 	return javaPackage

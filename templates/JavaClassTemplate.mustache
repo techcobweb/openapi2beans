@@ -5,13 +5,36 @@ package {{JavaPackage.Name}}
 {{/Description}}
 public class {{Name}} {
     {{#DataMembers}}
+    // Class Variables //
+    {{/DataMembers}}
+    {{#DataMembers}}
     {{#Description}}
     // {{.}}
     {{/Description}}
-    private {{MemberType}} {{Name}}
+    private {{MemberType}} {{Name}};
     {{/DataMembers}}
 
-    public {{Name}} () {
-        
+    public {{Name}} ({{#RequiredMembers}}{{^IsFirst}}, {{/IsFirst}}{{DataMember.MemberType}} {{DataMember.Name}}{{/RequiredMembers}}) {
+        {{#RequiredMembers}}
+        this.{{DataMember.Name}} = {{DataMember.Name}};
+        {{/RequiredMembers}}
     }
+
+    {{#DataMembers}}
+    // Getters //
+    {{/DataMembers}}
+    {{#DataMembers}}
+    public {{MemberType}} Get{{Name}}() {
+        return this.{{Name}};
+    }
+    {{/DataMembers}}
+
+    {{#DataMembers}}
+    // Setters //
+    {{/DataMembers}}
+    {{#DataMembers}}
+    public void Set{{Name}}({{MemberType}} {{Name}}) {
+        this.{{Name}} = {{Name}};
+    }
+    {{/DataMembers}}
 }
