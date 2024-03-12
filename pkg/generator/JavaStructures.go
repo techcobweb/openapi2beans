@@ -7,6 +7,16 @@ type JavaPackage struct {
 	Interfaces map[string]*JavaInterface
 }
 
+func NewJavaPackage() *JavaPackage {
+	javaPackage := JavaPackage {
+		Name: "",
+		Classes: make(map[string]*JavaClass),
+		Enums: make(map[string]*JavaEnum),
+		Interfaces: make(map[string]*JavaInterface),
+	}
+	return &javaPackage
+}
+
 type JavaClass struct {
 	Name               string
 	Description        string

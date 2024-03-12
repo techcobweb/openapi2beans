@@ -115,7 +115,12 @@ func (prop *Property) GetCardinality() Cardinality {
 }
 
 func (prop *Property) IsSetInConstructor() bool {
-	return prop.cardinality.min > 0
+	isSetInConstructor := prop.cardinality.min > 0
+	if prop.IsEnum() {
+		_, nilExists := prop.possibleValues["nil"]
+		isSetInConstructor = !nilExists
+	}
+	return isSetInConstructor
 }
 
 func (prop *Property) IsCollection() bool {
@@ -160,4 +165,15 @@ func (cardinality Cardinality) GetMin() int {
 
 func (cardinality Cardinality) GetMax() int {
 	return cardinality.max
+}
+
+func CheckMapStringKeyExists(mapToExplore map[string]interface{}, key string) bool {
+	exists := false
+	for loopKey := range mapToExplore {
+		if loopKey == key {
+			exists = true
+			break
+		}
+	}
+	return exists
 }

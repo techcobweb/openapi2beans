@@ -38,7 +38,9 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.Equal(t, "MyBeanName", schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetName(), "Wrong bean name read out of the yaml!")
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.Equal(t, "MyBeanName", schemaType.GetName(), "Wrong bean name read out of the yaml!")
 }
 
 func TestGetSchemaTypesFromYamlParsesDescription(t *testing.T) {
@@ -55,7 +57,9 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.Equal(t, "A simple example", schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetDescription(), "Wrong bean description read out of the yaml!")
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.Equal(t, "A simple example", schemaType.GetDescription(), "Wrong bean description read out of the yaml!")
 }
 
 func TestGetSchemaTypesFromYamlParsesSingleStringVariable(t *testing.T) {
@@ -75,10 +79,13 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.NotEmpty(t, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties(), "Bean must have variable!")
-	variable := schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/myStringVar"]
-	assert.Equal(t, "myStringVar", variable.GetName(), "Wrong bean variable name read out of the yaml!")
-	assert.Equal(t, "string", variable.GetType(), "Wrong bean variable type read out of the yaml!")
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myStringVar"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, "myStringVar", property.GetName(), "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "string", property.GetType(), "Wrong bean variable type read out of the yaml!")
 }
 
 func TestGetSchemaTypesFromYamlParsesSingleStringVariableWithDescription(t *testing.T) {
@@ -99,8 +106,11 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	variable := schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/myStringVar"]
-	assert.Equal(t, "a test string", variable.GetDescription(), "Wrong bean variable description read out of the yaml!")
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	property, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myStringVar"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, "a test string", property.GetDescription(), "Wrong bean variable description read out of the yaml!")
 }
 
 func TestGetSchemaTypesFromYamlParsesSingleStringVariableWithTrueRequiredField(t *testing.T) {
@@ -122,7 +132,12 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.Equal(t, true, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/myStringVar"].IsSetInConstructor(), "Wrong bean variable description read out of the yaml!")
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myStringVar"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, true, property.IsSetInConstructor(), "Wrong bean variable required status read out of the yaml!")
 }
 
 func TestGetSchemaTypesFromYamlParsesSingleStringVariableWithFalseRequiredField(t *testing.T) {
@@ -144,7 +159,12 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.Equal(t, false, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/myStringVar"].IsSetInConstructor(), "Wrong bean variable description read out of the yaml!")
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myStringVar"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, false, property.IsSetInConstructor(), "Wrong bean variable required status read out of the yaml!")
 }
 
 func TestGetSchemaTypesFromYamlParsesSingleStringVariableWithNoRequiredFieldReturnsFalse(t *testing.T) {
@@ -165,7 +185,12 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.Equal(t, false, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/myStringVar"].IsSetInConstructor(), "Wrong bean variable description read out of the yaml!")
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myStringVar"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, false, property.IsSetInConstructor(), "Wrong bean variable required status read out of the yaml!")
 }
 
 func TestGetSchemaTypesFromYamlParsesMultipleStringVariableWithTrueRequiredFields(t *testing.T) {
@@ -191,8 +216,15 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.Equal(t, true, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/myStringVar"].IsSetInConstructor(), "Wrong bean variable description read out of the yaml!")
-	assert.Equal(t, true, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/myStringVar1"].IsSetInConstructor(), "Wrong bean variable description read out of the yaml!")
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myStringVar"]
+	assert.True(t, propertyExists)
+	property2, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myStringVar1"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, true, property1.IsSetInConstructor(), "Wrong bean variable required status read out of the yaml!")
+	assert.Equal(t, true, property2.IsSetInConstructor(), "Wrong bean variable required status read out of the yaml!")
 }
 
 func TestGetSchemaTypesFromYamlParsesMultipleStringVariablesWithFalseRequiredFields(t *testing.T) {
@@ -218,8 +250,15 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.Equal(t, false, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/myStringVar"].IsSetInConstructor(), "Wrong bean variable description read out of the yaml!")
-	assert.Equal(t, false, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/myStringVar1"].IsSetInConstructor(), "Wrong bean variable description read out of the yaml!")
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myStringVar"]
+	assert.True(t, propertyExists)
+	property2, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myStringVar1"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, false, property1.IsSetInConstructor(), "Wrong bean variable required status read out of the yaml!")
+	assert.Equal(t, false, property2.IsSetInConstructor(), "Wrong bean variable required status read out of the yaml!")
 }
 
 func TestGetSchemaTypesFromYamlParsesMultipleStringVariablesWithMixedRequiredFields(t *testing.T) {
@@ -245,8 +284,15 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.Equal(t, false, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/myStringVar"].IsSetInConstructor(), "Wrong bean variable isSetInConstructor read out of the yaml!")
-	assert.Equal(t, true, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/myStringVar1"].IsSetInConstructor(), "Wrong bean variable isSetInConstructor read out of the yaml!")
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myStringVar"]
+	assert.True(t, propertyExists)
+	property2, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myStringVar1"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, false, property1.IsSetInConstructor(), "Wrong bean variable required status read out of the yaml!")
+	assert.Equal(t, true, property2.IsSetInConstructor(), "Wrong bean variable required status read out of the yaml!")
 }
 
 func TestGetSchemaTypesFromYamlParsesMultipleStringVariables(t *testing.T) {
@@ -270,11 +316,17 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.NotEmpty(t, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties(), "Bean must have variable!")
-	assert.Equal(t, "mySecondStringVar", schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/mySecondStringVar"].GetName(), "Wrong bean variable name read out of the yaml!")
-	assert.Equal(t, "string", schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/mySecondStringVar"].GetType(), "Wrong bean variable type read out of the yaml!")
-	assert.Equal(t, "myStringVar", schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/myStringVar"].GetName(), "Wrong bean variable name read out of the yaml!")
-	assert.Equal(t, "string", schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/myStringVar"].GetType(), "Wrong bean variable type read out of the yaml!")
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myStringVar"]
+	assert.True(t, propertyExists)
+	property2, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/mySecondStringVar"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, "myStringVar", property1.GetName(), "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "string", property1.GetType(), "Wrong bean variable type read out of the yaml!")
+	assert.Equal(t, "mySecondStringVar", property2.GetName(), "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "string", property2.GetType(), "Wrong bean variable type read out of the yaml!")
 }
 
 func TestGetSchemaTypesFromYamlParsesObjectWithArray(t *testing.T) {
@@ -295,9 +347,14 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.NotEmpty(t, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties(), "Bean must have a variable!")
-	assert.Equal(t, "myTestArray", schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/myTestArray"].GetName(), "Wrong bean variable name read out of the yaml!")
-	assert.Equal(t, "string[]", schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/myTestArray"].GetType(), "Wrong bean variable type read out of the yaml!")
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myTestArray"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, "myTestArray", property1.GetName(), "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "string", property1.GetType(), "Wrong bean variable type read out of the yaml!")
+	assert.Equal(t, true, property1.IsCollection(), "Wrong bean variable cardinality read out of the yaml!")
 }
 
 func TestGetSchemaTypesFromYamlParsesObjectWithArrayContainingAllOfPart(t *testing.T) {
@@ -319,9 +376,14 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.NotEmpty(t, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties(), "Bean must have a variable!")
-	assert.Equal(t, "myTestArray", schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/myTestArray"].GetName(), "Wrong bean variable name read out of the yaml!")
-	assert.Equal(t, "string[]", schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/myTestArray"].GetType(), "Wrong bean variable type read out of the yaml!")
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myTestArray"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, "myTestArray", property1.GetName(), "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "string", property1.GetType(), "Wrong bean variable type read out of the yaml!")
+	assert.Equal(t, true, property1.IsCollection(), "Wrong bean variable cardinality read out of the yaml!")
 }
 
 func TestGetSchemaTypesFromYamlParsesNestedObjects(t *testing.T) {
@@ -344,8 +406,15 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.NotEmpty(t, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties(), "Bean must have a variable!")
-	assert.Equal(t, "nestedObject", schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()["#/components/schemas/MyBeanName/nestedObject"].GetName(), "Wrong bean variable name read out of the yaml!")
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/nestedObject"]
+	assert.True(t, propertyExists)
+	property2, propertyExists := property1.resolvedType.GetProperties()["#/components/schemas/MyBeanName/nestedObject/randomString"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, "nestedObject", property1.GetName(), "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "randomString", property2.GetName(), "Wrong bean variable name read out of the yaml!")
 }
 
 func TestGetSchemaTypesFromYamlParsesReferenceToObject(t *testing.T) {
@@ -370,8 +439,47 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.NotEmpty(t, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties(), "Bean must have a variable!")
-	assert.Equal(t, "referencingObject", schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties()[SCHEMAS_PATH+"MyBeanName/referencingObject"].GetName(), "Wrong bean variable name read out of the yaml!")
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/referencingObject"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, "referencingObject", property1.GetName(), "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "object", property1.GetType())
+}
+
+func TestGetSchemaTypesFromYamlParsesObjectWithArrayContainingAllOfRef(t *testing.T) {
+	// Given...
+	apiYaml := `openapi: 3.0.3
+components:
+  schemas:
+    MyBeanName:
+      type: object
+      properties:
+        myTestArray:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/ReferencedObject'
+    ReferencedObject:
+      type: object
+      properties:
+        randomString:
+          type: string
+`
+	// When...
+	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+
+	// Then...
+	assert.Nil(t, err)
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myTestArray"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, "myTestArray", property1.GetName(), "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "string", property1.GetType(), "Wrong bean variable type read out of the yaml!")
+	assert.Equal(t, true, property1.IsCollection(), "Wrong bean variable cardinality read out of the yaml!")
 }
 
 func TestGetSchemaTypesFromYamlParsesEnum(t *testing.T) {
@@ -394,10 +502,18 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.NotEmpty(t, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties(), "Bean must have a variable!")
-	assert.Equal(t, "randValue1", schemaTypes[schemaPath].GetProperties()[propertyPath].GetPossibleValues()["randValue1"])
-	assert.Equal(t, "randValue2", schemaTypes[schemaPath].GetProperties()[propertyPath].GetPossibleValues()["randValue2"])
-	assert.Equal(t, true, schemaTypes[schemaPath].GetProperties()[propertyPath].IsEnum())
+	schemaType, schemaTypeExists := schemaTypes[schemaPath]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()[propertyPath]
+	assert.True(t, propertyExists)
+	assert.Equal(t, true, property1.IsEnum())
+	posValue1, posValueExists := property1.GetPossibleValues()["randValue1"]
+	assert.True(t, posValueExists)
+	assert.Equal(t, "randValue1", posValue1)
+	posValue2, posValueExists := property1.GetPossibleValues()["randValue2"]
+	assert.True(t, posValueExists)
+	assert.Equal(t, "randValue2", posValue2)
 }
 
 func TestGetSchemaTypesFromYamlParsesEnumAsConstant(t *testing.T) {
@@ -420,7 +536,13 @@ components:
 	
 		// Then...
 		assert.Nil(t, err)
-		assert.NotEmpty(t, schemaTypes[SCHEMAS_PATH+"MyBeanName"].GetProperties(), "Bean must have a variable!")
-		assert.Equal(t, "randValue1", schemaTypes[schemaPath].GetProperties()[propertyPath].GetPossibleValues()["randValue1"])
-		assert.Equal(t, true, schemaTypes[schemaPath].GetProperties()[propertyPath].IsConstant())
+		schemaType, schemaTypeExists := schemaTypes[schemaPath]
+		assert.True(t, schemaTypeExists)
+		assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+		property1, propertyExists := schemaType.GetProperties()[propertyPath]
+		assert.True(t, propertyExists)
+		assert.Equal(t, true, property1.IsConstant())
+		posValue, posValueExists := property1.GetPossibleValues()["randValue1"]
+		assert.True(t, posValueExists)
+		assert.Equal(t, "randValue1", posValue)
 }

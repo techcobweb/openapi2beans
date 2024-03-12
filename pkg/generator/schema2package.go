@@ -23,12 +23,16 @@ func translateSchemaTypesToJavaPackage(schemaTypes map[string]*SchemaType, packa
 					Description: property.description,
 				}
 				dataMembers = append(dataMembers, &dataMember)
-				if property.IsSetInConstructor() {
-					requiredMember := RequiredMember {
-						DataMember: &dataMember,
-						IsFirst: len(requiredMembers) == 0,
+				if property.IsConstant() {
+					// DO STUFF HERE
+				} else {
+					if property.IsSetInConstructor() {
+						requiredMember := RequiredMember {
+							DataMember: &dataMember,
+							IsFirst: len(requiredMembers) == 0,
+						}
+						requiredMembers = append(requiredMembers, &requiredMember)
 					}
-					requiredMembers = append(requiredMembers, &requiredMember)
 				}
 			}
 			javaClass := NewJavaClass(schemaType.name, schemaType.description, &javaPackage, nil, dataMembers, requiredMembers)

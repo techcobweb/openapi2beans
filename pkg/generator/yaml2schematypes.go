@@ -103,6 +103,10 @@ func retrieveSchemaTypesFromMap(inputMap map[interface{}]interface{}, yamlPath s
 				schemaTypes[apiSchemaPartPath] = enumSchemaType
 			}
 
+			if property.IsConstant() {
+				property.name = strings.ToUpper(property.name)
+			}
+
 			if err == nil {
 				properties[apiSchemaPartPath] = property
 			}
@@ -112,14 +116,20 @@ func retrieveSchemaTypesFromMap(inputMap map[interface{}]interface{}, yamlPath s
 	return schemaTypes, properties, err
 }
 
-func resolveReferences(properties map[string]*Property) {
+func resolveReferences(properties map[string]*Property) error {
+	var err error
 	for _, property := range properties {
 		if property.IsReferencing() {
 			referencingPath := strings.Split(property.GetType(), ":")[1]
-			referencedProp := properties[referencingPath]
-			property.Resolve(referencedProp)
+			referencedProp, isRefPropPresent := properties[referencingPath]
+			if isRefPropPresent {
+				property.Resolve(referencedProp)
+			} else {
+				err = openapi2beans_errors.NewError("Failed to find referenced property for %v\n", property)
+			}
 		}
 	}
+	return err
 }
 
 func retrieveNestedProperties(subMap map[interface{}]interface{}, yamlPath string) (schemaTypes map[string]*SchemaType, properties map[string]*Property, err error) {
@@ -167,13 +177,8 @@ func retrieveArrayType(varMap map[interface{}]interface{}, schemaPartPath string
 			itemsMap = allOfSlice[0].(map[interface{}]interface{})
 		}
 
-		arrayTypeObj, isArrayTypePresent := itemsMap[OPENAPI_YAML_KEYWORD_TYPE]
-
-		if isArrayTypePresent {
-			arrayType = arrayTypeObj.(string) + "[]"
-		} else {
-			err = openapi2beans_errors.NewError("Failed to find required type within items section for %v\n", schemaPartPath)
-		}
+		arrayType, _, err = retrieveVarType(itemsMap, schemaPartPath)
+		
 	} else {
 		err = openapi2beans_errors.NewError("Failed to find required items section for %v\n", schemaPartPath)
 	}

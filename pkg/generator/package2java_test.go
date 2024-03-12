@@ -300,3 +300,35 @@ func TestPackageStructParsesToJavaEnumTemplate(t *testing.T) {
 	generatedFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
 	assertEnumFileGeneratedOk(t, generatedFile, &javaEnum)
 }
+
+func TestPackageStructWithclassAndEnumParsesCorrectly(t *testing.T) {
+	// Given...
+	className := "MyBean"
+	classDesc := "test class"
+	enumName := "MyEnum"
+	enumDesc := "test enum"
+	javaPackage := NewJavaPackage()
+	javaPackage.Name = TARGET_JAVA_PACKAGE
+	class := NewJavaClass(className, classDesc, javaPackage, nil, nil, nil)
+	javaEnum := JavaEnum {
+		Name: enumName,
+		Description: enumDesc,
+		EnumValues: []string{"randVal1", "randVal2"},
+		JavaPackage: javaPackage,
+	}
+	javaPackage.Classes[className] = class
+	javaPackage.Enums[enumName] = &javaEnum
+	mockFileSystem := files.NewMockFileSystem()
+	storeFilepath := "generated"
+	generatedEnumPath := storeFilepath + "/" + enumName + ".java"
+	generatedClassPath := storeFilepath + "/" + className + ".java"
+
+	// When...
+	convertJavaPackageToJavaFiles(javaPackage, mockFileSystem, storeFilepath)
+
+	// Then...
+	generatedEnumFile := openGeneratedFile(t, mockFileSystem, generatedEnumPath)
+	assertEnumFileGeneratedOk(t, generatedEnumFile, &javaEnum)
+	generatedClassFile := openGeneratedFile(t, mockFileSystem, generatedClassPath)
+	assertClassFileGeneratedOk(t, generatedClassFile, className)
+}

@@ -12,8 +12,8 @@ func assertJavaClassCorrectlyRelatesToSchemaType(t *testing.T, schemaType *Schem
 	propertiesVisited := 0
 
 	for _, dataMember := range class.DataMembers {
-		assert.NotNil(t, schemaType.properties[schemaPath+"/"+dataMember.Name])
-		comparisonSchemaProperty := schemaType.properties[schemaPath+"/"+dataMember.Name]
+		comparisonSchemaProperty, exists := schemaType.properties[schemaPath+"/"+dataMember.Name]
+		assert.True(t, exists)
 		propertiesVisited += 1
 		expectedName := comparisonSchemaProperty.name
 		assert.Equal(t, expectedName, dataMember.Name)
@@ -24,8 +24,8 @@ func assertJavaClassCorrectlyRelatesToSchemaType(t *testing.T, schemaType *Schem
 
 	requiredPropertiesVisited := 0
 	for _, requiredMember := range class.RequiredMembers {
-		assert.NotNil(t, schemaType.properties[schemaPath+"/"+requiredMember.DataMember.Name])
-		comparisonSchemaProperty := schemaType.properties[schemaPath+"/"+requiredMember.DataMember.Name]
+		comparisonSchemaProperty, exists := schemaType.properties[schemaPath+"/"+requiredMember.DataMember.Name]
+		assert.True(t, exists)
 		requiredPropertiesVisited += 1
 		expectedName := comparisonSchemaProperty.name
 		assert.Equal(t, expectedName, requiredMember.DataMember.Name)
