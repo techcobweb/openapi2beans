@@ -4,9 +4,7 @@ package {{JavaPackage.Name}};
 // {{.}}
 {{/Description}}
 public class {{Name}} {
-    {{#DataMembers}}
     // Class Variables //
-    {{/DataMembers}}
     {{#DataMembers}}
     {{#Description}}
     // {{.}}
@@ -20,18 +18,14 @@ public class {{Name}} {
         {{/RequiredMembers}}
     }
 
-    {{#DataMembers}}
     // Getters //
-    {{/DataMembers}}
     {{#DataMembers}}
     public {{MemberType}} Get{{Name}}() {
         return {{Name}};
     }
     {{/DataMembers}}
 
-    {{#DataMembers}}
     // Setters //
-    {{/DataMembers}}
     {{#DataMembers}}
     public void Set{{Name}}({{MemberType}} {{Name}}) {
         this.{{Name}} = {{Name}};

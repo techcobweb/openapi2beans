@@ -17,7 +17,7 @@ func GenerateFiles(fs files.FileSystem, storeFilepath string, apiFilePath string
 			var schemaTypes map[string]*SchemaType
 			schemaTypes, err = getSchemaTypesFromYaml([]byte(apiyaml))
 			javaPackage := translateSchemaTypesToJavaPackage(schemaTypes, packageName)
-			convertJavaPackageToJavaFiles(&javaPackage, fs, storeFilepath)
+			convertJavaPackageToJavaFiles(javaPackage, fs, storeFilepath)
 		}
 	}
 
@@ -32,6 +32,7 @@ func generateDirectories(fs files.FileSystem, storeFilepath string) error {
 		if exists {
 			fs.DeleteDir(storeFilepath)
 		}
+		log.Printf("Creating output directory: %s\n", storeFilepath)
 		err = fs.MkdirAll(storeFilepath)
 	}
 	return err

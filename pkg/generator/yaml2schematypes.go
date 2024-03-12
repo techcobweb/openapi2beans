@@ -52,10 +52,10 @@ func retrieveSchemasMapFromEntireYamlMap(entireYamlMap map[string]interface{}) (
 		if isSchemasPresent {
 			schemasMap = schemas.(map[interface{}]interface{})
 		} else {
-			err = openapi2beans_errors.NewError("Failed to find schemas within %v", entireYamlMap)
+			err = openapi2beans_errors.NewError("RetrieveSchemasMapFromEntireYamlMap: Failed to find schemas within %v", entireYamlMap)
 		}
 	} else {
-		err = openapi2beans_errors.NewError("Failed to find components within %v", entireYamlMap)
+		err = openapi2beans_errors.NewError("RetrieveSchemasMapFromEntireYamlMap: Failed to find components within %v", entireYamlMap)
 	}
 	return schemasMap, err
 }
@@ -125,7 +125,7 @@ func resolveReferences(properties map[string]*Property) error {
 			if isRefPropPresent {
 				property.Resolve(referencedProp)
 			} else {
-				err = openapi2beans_errors.NewError("Failed to find referenced property for %v\n", property)
+				err = openapi2beans_errors.NewError("ResolveReferences: Failed to find referenced property for %v\n", property)
 			}
 		}
 	}
@@ -159,7 +159,7 @@ func retrieveVarType(variableMap map[interface{}]interface{}, apiSchemaPartPath 
 	} else if isRefPresent {
 		varType = "$ref:" + refObj.(string)
 	} else {
-		err = openapi2beans_errors.NewError("Failed to find required type for %v\n", apiSchemaPartPath)
+		err = openapi2beans_errors.NewError("RetrieveVarType: Failed to find required type for %v\n", apiSchemaPartPath)
 	}
 
 	return varType, cardinality, err
@@ -180,7 +180,7 @@ func retrieveArrayType(varMap map[interface{}]interface{}, schemaPartPath string
 		arrayType, _, err = retrieveVarType(itemsMap, schemaPartPath)
 		
 	} else {
-		err = openapi2beans_errors.NewError("Failed to find required items section for %v\n", schemaPartPath)
+		err = openapi2beans_errors.NewError("RetrieveArrayType: Failed to find required items section for %v\n", schemaPartPath)
 	}
 
 	return arrayType, err

@@ -8,18 +8,6 @@ import (
 	"github.com/techcobweb/openapi2beans/pkg/embedded"
 )
 
-// func generateDirectories(fs files.FileSystem, storeFilepath string) error {
-// 	log.Println("Cleaning generated beans directory: " + storeFilepath)
-// 	exists, err := fs.DirExists(storeFilepath)
-// 	if err == nil {
-// 		if exists {
-// 			fs.DeleteDir(storeFilepath)
-// 		}
-// 		err = fs.MkdirAll(storeFilepath)
-// 	}
-// 	return err
-// }
-
 func convertJavaPackageToJavaFiles(javaPackage *JavaPackage, fs files.FileSystem, storeFilePath string) {
 	log.Print("convertJavaPackageToJavaFiles: Creating classes")
 	classTemplate, err := embedded.GetJavaClassTemplate()

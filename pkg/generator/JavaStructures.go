@@ -7,11 +7,11 @@ type JavaPackage struct {
 	Interfaces map[string]*JavaInterface
 }
 
-func NewJavaPackage() *JavaPackage {
-	javaPackage := JavaPackage {
-		Name: "",
-		Classes: make(map[string]*JavaClass),
-		Enums: make(map[string]*JavaEnum),
+func NewJavaPackage(name string) *JavaPackage {
+	javaPackage := JavaPackage{
+		Name:       name,
+		Classes:    make(map[string]*JavaClass),
+		Enums:      make(map[string]*JavaEnum),
 		Interfaces: make(map[string]*JavaInterface),
 	}
 	return &javaPackage
@@ -57,8 +57,18 @@ type JavaEnum struct {
 	JavaPackage *JavaPackage
 }
 
+func NewJavaEnum(name string, description string, enumValues []string, javaPackage *JavaPackage) *JavaEnum {
+	javaEnum := JavaEnum{
+		Name:        name,
+		Description: description,
+		EnumValues:  enumValues,
+		JavaPackage: javaPackage,
+	}
+	return &javaEnum
+}
+
 type JavaInterface struct {
-	Name              string
-	Description       string
-	JavaPackage       *JavaPackage
+	Name        string
+	Description string
+	JavaPackage *JavaPackage
 }

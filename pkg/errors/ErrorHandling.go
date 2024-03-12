@@ -9,7 +9,7 @@ import (
 
 func NewError(template string, params ... interface{}) error {
 	msg := fmt.Sprintf("Error: " + template, params...)
-	log.Print(msg)
+	log.Println(msg)
 	err := errors.New(msg)
 	return err
 }

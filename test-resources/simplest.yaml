@@ -15,7 +15,3 @@ components:
     MyBeanName:
       type: object
       description: A simple example
-      properties:
-        myStringVar:
-          type: string
-          description: a test string

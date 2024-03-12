@@ -445,7 +445,7 @@ components:
 	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/referencingObject"]
 	assert.True(t, propertyExists)
 	assert.Equal(t, "referencingObject", property1.GetName(), "Wrong bean variable name read out of the yaml!")
-	assert.Equal(t, "object", property1.GetType())
+	assert.Equal(t, "ReferencedObject", property1.GetType())
 }
 
 // func TestGetSchemaTypesFromYamlParsesObjectWithArrayContainingAllOfRef(t *testing.T) {
@@ -514,6 +514,10 @@ components:
 	posValue2, posValueExists := property1.GetPossibleValues()["randValue2"]
 	assert.True(t, posValueExists)
 	assert.Equal(t, "randValue2", posValue2)
+	enumSchemaType, enumSchemaTypeExists := schemaTypes[propertyPath]
+	assert.Equal(t, true, enumSchemaTypeExists)
+	assert.Equal(t, "MyEnum", enumSchemaType.name)
+	assert.Equal(t, "MyEnum", enumSchemaType.ownProperty.name)
 }
 
 func TestGetSchemaTypesFromYamlParsesEnumAsConstant(t *testing.T) {

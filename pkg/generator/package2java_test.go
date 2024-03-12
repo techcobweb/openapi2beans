@@ -321,8 +321,7 @@ func TestPackageStructWithclassAndEnumParsesCorrectly(t *testing.T) {
 	classDesc := "test class"
 	enumName := "MyEnum"
 	enumDesc := "test enum"
-	javaPackage := NewJavaPackage()
-	javaPackage.Name = TARGET_JAVA_PACKAGE
+	javaPackage := NewJavaPackage(TARGET_JAVA_PACKAGE)
 	class := NewJavaClass(className, classDesc, javaPackage, nil, nil, nil)
 	javaEnum := JavaEnum {
 		Name: enumName,

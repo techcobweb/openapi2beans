@@ -1,41 +1,18 @@
 package generator
 
-func translateSchemaTypesToJavaPackage(schemaTypes map[string]*SchemaType, packageName string) (javaPackage JavaPackage){
-	javaPackage.Name = packageName
-	javaPackage.Classes = make(map[string]*JavaClass)
-	javaPackage.Enums = make(map[string]*JavaEnum)
+func translateSchemaTypesToJavaPackage(schemaTypes map[string]*SchemaType, packageName string) (javaPackage *JavaPackage){
+	javaPackage = NewJavaPackage(packageName)
 	for _, schemaType := range schemaTypes {
 		if schemaType.ownProperty.IsEnum() {
 			enumValues := possibleValuesToEnumValues(schemaType.ownProperty.possibleValues)
-			javaEnum := JavaEnum {
-				Name: schemaType.ownProperty.name,
-				Description: schemaType.ownProperty.description,
-				EnumValues: enumValues,
-			}
-			javaPackage.Enums[schemaType.ownProperty.name] = &javaEnum
+			
+			javaEnum := NewJavaEnum(schemaType.ownProperty.name, schemaType.ownProperty.description, enumValues, javaPackage)
+
+			javaPackage.Enums[schemaType.ownProperty.name] = javaEnum
 		} else {
-			dataMembers := []*DataMember{}
-			requiredMembers := []*RequiredMember{}
-			for _, property := range schemaType.properties {
-				dataMember := DataMember {
-					Name: property.name,
-					MemberType: propertyToJavaType(property),
-					Description: property.description,
-				}
-				dataMembers = append(dataMembers, &dataMember)
-				if property.IsConstant() {
-					// DO STUFF HERE
-				} else {
-					if property.IsSetInConstructor() {
-						requiredMember := RequiredMember {
-							DataMember: &dataMember,
-							IsFirst: len(requiredMembers) == 0,
-						}
-						requiredMembers = append(requiredMembers, &requiredMember)
-					}
-				}
-			}
-			javaClass := NewJavaClass(schemaType.name, schemaType.description, &javaPackage, nil, dataMembers, requiredMembers)
+			dataMembers, requiredMembers := retrieveDataMembersFromSchemaType(schemaType)
+			
+			javaClass := NewJavaClass(schemaType.name, schemaType.description, javaPackage, nil, dataMembers, requiredMembers)
 			javaPackage.Classes[schemaType.name] = javaClass
 		}
 	}
@@ -49,6 +26,29 @@ func possibleValuesToEnumValues(possibleValues map[string]string) (enumValues []
 	return enumValues
 }
 
+func retrieveDataMembersFromSchemaType(schemaType *SchemaType) (dataMembers []*DataMember, requiredMembers []*RequiredMember){
+	for _, property := range schemaType.properties {
+		dataMember := DataMember {
+			Name: property.name,
+			MemberType: propertyToJavaType(property),
+			Description: property.description,
+		}
+		dataMembers = append(dataMembers, &dataMember)
+		if property.IsConstant() {
+			// DO STUFF HERE
+		} else {
+			if property.IsSetInConstructor() {
+				requiredMember := RequiredMember {
+					DataMember: &dataMember,
+					IsFirst: len(requiredMembers) == 0,
+				}
+				requiredMembers = append(requiredMembers, &requiredMember)
+			}
+		}
+	}
+	return dataMembers, requiredMembers
+}
+
 func propertyToJavaType(property *Property) string {
 	javaType := ""
 	if property.IsReferencing() {
@@ -56,6 +56,10 @@ func propertyToJavaType(property *Property) string {
 	} else {
 		if property.typeName == "string" {
 			javaType = "String"
+		} else if property.typeName == "integer" {
+			javaType = "int"
+		} else if property.typeName == "number" {
+			javaType = "float"
 		} else {
 			javaType = property.typeName
 		}

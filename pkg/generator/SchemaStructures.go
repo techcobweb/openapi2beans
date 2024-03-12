@@ -146,7 +146,7 @@ func (prop *Property) SetResolvedType(resolvedType *SchemaType) {
 
 func (prop *Property) Resolve(resolvingProperty *Property) {
 	prop.description = resolvingProperty.GetDescription()
-	prop.typeName = resolvingProperty.GetType()
+	prop.typeName = resolvingProperty.GetName()
 	prop.possibleValues = resolvingProperty.GetPossibleValues()
 	prop.resolvedType = resolvingProperty.GetResolvedType()
 	prop.cardinality = resolvingProperty.GetCardinality()
