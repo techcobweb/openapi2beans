@@ -3,13 +3,27 @@ package generator
 import (
 	"testing"
 
+	"github.com/cbroglie/mustache"
 	"github.com/galasa-dev/cli/pkg/files"
 	"github.com/stretchr/testify/assert"
+	"github.com/techcobweb/openapi2beans/pkg/embedded"
 )
 
 const (
 	TARGET_JAVA_PACKAGE = "generated"
 )
+
+func getEmbeddedClassTemplate(t *testing.T) *mustache.Template{
+	classTemplate, err := embedded.GetJavaClassTemplate()
+	assert.Nil(t, err)
+	return classTemplate
+}
+
+func getEmbeddedEnumTemplate(t *testing.T) *mustache.Template{
+	enumTemplate, err := embedded.GetJavaEnumTemplate()
+	assert.Nil(t, err)
+	return enumTemplate
+}
 
 func openGeneratedFile(t *testing.T, mockFileSystem files.FileSystem, generatedCodeFilepath string) string{
 	exists, err := mockFileSystem.Exists(generatedCodeFilepath)
@@ -56,7 +70,7 @@ func TestPackageStructParsesToTemplate(t *testing.T) {
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
 
 	// When...
-	err := createJavaClassFile(class, mockFileSystem, storeFilepath)
+	err := createJavaClassFile(class, mockFileSystem, getEmbeddedClassTemplate(t), storeFilepath)
 
 	// Then...
 	assert.Nil(t, err)
@@ -82,7 +96,7 @@ func TestPackageStructParsesToTemplateWithClassWithMember(t *testing.T) {
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
 
 	// When...
-	err := createJavaClassFile(class, mockFileSystem, storeFilepath)
+	err := createJavaClassFile(class, mockFileSystem, getEmbeddedClassTemplate(t), storeFilepath)
 
 	// Then...
 	assert.Nil(t, err)
@@ -115,7 +129,7 @@ func TestPackageStructParsesToTemplateWithClassWithMultipleMembers(t *testing.T)
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
 
 	// When...
-	err := createJavaClassFile(class, mockFileSystem, storeFilepath)
+	err := createJavaClassFile(class, mockFileSystem, getEmbeddedClassTemplate(t), storeFilepath)
 
 	// Then...
 	assert.Nil(t, err)
@@ -142,7 +156,7 @@ func TestPackageStructParsesToTemplateWithClassWithArrayDataMember(t *testing.T)
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
 
 	// When...
-	err := createJavaClassFile(class, mockFileSystem, storeFilepath)
+	err := createJavaClassFile(class, mockFileSystem, getEmbeddedClassTemplate(t), storeFilepath)
 
 	// Then...
 	assert.Nil(t, err)
@@ -175,7 +189,7 @@ func TestPackageStructParsesToTemplateWithClassWithMixedArrayAndPrimitiveDataMem
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
 
 	// When...
-	err := createJavaClassFile(class, mockFileSystem, storeFilepath)
+	err := createJavaClassFile(class, mockFileSystem, getEmbeddedClassTemplate(t), storeFilepath)
 
 	// Then...
 	assert.Nil(t, err)
@@ -202,7 +216,7 @@ func TestPackageStructParsesToTemplateWithClassWithReferencedClassType(t *testin
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
 
 	// When...
-	err := createJavaClassFile(class, mockFileSystem, storeFilepath)
+	err := createJavaClassFile(class, mockFileSystem, getEmbeddedClassTemplate(t), storeFilepath)
 
 	// Then...
 	assert.Nil(t, err)
@@ -229,7 +243,7 @@ func TestPackageStructParsesToTemplateWithClassWithArrayOfReferencedClassType(t 
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
 
 	// When...
-	err := createJavaClassFile(class, mockFileSystem, storeFilepath)
+	err := createJavaClassFile(class, mockFileSystem, getEmbeddedClassTemplate(t), storeFilepath)
 
 	// Then...
 	assert.Nil(t, err)
@@ -263,7 +277,7 @@ func TestPackageStructParsesToTemplateWithClassWithRequiredProperty(t *testing.T
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
 
 	// When...
-	err := createJavaClassFile(class, mockFileSystem, storeFilepath)
+	err := createJavaClassFile(class, mockFileSystem, getEmbeddedClassTemplate(t), storeFilepath)
 
 	// Then...
 	assert.Nil(t, err)
@@ -293,7 +307,7 @@ func TestPackageStructParsesToJavaEnumTemplate(t *testing.T) {
 	generatedCodeFilePath := storeFilepath + "/" + enumName + ".java"
 
 	// When...
-	err := createJavaEnumFile(&javaEnum, mockFileSystem, storeFilepath)
+	err := createJavaEnumFile(&javaEnum, mockFileSystem, getEmbeddedEnumTemplate(t), storeFilepath)
 
 	// Then...
 	assert.Nil(t, err)
