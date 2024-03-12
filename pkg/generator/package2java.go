@@ -20,9 +20,11 @@ import (
 // }
 
 func convertJavaPackageToJavaFiles(javaPackage *JavaPackage, fs files.FileSystem, storeFilePath string) {
+	log.Print("convertJavaPackageToJavaFiles: Creating classes")
 	for _, javaClass := range javaPackage.Classes {
 		createJavaClassFile(javaClass, fs, storeFilePath)
 	}
+	log.Print("convertJavaPackageToJavaFiles: Creating enums")
 	for _, javaEnum := range javaPackage.Enums {
 		createJavaEnumFile(javaEnum, fs, storeFilePath)
 	}
@@ -35,7 +37,7 @@ func createJavaClassFile(javaClass *JavaClass, fs files.FileSystem, storeFilepat
 	if err == nil {
 		err = fs.WriteTextFile(storeFilepath+"/"+javaClass.Name+".java", generatedBeanFileContents)
 		if err == nil {
-			log.Print("Successfully created enum: " + javaClass.Name + ".java")
+			log.Print("Successfully created class: " + javaClass.Name + ".java")
 		} else {
 			log.Printf("Error: failed to create: %s. Reason is: %s", javaClass.Name + ".java", err.Error())
 		}

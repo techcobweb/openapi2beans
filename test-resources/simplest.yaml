@@ -1,0 +1,21 @@
+openapi: 3.0.3
+info:
+  title: Simple yaml
+  version : "0.1.0"
+  description: A simple yaml to test against.
+paths:
+  /test:
+    put:
+      operationId: test
+      responses:
+        '200':
+          description: 'please stop giving me red'
+components:
+  schemas:
+    MyBeanName:
+      type: object
+      description: A simple example
+      properties:
+        myStringVar:
+          type: string
+          description: a test string
