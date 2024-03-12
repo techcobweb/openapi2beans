@@ -65,7 +65,7 @@ func retrieveSchemaTypesFromMap(inputMap map[interface{}]interface{}, yamlPath s
 	properties = make(map[string]*Property)
 
 	for subMapKey, subMapObj := range inputMap {
-		log.Printf("%v\n", subMapObj)
+		log.Printf("RetrieveSchemaTypesFromMap: %v\n", subMapObj)
 
 		subMap := subMapObj.(map[interface{}]interface{})
 		apiSchemaPartPath := yamlPath + "/" + subMapKey.(string)
@@ -118,11 +118,14 @@ func retrieveSchemaTypesFromMap(inputMap map[interface{}]interface{}, yamlPath s
 
 func resolveReferences(properties map[string]*Property) error {
 	var err error
+	log.Printf("ResolveReferences: resolving references in property map: %v\n", properties)
 	for _, property := range properties {
 		if property.IsReferencing() {
+			log.Printf("ResolveReferences: attempting to resolve: %v\n", property)
 			referencingPath := strings.Split(property.GetType(), ":")[1]
 			referencedProp, isRefPropPresent := properties[referencingPath]
 			if isRefPropPresent {
+				log.Printf("ResolvingReferences: resolving %v with %v\n", property, referencedProp)
 				property.Resolve(referencedProp)
 			} else {
 				err = openapi2beans_errors.NewError("ResolveReferences: Failed to find referenced property for %v\n", property)
