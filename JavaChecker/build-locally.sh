@@ -1,0 +1,2 @@
+# CALL THE GENERATOR + CREATE SOURCE CODE IN SRC/MAIN/JAVA/DEV/GALASA/OPENAPI2BEANS/GENERATED + MVN CLEAN TEST (return code should be from here)
+# call code . in javachecker to open up a separate workspace
