@@ -22,12 +22,12 @@ func NewRootCommand(fs files.FileSystem, flags Openapi2beansFlagStore) *cobra.Co
 		},
 	}
 
-	cmd.Flags().StringVarP(&flags.apiFilePath, "yaml", "y", "", "Specifies where to pull the openapi yaml from.")
+	cmd.Flags().StringVarP(&flags.apiFilePath, "target", "t", "", "Specifies where to pull the openapi yaml from.")
 	cmd.Flags().StringVarP(&flags.packageNane, "package", "p", "generated", "Specifies what package the Java files belong to.")
-	cmd.Flags().StringVarP(&flags.storeFilePath, "store", "s", "generated", "Specifies the file path to store the resulting generated java beans.")
+	cmd.Flags().StringVarP(&flags.storeFilePath, "output", "o", "generated", "Specifies the file path to store the resulting generated java beans.")
 
-	cmd.MarkFlagRequired("yaml")
+	cmd.MarkFlagRequired("target")
 	cmd.MarkFlagRequired("package")
-	cmd.MarkFlagRequired("store")
+	cmd.MarkFlagRequired("output")
 	return cmd
 }
