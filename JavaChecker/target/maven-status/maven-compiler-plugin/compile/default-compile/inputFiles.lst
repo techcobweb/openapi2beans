@@ -1,0 +1,10 @@
+/Users/holly/code/src/github.com/techcobweb/openapi2beans/JavaChecker/src/main/java/dev/galasa/openapi2beans/example/generated/BeanWithEnumProperty.java
+/Users/holly/code/src/github.com/techcobweb/openapi2beans/JavaChecker/src/main/java/dev/galasa/openapi2beans/example/generated/BeanWithPrimitiveProperty.java
+/Users/holly/code/src/github.com/techcobweb/openapi2beans/JavaChecker/src/main/java/dev/galasa/openapi2beans/example/generated/BeanWithMultiplePrimitiveProperties.java
+/Users/holly/code/src/github.com/techcobweb/openapi2beans/JavaChecker/src/main/java/dev/galasa/openapi2beans/example/generated/BeanForTestingAllPrimitivePropertyTypes.java
+/Users/holly/code/src/github.com/techcobweb/openapi2beans/JavaChecker/src/main/java/dev/galasa/openapi2beans/example/generated/BeanWithArray.java
+/Users/holly/code/src/github.com/techcobweb/openapi2beans/JavaChecker/src/main/java/dev/galasa/openapi2beans/example/generated/BeanWithMixOfArrayAndPrimitiveProperties.java
+/Users/holly/code/src/github.com/techcobweb/openapi2beans/JavaChecker/src/main/java/dev/galasa/openapi2beans/example/generated/EmptyBean.java
+/Users/holly/code/src/github.com/techcobweb/openapi2beans/JavaChecker/src/main/java/dev/galasa/openapi2beans/example/generated/BeanWithPropertyReferencingEmptyBean.java
+/Users/holly/code/src/github.com/techcobweb/openapi2beans/JavaChecker/src/main/java/dev/galasa/openapi2beans/example/generated/BeanToTestArraysWithVariousPrimitiveTypes.java
+/Users/holly/code/src/github.com/techcobweb/openapi2beans/JavaChecker/src/main/java/dev/galasa/openapi2beans/example/generated/anEnumProperty.java
