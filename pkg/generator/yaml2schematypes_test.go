@@ -386,6 +386,37 @@ components:
 	assert.Equal(t, true, property1.IsCollection(), "Wrong bean variable cardinality read out of the yaml!")
 }
 
+func TestGetSchemaTypesFromYamlParsesObjectWithArrayContainingArray(t *testing.T) {
+	// Given...
+	apiYaml := `openapi: 3.0.3
+components:
+  schemas:
+    MyBeanName:
+      type: object
+      properties:
+        myTestArray:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+`
+	// When...
+	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+
+	// Then...
+	assert.Nil(t, err)
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myTestArray"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, "myTestArray", property1.GetName(), "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "string", property1.GetType(), "Wrong bean variable type read out of the yaml!")
+	assert.Equal(t, true, property1.IsCollection(), "Wrong bean variable cardinality read out of the yaml!")
+	assert.Equal(t, 2, property1.cardinality.GetDimensions(), "Wrong array dimension read out of the yaml!")
+}
+
 func TestGetSchemaTypesFromYamlParsesNestedObjects(t *testing.T) {
 	// Given..
 	apiYaml := `openapi: 3.0.3
@@ -448,39 +479,72 @@ components:
 	assert.Equal(t, "ReferencedObject", property1.GetType())
 }
 
-// func TestGetSchemaTypesFromYamlParsesObjectWithArrayContainingAllOfRef(t *testing.T) {
-// 	// Given...
-// 	apiYaml := `openapi: 3.0.3
-// components:
-//   schemas:
-//     MyBeanName:
-//       type: object
-//       properties:
-//         myTestArray:
-//           type: array
-//           items:
-//             allOf:
-//             - $ref: '#/components/schemas/ReferencedObject'
-//     ReferencedObject:
-//       type: object
-//       properties:
-//         randomString:
-//           type: string
-// `
-// 	// When...
-// 	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+func TestGetSchemaTypesFromYamlParsesObjectWithArrayContainingTypeRefToObject(t *testing.T) {
+	// Given...
+	apiYaml := `openapi: 3.0.3
+components:
+  schemas:
+    MyBeanName:
+      type: object
+      properties:
+        myTestArray:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReferencedObject'
+    ReferencedObject:
+      type: object
+      properties:
+        randomString:
+          type: string
+`
+	// When...
+	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
 
-// 	// Then...
-// 	assert.Nil(t, err)
-// 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
-// 	assert.True(t, schemaTypeExists)
-// 	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
-// 	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myTestArray"]
-// 	assert.True(t, propertyExists)
-// 	assert.Equal(t, "myTestArray", property1.GetName(), "Wrong bean variable name read out of the yaml!")
-// 	assert.Equal(t, "$ref:'#/components/schemas/ReferencingObject'", property1.GetType(), "Wrong bean variable type read out of the yaml!")
-// 	assert.Equal(t, true, property1.IsCollection(), "Wrong bean variable cardinality read out of the yaml!")
-// }
+	// Then...
+	assert.Nil(t, err)
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myTestArray"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, "myTestArray", property1.GetName(), "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "ReferencedObject", property1.GetType(), "Wrong bean variable type read out of the yaml!")
+	assert.Equal(t, true, property1.IsCollection(), "Wrong bean variable cardinality read out of the yaml!")
+}
+
+func TestGetSchemaTypesFromYamlParsesObjectWithArrayContainingAllOfRefToObject(t *testing.T) {
+	// Given...
+	apiYaml := `openapi: 3.0.3
+components:
+  schemas:
+    MyBeanName:
+      type: object
+      properties:
+        myTestArray:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/ReferencedObject'
+    ReferencedObject:
+      type: object
+      properties:
+        randomString:
+          type: string
+`
+	// When...
+	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+
+	// Then...
+	assert.Nil(t, err)
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myTestArray"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, "myTestArray", property1.GetName(), "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "ReferencedObject", property1.GetType(), "Wrong bean variable type read out of the yaml!")
+	assert.Equal(t, true, property1.IsCollection(), "Wrong bean variable cardinality read out of the yaml!")
+}
 
 func TestGetSchemaTypesFromYamlParsesEnum(t *testing.T) {
 	// Given..

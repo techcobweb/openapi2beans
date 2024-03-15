@@ -9,18 +9,24 @@ import (
 func assertJavaClassCorrectlyRelatesToSchemaType(t *testing.T, schemaType *SchemaType, class *JavaClass) {
 	assert.Equal(t, schemaType.name, class.Name)
 	schemaPath := "#/components/schemas/" + schemaType.name
-	propertiesVisited := 0
 
+	if len(schemaType.properties) > 0 {
+		assert.Equal(t, len(schemaType.properties), len(class.DataMembers))
+	}
 	for _, dataMember := range class.DataMembers {
 		comparisonSchemaProperty, exists := schemaType.properties[schemaPath+"/"+dataMember.Name]
 		assert.True(t, exists)
-		propertiesVisited += 1
 		expectedName := comparisonSchemaProperty.name
 		assert.Equal(t, expectedName, dataMember.Name)
 		expectedType := getExpectedType(comparisonSchemaProperty)
 		assert.Equal(t, dataMember.MemberType, expectedType)
+		if dataMember.ConstantVal != "" {
+			assert.True(t, comparisonSchemaProperty.IsConstant())
+			posVal := possibleValuesToEnumValues(comparisonSchemaProperty.possibleValues)
+			assert.Equal(t, 1, len(posVal))
+			assert.Equal(t, posVal[0], dataMember.ConstantVal)
+		}
 	}
-	assert.Equal(t, len(schemaType.properties), propertiesVisited)
 
 	requiredPropertiesVisited := 0
 	for _, requiredMember := range class.RequiredMembers {
@@ -60,7 +66,7 @@ func getExpectedType(schemaProp *Property) string {
 	return expectedType
 }
 
-func assertJavaEnumRelatesToSchemaType(t *testing.T, schemaType *SchemaType, javaEnum JavaEnum) {
+func assertJavaEnumRelatesToSchemaType(t *testing.T, schemaType *SchemaType, javaEnum *JavaEnum) {
 	assert.Equal(t, schemaType.name, javaEnum.Name)
 	assert.Equal(t, schemaType.description, javaEnum.Description)
 	for _, enumValue := range javaEnum.EnumValues {
@@ -101,8 +107,9 @@ func TestTranslateSchemaTypesToJavaPackageWithClassWithDataMember(t *testing.T) 
 	javaPackage := translateSchemaTypesToJavaPackage(schemaTypeMap, TARGET_JAVA_PACKAGE)
 
 	// Then...
-	assert.Equal(t, "MyBean", javaPackage.Classes[schemaName].Name)
-	assert.Equal(t, "MyRandomProperty", javaPackage.Classes[schemaName].DataMembers[0].Name)
+	class, classExists := javaPackage.Classes[schemaName]
+	assert.True(t, classExists)
+	assertJavaClassCorrectlyRelatesToSchemaType(t, schemaType, class)
 }
 
 func TestTranslateSchemaTypesToJavaPackageWithClassWithMultipleDataMembers(t *testing.T) {
@@ -125,8 +132,9 @@ func TestTranslateSchemaTypesToJavaPackageWithClassWithMultipleDataMembers(t *te
 	javaPackage := translateSchemaTypesToJavaPackage(schemaTypeMap, TARGET_JAVA_PACKAGE)
 
 	// Then...
-	assert.Equal(t, "MyBean", javaPackage.Classes[schemaName].Name)
-	assertJavaClassCorrectlyRelatesToSchemaType(t, schemaType, javaPackage.Classes[schemaName])
+	class, classExists := javaPackage.Classes[schemaName]
+	assert.True(t, classExists)
+	assertJavaClassCorrectlyRelatesToSchemaType(t, schemaType, class)
 }
 
 func TestTranslateSchemaTypesToJavaPackageWithClassWithArrayDataMember(t *testing.T) {
@@ -146,8 +154,9 @@ func TestTranslateSchemaTypesToJavaPackageWithClassWithArrayDataMember(t *testin
 	javaPackage := translateSchemaTypesToJavaPackage(schemaTypeMap, TARGET_JAVA_PACKAGE)
 
 	// Then...
-	assert.Equal(t, "MyBean", javaPackage.Classes[schemaName].Name)
-	assertJavaClassCorrectlyRelatesToSchemaType(t, schemaType, javaPackage.Classes[schemaName])
+	class, classExists := javaPackage.Classes[schemaName]
+	assert.True(t, classExists)
+	assertJavaClassCorrectlyRelatesToSchemaType(t, schemaType, class)
 }
 
 func TestTranslateSchemaTypesToJavaPackageWithClassWithMixedArrayAndPrimitiveDataMembers(t *testing.T) {
@@ -170,8 +179,34 @@ func TestTranslateSchemaTypesToJavaPackageWithClassWithMixedArrayAndPrimitiveDat
 	javaPackage := translateSchemaTypesToJavaPackage(schemaTypeMap, TARGET_JAVA_PACKAGE)
 
 	// Then...
-	assert.Equal(t, "MyBean", javaPackage.Classes[schemaName].Name)
-	assertJavaClassCorrectlyRelatesToSchemaType(t, schemaType, javaPackage.Classes[schemaName])
+	class, classExists := javaPackage.Classes[schemaName]
+	assert.True(t, classExists)
+	assertJavaClassCorrectlyRelatesToSchemaType(t, schemaType, class)
+}
+
+func TestTranslateSchemaTypesToJavaPackageWithClassWithArrayOfArray(t *testing.T) {
+	// Given...
+	propName1 := "MyRandomProperty1"
+	property1 := NewProperty(propName1, "#/components/schemas/MyBean/"+propName1, "", "string", nil, nil, Cardinality{min: 0, max: 100})
+	properties := make(map[string]*Property)
+	properties["#/components/schemas/MyBean/"+propName1] = property1
+	propName2 := "MyRandomProperty2"
+	property2 := NewProperty(propName2, "#/components/schemas/MyBean/"+propName2, "", "string", nil, nil, Cardinality{min: 0, max: 1})
+	properties["#/components/schemas/MyBean/"+propName2] = property2
+	var schemaType *SchemaType
+	schemaName := "MyBean"
+	ownProp := NewProperty(schemaName, "#/components/schemas/MyBean", "", "object", nil, schemaType, Cardinality{min: 0, max: 1})
+	schemaType = NewSchemaType(schemaName, "", ownProp, properties)
+	schemaTypeMap := make(map[string]*SchemaType)
+	schemaTypeMap["#/components/schemas/MyBean"] = schemaType
+
+	// When...
+	javaPackage := translateSchemaTypesToJavaPackage(schemaTypeMap, TARGET_JAVA_PACKAGE)
+
+	// Then...
+	class, classExists := javaPackage.Classes[schemaName]
+	assert.True(t, classExists)
+	assertJavaClassCorrectlyRelatesToSchemaType(t, schemaType, class)
 }
 
 func TestTranslateSchemaTypesToJavaPackageWithClassWithReferenceToOtherClass(t *testing.T) {
@@ -196,8 +231,9 @@ func TestTranslateSchemaTypesToJavaPackageWithClassWithReferenceToOtherClass(t *
 	javaPackage := translateSchemaTypesToJavaPackage(schemaTypeMap, TARGET_JAVA_PACKAGE)
 
 	// Then...
-	assert.Equal(t, "MyBean", javaPackage.Classes[schemaName].Name)
-	assertJavaClassCorrectlyRelatesToSchemaType(t, schemaType, javaPackage.Classes[schemaName])
+	class, classExists := javaPackage.Classes[schemaName]
+	assert.True(t, classExists)
+	assertJavaClassCorrectlyRelatesToSchemaType(t, schemaType, class)
 }
 
 func TestTranslateSchemaTypesToJavaPackageWithClassWithArrayOfReferenceToClass(t *testing.T) {
@@ -222,8 +258,9 @@ func TestTranslateSchemaTypesToJavaPackageWithClassWithArrayOfReferenceToClass(t
 	javaPackage := translateSchemaTypesToJavaPackage(schemaTypeMap, TARGET_JAVA_PACKAGE)
 
 	// Then...
-	assert.Equal(t, "MyBean", javaPackage.Classes[schemaName].Name)
-	assertJavaClassCorrectlyRelatesToSchemaType(t, schemaType, javaPackage.Classes[schemaName])
+	class, classExists := javaPackage.Classes[schemaName]
+	assert.True(t, classExists)
+	assertJavaClassCorrectlyRelatesToSchemaType(t, schemaType, class)
 }
 
 func TestTranslateSchemaTypesToJavaPackageWithClassWithRequiredProperty(t *testing.T) {
@@ -243,8 +280,10 @@ func TestTranslateSchemaTypesToJavaPackageWithClassWithRequiredProperty(t *testi
 	javaPackage := translateSchemaTypesToJavaPackage(schemaTypeMap, TARGET_JAVA_PACKAGE)
 
 	// Then...
-	assert.Equal(t, "MyBean", javaPackage.Classes[schemaName].Name)
-	assertJavaClassCorrectlyRelatesToSchemaType(t, schemaType, javaPackage.Classes[schemaName])
+	class, classExists := javaPackage.Classes[schemaName]
+	assert.True(t, classExists)
+	assert.Equal(t, schemaName, class.Name)
+	assertJavaClassCorrectlyRelatesToSchemaType(t, schemaType, class)
 }
 
 func TestTranslateSchemaTypesToJavaPackageWithClassWithEnum(t *testing.T) {
@@ -264,6 +303,33 @@ func TestTranslateSchemaTypesToJavaPackageWithClassWithEnum(t *testing.T) {
 	javaPackage := translateSchemaTypesToJavaPackage(schemaTypeMap, TARGET_JAVA_PACKAGE)
 
 	// Then...
-	assert.NotNil(t, javaPackage.Enums[schemaName])
-	assertJavaEnumRelatesToSchemaType(t, schemaType, *javaPackage.Enums[schemaName])
+	enum, enumExists := javaPackage.Enums[schemaName]
+	assert.True(t, enumExists)
+	assertJavaEnumRelatesToSchemaType(t, schemaType, enum)
+}
+
+func TestTranslateSchemaTypesToJavaPackageWithClassWithStringConstant(t *testing.T) {
+	// Given...
+	propName1 := "MyConstant"
+	possibleValues := map[string]string{
+		"constVal": "constVal",
+	}
+	property := NewProperty(propName1, "#/components/schemas/MyBean/"+propName1, "", "string", possibleValues, nil, Cardinality{min: 0, max: 1})
+	properties := make(map[string]*Property)
+	properties["#/components/schemas/MyBean/"+propName1] = property
+	var schemaType *SchemaType
+	schemaName := "MyBean"
+	ownProp := NewProperty(schemaName, "#/components/schemas/MyBean", "", "object", nil, schemaType, Cardinality{min: 0, max: 1})
+	schemaType = NewSchemaType(schemaName, "", ownProp, properties)
+	schemaTypeMap := make(map[string]*SchemaType)
+	schemaTypeMap["#/components/schemas/MyBean"] = schemaType
+
+	// When...
+	javaPackage := translateSchemaTypesToJavaPackage(schemaTypeMap, TARGET_JAVA_PACKAGE)
+
+	// Then...
+	class, classExists := javaPackage.Classes[schemaName]
+	assert.True(t, classExists)
+	assert.NotEmpty(t, class.DataMembers)
+	assertJavaClassCorrectlyRelatesToSchemaType(t, schemaType, class)
 }

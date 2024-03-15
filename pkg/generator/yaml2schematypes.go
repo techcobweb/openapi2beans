@@ -78,9 +78,7 @@ func retrieveSchemaTypesFromMap(inputMap map[interface{}]interface{}, yamlPath s
 		typeName, cardinality, err = retrieveVarType(subMap, apiSchemaPartPath)
 		possibleValues = retrievePossibleValues(subMap)
 
-		if err != nil {
-			// do something
-		} else {
+		if err == nil {
 			property := NewProperty(subMapKey.(string), apiSchemaPartPath, description, typeName, possibleValues, nil, cardinality)
 			
 			if typeName == "object" {
@@ -148,15 +146,19 @@ func retrieveNestedProperties(subMap map[interface{}]interface{}, yamlPath strin
 }
 
 func retrieveVarType(variableMap map[interface{}]interface{}, apiSchemaPartPath string) (varType string, cardinality Cardinality, err error) {
-	maxCardinality := 1
+	maxCardinality := 0
 	varTypeObj, isTypePresent := variableMap[OPENAPI_YAML_KEYWORD_TYPE]
 	refObj, isRefPresent := variableMap[OPENAPI_YAML_KEYWORD_REF]
 
 	if isTypePresent {
 		varType = varTypeObj.(string)
 		if varType == "array" {
-			varType, err = retrieveArrayType(variableMap, apiSchemaPartPath)
+			var returnCardinality int
 			maxCardinality = 128
+			varType, returnCardinality, err = retrieveArrayType(variableMap, apiSchemaPartPath)
+			maxCardinality += returnCardinality
+		} else {
+			maxCardinality = 1
 		}
 		cardinality = Cardinality {min: getMinCardinality(variableMap), max: maxCardinality}
 	} else if isRefPresent {
@@ -168,7 +170,7 @@ func retrieveVarType(variableMap map[interface{}]interface{}, apiSchemaPartPath 
 	return varType, cardinality, err
 }
 
-func retrieveArrayType(varMap map[interface{}]interface{}, schemaPartPath string) (arrayType string, err error) {
+func retrieveArrayType(varMap map[interface{}]interface{}, schemaPartPath string) (arrayType string, maxCardinality int, err error) {
 
 	itemsObj, isItemsPresent := varMap[OPENAPI_YAML_KEYWORD_ITEMS]
 	if isItemsPresent {
@@ -179,14 +181,17 @@ func retrieveArrayType(varMap map[interface{}]interface{}, schemaPartPath string
 			allOfSlice := allOfObj.([]interface{})
 			itemsMap = allOfSlice[0].(map[interface{}]interface{})
 		}
-
-		arrayType, _, err = retrieveVarType(itemsMap, schemaPartPath)
+		var cardinality Cardinality
+		arrayType, cardinality, err = retrieveVarType(itemsMap, schemaPartPath)
+		if cardinality.max > 1 {
+			maxCardinality += 128
+		}
 		
 	} else {
 		err = openapi2beans_errors.NewError("RetrieveArrayType: Failed to find required items section for %v\n", schemaPartPath)
 	}
 
-	return arrayType, err
+	return arrayType, maxCardinality, err
 }
 
 func retrieveDescription(subMap map[interface{}]interface{}) (description string) {

@@ -119,6 +119,8 @@ func (prop *Property) IsSetInConstructor() bool {
 	if prop.IsEnum() {
 		_, nilExists := prop.possibleValues["nil"]
 		isSetInConstructor = !nilExists
+	} else if prop.IsConstant() {
+		isSetInConstructor = false
 	}
 	return isSetInConstructor
 }
@@ -149,10 +151,17 @@ func (prop *Property) Resolve(resolvingProperty *Property) {
 	prop.typeName = resolvingProperty.GetName()
 	prop.possibleValues = resolvingProperty.GetPossibleValues()
 	prop.resolvedType = resolvingProperty.GetResolvedType()
-	prop.cardinality = resolvingProperty.GetCardinality()
+	if !prop.IsCollection(){
+		prop.cardinality = resolvingProperty.GetCardinality()
+	}
 }
 
 // CARDINALITY
+/*
+min cardinality represents how many elements of a variable must be present, i.e. 
+1 means a variable is required and therefore set in the constructor.
+max cardinality represents how many elements are in a set, for each dimension of an array it is 128
+*/
 type Cardinality struct {
 	min int
 	max int
@@ -161,6 +170,10 @@ type Cardinality struct {
 // Getters
 func (cardinality Cardinality) GetMin() int {
 	return cardinality.min
+}
+
+func (cardinality Cardinality) GetDimensions() int {
+	return cardinality.max/128
 }
 
 func (cardinality Cardinality) GetMax() int {

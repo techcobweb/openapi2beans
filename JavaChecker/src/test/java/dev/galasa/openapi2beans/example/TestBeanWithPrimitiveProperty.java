@@ -9,12 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class TestBeanWithPrimitiveProperty {
-
-    @Test
-    public void TestCanInstantiateTheBean() throws Exception {
-        new BeanWithPrimitiveProperty();
-    }
-
+    
     @Test
     public void TestCanSerialiseTheBean() throws Exception {
         BeanWithPrimitiveProperty beanUnderTest = new BeanWithPrimitiveProperty();

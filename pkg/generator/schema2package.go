@@ -28,22 +28,25 @@ func possibleValuesToEnumValues(possibleValues map[string]string) (enumValues []
 
 func retrieveDataMembersFromSchemaType(schemaType *SchemaType) (dataMembers []*DataMember, requiredMembers []*RequiredMember){
 	for _, property := range schemaType.properties {
+		var constVal string
+		if property.IsConstant() {
+			posVal := possibleValuesToEnumValues(property.GetPossibleValues())
+			constVal = posVal[0]
+		}
 		dataMember := DataMember {
 			Name: property.name,
 			MemberType: propertyToJavaType(property),
 			Description: property.description,
+			ConstantVal: constVal,
 		}
 		dataMembers = append(dataMembers, &dataMember)
-		if property.IsConstant() {
-			// DO STUFF HERE
-		} else {
-			if property.IsSetInConstructor() {
-				requiredMember := RequiredMember {
-					DataMember: &dataMember,
-					IsFirst: len(requiredMembers) == 0,
-				}
-				requiredMembers = append(requiredMembers, &requiredMember)
+		
+		if property.IsSetInConstructor() {
+			requiredMember := RequiredMember {
+				DataMember: &dataMember,
+				IsFirst: len(requiredMembers) == 0,
 			}
+			requiredMembers = append(requiredMembers, &requiredMember)
 		}
 	}
 	return dataMembers, requiredMembers
@@ -59,7 +62,7 @@ func propertyToJavaType(property *Property) string {
 		} else if property.typeName == "integer" {
 			javaType = "int"
 		} else if property.typeName == "number" {
-			javaType = "float"
+			javaType = "double"
 		} else {
 			javaType = property.typeName
 		}

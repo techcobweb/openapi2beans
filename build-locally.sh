@@ -60,3 +60,6 @@ h2 "Building using the make file."
 make all
 rc=$? ; if [[ "${rc}" != "0" ]]; then error "Make build failed." ; exit 1 ; fi
 success "OK"
+
+h2 "Running Java Checker."
+./JavaChecker/build-locally.sh

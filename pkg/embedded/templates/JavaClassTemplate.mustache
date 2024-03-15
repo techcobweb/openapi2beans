@@ -9,7 +9,7 @@ public class {{Name}} {
     {{#Description}}
     // {{.}}
     {{/Description}}
-    private {{MemberType}} {{Name}};
+    private {{#ConstantVal}}const {{/ConstantVal}}{{MemberType}} {{Name}}{{#ConstantVal}} = {{.}}{{/ConstantVal}};
     {{/DataMembers}}
 
     public {{Name}} ({{#RequiredMembers}}{{^IsFirst}}, {{/IsFirst}}{{DataMember.MemberType}} {{DataMember.Name}}{{/RequiredMembers}}) {

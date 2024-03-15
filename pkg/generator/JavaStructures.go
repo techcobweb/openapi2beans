@@ -43,6 +43,7 @@ type DataMember struct {
 	MemberType  string
 	Description string
 	Required    bool
+	ConstantVal string
 }
 
 type RequiredMember struct {

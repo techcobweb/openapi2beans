@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="dev.galasa.openapi2beans.example.TestEmptyBean" time="0.041" tests="1" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="dev.galasa.openapi2beans.example.TestBeanWithPrimitiveProperty" time="0.111" tests="2" errors="0" skipped="0" failures="0">
   <properties>
     <property name="awt.toolkit" value="sun.lwawt.macosx.LWCToolkit"/>
     <property name="jdk.extensions.version" value="11.0.16.1"/>
@@ -19,7 +19,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="US"/>
     <property name="sun.boot.library.path" value="/Users/holly/.sdkman/candidates/java/11.0.16.1-sem/lib/default:/Users/holly/.sdkman/candidates/java/11.0.16.1-sem/lib"/>
-    <property name="sun.java.command" value="/Users/holly/code/src/github.com/techcobweb/openapi2beans/JavaChecker/target/surefire/surefirebooter-20240312172703973_3.jar /Users/holly/code/src/github.com/techcobweb/openapi2beans/JavaChecker/target/surefire 2024-03-12T17-27-03_924-jvmRun1 surefire-20240312172703973_1tmp surefire_0-20240312172703973_2tmp"/>
+    <property name="sun.java.command" value="/Users/holly/code/src/github.com/techcobweb/openapi2beans/JavaChecker/target/surefire/surefirebooter-20240312175206231_3.jar /Users/holly/code/src/github.com/techcobweb/openapi2beans/JavaChecker/target/surefire 2024-03-12T17-52-06_178-jvmRun1 surefire-20240312175206231_1tmp surefire_0-20240312175206231_2tmp"/>
     <property name="surefire.test.class.path" value="/Users/holly/code/src/github.com/techcobweb/openapi2beans/JavaChecker/target/test-classes:/Users/holly/code/src/github.com/techcobweb/openapi2beans/JavaChecker/target/classes:/Users/holly/.m2/repository/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar:/Users/holly/.m2/repository/org/assertj/assertj-core/3.25.3/assertj-core-3.25.3.jar:/Users/holly/.m2/repository/net/bytebuddy/byte-buddy/1.14.11/byte-buddy-1.14.11.jar:/Users/holly/.m2/repository/junit/junit/4.13.2/junit-4.13.2.jar:/Users/holly/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
     <property name="user.home" value="/Users/holly"/>
@@ -38,7 +38,7 @@
     <property name="com.ibm.util.extralibs.properties" value=""/>
     <property name="java.awt.graphicsenv" value="sun.awt.CGraphicsEnvironment"/>
     <property name="com.ibm.oti.configuration" value="scar"/>
-    <property name="surefire.real.class.path" value="/Users/holly/code/src/github.com/techcobweb/openapi2beans/JavaChecker/target/surefire/surefirebooter-20240312172703973_3.jar"/>
+    <property name="surefire.real.class.path" value="/Users/holly/code/src/github.com/techcobweb/openapi2beans/JavaChecker/target/surefire/surefirebooter-20240312175206231_3.jar"/>
     <property name="com.ibm.oti.shared.enabled" value="false"/>
     <property name="com.ibm.oti.vm.bootstrap.library.path" value="/Users/holly/.sdkman/candidates/java/11.0.16.1-sem/lib/default:/Users/holly/.sdkman/candidates/java/11.0.16.1-sem/lib"/>
     <property name="com.ibm.cpu.endian" value="little"/>
@@ -72,5 +72,6 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="55.0"/>
   </properties>
-  <testcase name="TestCanInstantiateEmptyBean" classname="dev.galasa.openapi2beans.example.TestEmptyBean" time="0.001"/>
+  <testcase name="TestCanSerialiseTheBean" classname="dev.galasa.openapi2beans.example.TestBeanWithPrimitiveProperty" time="0.07"/>
+  <testcase name="TestCanInstantiateTheBean" classname="dev.galasa.openapi2beans.example.TestBeanWithPrimitiveProperty" time="0.0"/>
 </testsuite>
