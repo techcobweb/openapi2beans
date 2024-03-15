@@ -326,13 +326,20 @@ func TestPackageStructWithClassWithReferenceToEnumParsesCorrectly(t *testing.T) 
 	enumName := "MyEnum"
 	enumDesc := "test enum"
 	javaPackage := NewJavaPackage(TARGET_JAVA_PACKAGE)
-	class := NewJavaClass(className, classDesc, javaPackage, nil, nil, nil)
 	javaEnum := JavaEnum {
 		Name: enumName,
 		Description: enumDesc,
 		EnumValues: []string{"randVal1", "randVal2"},
 		JavaPackage: javaPackage,
 	}
+	dataMember := &DataMember {
+		Name: "enumMember",
+		Description: enumDesc,
+		MemberType: enumName,
+		Required: true,
+	}
+	dataMembers := []*DataMember{dataMember}
+	class := NewJavaClass(className, classDesc, javaPackage, nil, dataMembers, nil)
 	javaPackage.Classes[className] = class
 	javaPackage.Enums[enumName] = &javaEnum
 	mockFileSystem := files.NewMockFileSystem()
@@ -348,6 +355,7 @@ func TestPackageStructWithClassWithReferenceToEnumParsesCorrectly(t *testing.T) 
 	assertEnumFileGeneratedOk(t, generatedEnumFile, &javaEnum)
 	generatedClassFile := openGeneratedFile(t, mockFileSystem, generatedClassPath)
 	assertClassFileGeneratedOk(t, generatedClassFile, className)
+	assertVariablesGeneratedOk(t, generatedClassFile, class.DataMembers)
 }
 
 func TestPackageStructParsesToTemplateWithClassWithConstantMember(t *testing.T) {

@@ -56,6 +56,12 @@ func getExpectedType(schemaProp *Property) string {
 	expectedType := ""
 	if schemaProp.typeName == "string" {
 		expectedType = "String"
+	} else if schemaProp.typeName == "integer" {
+		expectedType = "int"
+	} else if schemaProp.typeName == "number" {
+		expectedType = "double"
+	} else if schemaProp.typeName == "object" || schemaProp.IsEnum(){
+		expectedType = schemaProp.resolvedType.name
 	} else {
 		expectedType = schemaProp.typeName
 	}
@@ -217,7 +223,7 @@ func TestTranslateSchemaTypesToJavaPackageWithClassWithReferenceToOtherClass(t *
 	referencedOwnProp := NewProperty(referencedSchemaName, "#/components/schemas/MyReferencedBean", "", "object", nil, referencedSchemaType, Cardinality{min: 0, max: 1})
 	referencedSchemaType = NewSchemaType(referencedSchemaName, "", referencedOwnProp, nil)
 	schemaTypeMap["#/components/schemas/MyReferencedBean"] = referencedSchemaType
-	propName1 := "MyRandomProperty1"
+	propName1 := "myReferencingProp"
 	property1 := NewProperty(propName1, "#/components/schemas/MyBean/"+propName1, "", "object", nil, referencedSchemaType, Cardinality{min: 0, max: 1})
 	properties := make(map[string]*Property)
 	properties["#/components/schemas/MyBean/"+propName1] = property1
@@ -286,7 +292,7 @@ func TestTranslateSchemaTypesToJavaPackageWithClassWithRequiredProperty(t *testi
 	assertJavaClassCorrectlyRelatesToSchemaType(t, schemaType, class)
 }
 
-func TestTranslateSchemaTypesToJavaPackageWithClassWithEnum(t *testing.T) {
+func TestTranslateSchemaTypesToJavaPackageWithEnum(t *testing.T) {
 	// Given...
 	possibleValues := map[string]string{
 		"randValue1": "randValue1",
@@ -306,6 +312,42 @@ func TestTranslateSchemaTypesToJavaPackageWithClassWithEnum(t *testing.T) {
 	enum, enumExists := javaPackage.Enums[schemaName]
 	assert.True(t, enumExists)
 	assertJavaEnumRelatesToSchemaType(t, schemaType, enum)
+}
+
+func TestTranslateSchemaTypesToJavaPackageWithClassWithEnum(t *testing.T) {
+	// Given...
+	possibleValues := map[string]string{
+		"randValue1": "randValue1",
+		"randValue2": "randValue2",
+	}
+	schemaTypeMap := make(map[string]*SchemaType)
+	var enumSchemaType *SchemaType
+	enumSchemaName := "MyEnum"
+	enumOwnProp := NewProperty(enumSchemaName, SCHEMAS_PATH + enumSchemaName, "", "string", possibleValues, enumSchemaType, Cardinality{min: 0, max: 1})
+	enumSchemaType = NewSchemaType(enumSchemaName, "", enumOwnProp, nil)
+	schemaTypeMap["#/components/schemas/MyEnum"] = enumSchemaType
+	var classSchemaType *SchemaType
+	classSchemaName := "MyBean"
+	enumPropName := "beansEnum"
+	propMap := make(map[string]*Property)
+	enumProp := NewProperty(enumPropName, SCHEMAS_PATH + classSchemaName + "/" + enumPropName, "", enumSchemaName, possibleValues, enumSchemaType, enumOwnProp.cardinality)
+	propMap["#/components/schemas/MyBean/beansEnum"] = enumProp
+	classOwnProp := NewProperty(classSchemaName, SCHEMAS_PATH + classSchemaName, "", classSchemaName, nil, classSchemaType, Cardinality{min: 0, max: 1})
+	classSchemaType = NewSchemaType(classSchemaName, "", classOwnProp, propMap)
+	schemaTypeMap[SCHEMAS_PATH  + classSchemaName] = classSchemaType
+
+
+	// When...
+	javaPackage := translateSchemaTypesToJavaPackage(schemaTypeMap, TARGET_JAVA_PACKAGE)
+
+	// Then...
+	enum, enumExists := javaPackage.Enums[enumSchemaName]
+	assert.True(t, enumExists)
+	assertJavaEnumRelatesToSchemaType(t, enumSchemaType, enum)
+
+	class, classExists := javaPackage.Classes[classSchemaName]
+	assert.True(t, classExists)
+	assertJavaClassCorrectlyRelatesToSchemaType(t, classSchemaType, class)
 }
 
 func TestTranslateSchemaTypesToJavaPackageWithClassWithStringConstant(t *testing.T) {

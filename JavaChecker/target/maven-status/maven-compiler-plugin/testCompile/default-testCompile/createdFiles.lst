@@ -1,1 +1,6 @@
 dev/galasa/openapi2beans/example/TestBeanWithPrimitiveProperty.class
+dev/galasa/openapi2beans/example/TestBeanToTestArraysWithVariousPrimitiveTypes.class
+dev/galasa/openapi2beans/example/TestBeanWithArray.class
+dev/galasa/openapi2beans/example/TestAnEnumProperty.class
+dev/galasa/openapi2beans/example/TestBeanForTestingAllPrimitivePropertyTypes.class
+dev/galasa/openapi2beans/example/TestBeanWithEnumProperty.class

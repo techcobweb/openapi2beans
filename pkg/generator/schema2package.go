@@ -54,7 +54,7 @@ func retrieveDataMembersFromSchemaType(schemaType *SchemaType) (dataMembers []*D
 
 func propertyToJavaType(property *Property) string {
 	javaType := ""
-	if property.IsReferencing() {
+	if property.IsReferencing() || property.typeName == "object" || property.IsEnum() {
 		javaType = property.resolvedType.name
 	} else {
 		if property.typeName == "string" {

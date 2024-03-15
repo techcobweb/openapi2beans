@@ -476,7 +476,7 @@ components:
 	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/referencingObject"]
 	assert.True(t, propertyExists)
 	assert.Equal(t, "referencingObject", property1.GetName(), "Wrong bean variable name read out of the yaml!")
-	assert.Equal(t, "ReferencedObject", property1.GetType())
+	assert.Equal(t, "object", property1.GetType())
 }
 
 func TestGetSchemaTypesFromYamlParsesObjectWithArrayContainingTypeRefToObject(t *testing.T) {
@@ -508,7 +508,7 @@ components:
 	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myTestArray"]
 	assert.True(t, propertyExists)
 	assert.Equal(t, "myTestArray", property1.GetName(), "Wrong bean variable name read out of the yaml!")
-	assert.Equal(t, "ReferencedObject", property1.GetType(), "Wrong bean variable type read out of the yaml!")
+	assert.Equal(t, "object", property1.GetType(), "Wrong bean variable type read out of the yaml!")
 	assert.Equal(t, true, property1.IsCollection(), "Wrong bean variable cardinality read out of the yaml!")
 }
 
@@ -542,7 +542,7 @@ components:
 	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myTestArray"]
 	assert.True(t, propertyExists)
 	assert.Equal(t, "myTestArray", property1.GetName(), "Wrong bean variable name read out of the yaml!")
-	assert.Equal(t, "ReferencedObject", property1.GetType(), "Wrong bean variable type read out of the yaml!")
+	assert.Equal(t, "object", property1.GetType(), "Wrong bean variable type read out of the yaml!")
 	assert.Equal(t, true, property1.IsCollection(), "Wrong bean variable cardinality read out of the yaml!")
 }
 
@@ -572,6 +572,8 @@ components:
 	property1, propertyExists := schemaType.GetProperties()[propertyPath]
 	assert.True(t, propertyExists)
 	assert.Equal(t, true, property1.IsEnum())
+	assert.Equal(t, "MyEnum", property1.resolvedType.name)
+	assert.Equal(t, "string", property1.typeName)
 	posValue1, posValueExists := property1.GetPossibleValues()["randValue1"]
 	assert.True(t, posValueExists)
 	assert.Equal(t, "randValue1", posValue1)

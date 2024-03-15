@@ -148,11 +148,14 @@ func (prop *Property) SetResolvedType(resolvedType *SchemaType) {
 
 func (prop *Property) Resolve(resolvingProperty *Property) {
 	prop.description = resolvingProperty.GetDescription()
-	prop.typeName = resolvingProperty.GetName()
+	prop.typeName = resolvingProperty.GetType()
 	prop.possibleValues = resolvingProperty.GetPossibleValues()
 	prop.resolvedType = resolvingProperty.GetResolvedType()
 	if !prop.IsCollection(){
 		prop.cardinality = resolvingProperty.GetCardinality()
+	} else {
+		prop.cardinality.min += resolvingProperty.cardinality.min
+		prop.cardinality.max += resolvingProperty.cardinality.max
 	}
 }
 
