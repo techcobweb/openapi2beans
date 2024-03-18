@@ -69,7 +69,10 @@ func propertyToJavaType(property *Property) string {
 	}
 
 	if property.IsCollection() {
-		javaType += "[]"
+		dimensions := property.cardinality.max / 128
+		for range dimensions {
+			javaType += "[]"
+		}
 	}
 
 	return javaType

@@ -43,22 +43,25 @@ func (schemaType *SchemaType) SetProperties(properties map[string]*Property) {
 		schemaTypePath := schemaType.ownProperty.path
 		splitSchemaTypePath := strings.Split(schemaTypePath, "/")
 		for _, property := range properties {
-			match := true
-			splitPropertyPath := strings.Split(property.GetPath(), "/")
-			if len(splitPropertyPath) - 1 == len(splitSchemaTypePath) {
-				for pos, element := range splitPropertyPath[:len(splitPropertyPath)-1] {
-					if element != splitSchemaTypePath[pos] {
-						match = false
-					}
-				}
-				if match {
-					schemaType.properties[property.path] = property
-				}
+			if isPropertyAMatch(splitSchemaTypePath, property) {
+				schemaType.properties[property.path] = property
 			}
 		}
 	}
 }
 
+func isPropertyAMatch(schemaPath []string, property *Property) bool {
+	match := true
+	splitPropertyPath := strings.Split(property.GetPath(), "/")
+	if len(splitPropertyPath) - 1 == len(schemaPath) {
+		for pos, element := range splitPropertyPath[:len(splitPropertyPath)-1] {
+			if element != schemaPath[pos] {
+				match = false
+			}
+		}
+	}
+	return match
+}
 
 // PROPERTY //
 type Property struct {

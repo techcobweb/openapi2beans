@@ -169,6 +169,33 @@ func TestPackageStructParsesToTemplateWithClassWithArrayDataMember(t *testing.T)
 	assertVariablesGeneratedOk(t, generatedFile, dataMembers)
 }
 
+func TestPackageStructParsesToTemplateWithClassWithMultiDimensionalArrayDataMember(t *testing.T) {
+	// Given...
+	className := "MyBean"
+	var javaPackage JavaPackage
+	javaPackage.Name = TARGET_JAVA_PACKAGE
+	memberName1 := "RandMember1"
+	dataMember1 := DataMember {
+		Name: memberName1,
+		Description: "random member for test purposes",
+		MemberType: "String[][]",
+	}
+	dataMembers := []*DataMember{&dataMember1}
+	class := NewJavaClass(className, "", &javaPackage, nil, dataMembers, nil)
+	mockFileSystem := files.NewMockFileSystem()
+	storeFilepath := "generated"
+	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
+
+	// When...
+	err := createJavaClassFile(class, mockFileSystem, getEmbeddedClassTemplate(t), storeFilepath)
+
+	// Then...
+	assert.Nil(t, err)
+	generatedFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
+	assertClassFileGeneratedOk(t, generatedFile, className)
+	assertVariablesGeneratedOk(t, generatedFile, dataMembers)
+}
+
 func TestPackageStructParsesToTemplateWithClassWithMixedArrayAndPrimitiveDataMembers(t *testing.T) {
 	// Given...
 	className := "MyBean"

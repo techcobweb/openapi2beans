@@ -19,7 +19,7 @@ func assertJavaClassCorrectlyRelatesToSchemaType(t *testing.T, schemaType *Schem
 		expectedName := comparisonSchemaProperty.name
 		assert.Equal(t, expectedName, dataMember.Name)
 		expectedType := getExpectedType(comparisonSchemaProperty)
-		assert.Equal(t, dataMember.MemberType, expectedType)
+		assert.Equal(t, expectedType, dataMember.MemberType)
 		if dataMember.ConstantVal != "" {
 			assert.True(t, comparisonSchemaProperty.IsConstant())
 			posVal := possibleValuesToEnumValues(comparisonSchemaProperty.possibleValues)
@@ -66,7 +66,10 @@ func getExpectedType(schemaProp *Property) string {
 		expectedType = schemaProp.typeName
 	}
 	if schemaProp.cardinality.max > 1 {
-		expectedType += "[]"
+		dimensions := schemaProp.cardinality.max / 128
+		for range dimensions {
+			expectedType += "[]"
+		}
 	}
 
 	return expectedType
@@ -146,7 +149,7 @@ func TestTranslateSchemaTypesToJavaPackageWithClassWithMultipleDataMembers(t *te
 func TestTranslateSchemaTypesToJavaPackageWithClassWithArrayDataMember(t *testing.T) {
 	// Given...
 	propName1 := "MyRandomProperty1"
-	property1 := NewProperty(propName1, "#/components/schemas/MyBean/"+propName1, "", "string", nil, nil, Cardinality{min: 0, max: 100})
+	property1 := NewProperty(propName1, "#/components/schemas/MyBean/"+propName1, "", "string", nil, nil, Cardinality{min: 0, max: 128})
 	properties := make(map[string]*Property)
 	properties["#/components/schemas/MyBean/"+propName1] = property1
 	var schemaType *SchemaType
@@ -168,7 +171,7 @@ func TestTranslateSchemaTypesToJavaPackageWithClassWithArrayDataMember(t *testin
 func TestTranslateSchemaTypesToJavaPackageWithClassWithMixedArrayAndPrimitiveDataMembers(t *testing.T) {
 	// Given...
 	propName1 := "MyRandomProperty1"
-	property1 := NewProperty(propName1, "#/components/schemas/MyBean/"+propName1, "", "string", nil, nil, Cardinality{min: 0, max: 100})
+	property1 := NewProperty(propName1, "#/components/schemas/MyBean/"+propName1, "", "string", nil, nil, Cardinality{min: 0, max: 128})
 	properties := make(map[string]*Property)
 	properties["#/components/schemas/MyBean/"+propName1] = property1
 	propName2 := "MyRandomProperty2"
@@ -193,12 +196,9 @@ func TestTranslateSchemaTypesToJavaPackageWithClassWithMixedArrayAndPrimitiveDat
 func TestTranslateSchemaTypesToJavaPackageWithClassWithArrayOfArray(t *testing.T) {
 	// Given...
 	propName1 := "MyRandomProperty1"
-	property1 := NewProperty(propName1, "#/components/schemas/MyBean/"+propName1, "", "string", nil, nil, Cardinality{min: 0, max: 100})
+	property1 := NewProperty(propName1, "#/components/schemas/MyBean/"+propName1, "", "string", nil, nil, Cardinality{min: 0, max: 256})
 	properties := make(map[string]*Property)
 	properties["#/components/schemas/MyBean/"+propName1] = property1
-	propName2 := "MyRandomProperty2"
-	property2 := NewProperty(propName2, "#/components/schemas/MyBean/"+propName2, "", "string", nil, nil, Cardinality{min: 0, max: 1})
-	properties["#/components/schemas/MyBean/"+propName2] = property2
 	var schemaType *SchemaType
 	schemaName := "MyBean"
 	ownProp := NewProperty(schemaName, "#/components/schemas/MyBean", "", "object", nil, schemaType, Cardinality{min: 0, max: 1})

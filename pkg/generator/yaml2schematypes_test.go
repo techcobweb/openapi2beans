@@ -121,11 +121,11 @@ components:
     MyBeanName:
       type: object
       description: A simple example
+      required: [myStringVar]
       properties:
         myStringVar:
           type: string
           description: a test string
-          required: true
 `
 	// When...
 	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
@@ -138,33 +138,6 @@ components:
 	property, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myStringVar"]
 	assert.True(t, propertyExists)
 	assert.Equal(t, true, property.IsSetInConstructor(), "Wrong bean variable required status read out of the yaml!")
-}
-
-func TestGetSchemaTypesFromYamlParsesSingleStringVariableWithFalseRequiredField(t *testing.T) {
-	// Given...
-	apiYaml := `openapi: 3.0.3
-components:
-  schemas:
-    MyBeanName:
-      type: object
-      description: A simple example
-      properties:
-        myStringVar:
-          type: string
-          description: a test string
-          required: false
-`
-	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
-
-	// Then...
-	assert.Nil(t, err)
-	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
-	assert.True(t, schemaTypeExists)
-	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
-	property, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myStringVar"]
-	assert.True(t, propertyExists)
-	assert.Equal(t, false, property.IsSetInConstructor(), "Wrong bean variable required status read out of the yaml!")
 }
 
 func TestGetSchemaTypesFromYamlParsesSingleStringVariableWithNoRequiredFieldReturnsFalse(t *testing.T) {
@@ -201,15 +174,14 @@ components:
     MyBeanName:
       type: object
       description: A simple example
+      required: [myStringVar, myStringVar1]
       properties:
         myStringVar:
           type: string
           description: a test string
-          required: true
         myStringVar1:
           type: string
           description: a test string
-          required: true
 `
 	// When...
 	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
@@ -227,40 +199,6 @@ components:
 	assert.Equal(t, true, property2.IsSetInConstructor(), "Wrong bean variable required status read out of the yaml!")
 }
 
-func TestGetSchemaTypesFromYamlParsesMultipleStringVariablesWithFalseRequiredFields(t *testing.T) {
-	// Given...
-	apiYaml := `openapi: 3.0.3
-components:
-  schemas:
-    MyBeanName:
-      type: object
-      description: A simple example
-      properties:
-        myStringVar:
-          type: string
-          description: a test string
-          required: false
-        myStringVar1:
-          type: string
-          description: a test string in addition to the other
-          required: false
-`
-	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
-
-	// Then...
-	assert.Nil(t, err)
-	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
-	assert.True(t, schemaTypeExists)
-	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
-	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myStringVar"]
-	assert.True(t, propertyExists)
-	property2, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myStringVar1"]
-	assert.True(t, propertyExists)
-	assert.Equal(t, false, property1.IsSetInConstructor(), "Wrong bean variable required status read out of the yaml!")
-	assert.Equal(t, false, property2.IsSetInConstructor(), "Wrong bean variable required status read out of the yaml!")
-}
-
 func TestGetSchemaTypesFromYamlParsesMultipleStringVariablesWithMixedRequiredFields(t *testing.T) {
 	// Given...
 	apiYaml := `openapi: 3.0.3
@@ -269,15 +207,14 @@ components:
     MyBeanName:
       type: object
       description: A simple example
+      required: [myStringVar1]
       properties:
         myStringVar:
           type: string
           description: a test string
-          required: false
         myStringVar1:
           type: string
           description: a test string in addition to the other
-          required: true
 `
 	// When...
 	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
@@ -415,6 +352,39 @@ components:
 	assert.Equal(t, "string", property1.GetType(), "Wrong bean variable type read out of the yaml!")
 	assert.Equal(t, true, property1.IsCollection(), "Wrong bean variable cardinality read out of the yaml!")
 	assert.Equal(t, 2, property1.cardinality.GetDimensions(), "Wrong array dimension read out of the yaml!")
+}
+
+func TestGetSchemaTypesFromYamlParsesObjectWith3DArray(t *testing.T) {
+	// Given...
+	apiYaml := `openapi: 3.0.3
+components:
+  schemas:
+    MyBeanName:
+      type: object
+      properties:
+        myTestArray:
+          type: array
+          items:
+            type: array
+            items:
+              type: array
+              items:
+                type: string
+`
+	// When...
+	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+
+	// Then...
+	assert.Nil(t, err)
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myTestArray"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, "myTestArray", property1.GetName(), "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "string", property1.GetType(), "Wrong bean variable type read out of the yaml!")
+	assert.Equal(t, true, property1.IsCollection(), "Wrong bean variable cardinality read out of the yaml!")
+	assert.Equal(t, 3, property1.cardinality.GetDimensions(), "Wrong array dimension read out of the yaml!")
 }
 
 func TestGetSchemaTypesFromYamlParsesNestedObjects(t *testing.T) {

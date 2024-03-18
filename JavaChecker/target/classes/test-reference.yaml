@@ -110,3 +110,20 @@ components:
           type: string
           description: an enum with 2 values to test against.
           enum: [string1, string2]
+    
+    BeanWithArrayOfReferenceToEmptyBean:
+      type: object
+      description: A bean that tests arrays
+      properties:
+        anArrayVariable:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmptyBean'
+
+    BeanWithRequiredPrimitiveProperty:
+      type: object
+      description: A bean with a single primitive property
+      required: [aStringVariable]
+      properties:
+        aStringVariable:
+          type: string

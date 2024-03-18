@@ -2,7 +2,6 @@ package generator
 
 import (
 	"log"
-	"maps"
 	"strings"
 
 	openapi2beans_errors "github.com/techcobweb/openapi2beans/pkg/errors"
@@ -21,9 +20,15 @@ const (
 	OPENAPI_YAML_KEYWORD_REF         = "$ref"
 	OPENAPI_YAML_KEYWORD_ENUM		 = "enum"
 )
+var (
+	schemaTypes = make(map[string]*SchemaType)
+	properties = make(map[string]*Property)
+	arrayDimensions = 0
+)
 
-func getSchemaTypesFromYaml(apiyaml []byte) (parsedSchemaTypes map[string]*SchemaType, err error) {
+func getSchemaTypesFromYaml(apiyaml []byte) (map[string]*SchemaType, error) {
 	var schemasMap map[interface{}]interface{}
+	var err error
 	entireYamlMap := make(map[string]interface{})
 
 	err = yaml.Unmarshal(apiyaml, &entireYamlMap)
@@ -32,13 +37,12 @@ func getSchemaTypesFromYaml(apiyaml []byte) (parsedSchemaTypes map[string]*Schem
 		schemasMap, err = retrieveSchemasMapFromEntireYamlMap(entireYamlMap)
 
 		if err == nil {
-			var properties map[string]*Property
-			parsedSchemaTypes, properties, err = retrieveSchemaTypesFromMap(schemasMap, "#/components/schemas")
-			resolveReferences(properties)
+			err = retrieveSchemaComponentsFromMap(schemasMap, "#/components/schemas")
+			resolveReferences()
 		}
 	}
 
-	return parsedSchemaTypes, err
+	return schemaTypes, err
 }
 
 func retrieveSchemasMapFromEntireYamlMap(entireYamlMap map[string]interface{}) (map[interface{}]interface{}, error) {
@@ -60,15 +64,13 @@ func retrieveSchemasMapFromEntireYamlMap(entireYamlMap map[string]interface{}) (
 	return schemasMap, err
 }
 
-func retrieveSchemaTypesFromMap(inputMap map[interface{}]interface{}, yamlPath string) (schemaTypes map[string]*SchemaType, properties map[string]*Property, err error) {
-	schemaTypes = make(map[string]*SchemaType)
-	properties = make(map[string]*Property)
+func retrieveSchemaComponentsFromMap(inputMap map[interface{}]interface{}, parentPath string) (err error) {
 
 	for subMapKey, subMapObj := range inputMap {
 		log.Printf("RetrieveSchemaTypesFromMap: %v\n", subMapObj)
 
 		subMap := subMapObj.(map[interface{}]interface{})
-		apiSchemaPartPath := yamlPath + "/" + subMapKey.(string)
+		apiSchemaPartPath := parentPath + "/" + subMapKey.(string)
 		varName := subMapKey.(string)
 
 		var typeName string
@@ -76,25 +78,15 @@ func retrieveSchemaTypesFromMap(inputMap map[interface{}]interface{}, yamlPath s
 		var possibleValues map[string]string
 		description := retrieveDescription(subMap)
 		typeName, cardinality, err = retrieveVarType(subMap, apiSchemaPartPath)
+		arrayDimensions = 0
 		possibleValues = retrievePossibleValues(subMap)
 
 		if err == nil {
 			property := NewProperty(subMapKey.(string), apiSchemaPartPath, description, typeName, possibleValues, nil, cardinality)
+			assignPropertyToSchemaType(parentPath, apiSchemaPartPath, property)
 			
 			if typeName == "object" {
-				var nestedProperties map[string]*Property
-				var nestedSchemaTypes map[string]*SchemaType
-
-				nestedSchemaTypes, nestedProperties, err = retrieveNestedProperties(subMap, apiSchemaPartPath)
-
-				if err == nil {
-					resolvedType := NewSchemaType(varName, description, property, nestedProperties)
-					maps.Copy(properties, nestedProperties)
-					maps.Copy(schemaTypes, nestedSchemaTypes)
-					property.SetResolvedType(resolvedType)
-
-					schemaTypes[apiSchemaPartPath] = resolvedType
-				}
+				err = assignSchemaTypeToSchemaTypesMap(subMap, apiSchemaPartPath, varName, description, property)
 			} else if property.IsEnum() {
 				enumSchemaType := NewSchemaType(varName, description, property, nil)
 				property.SetResolvedType(enumSchemaType)
@@ -111,10 +103,10 @@ func retrieveSchemaTypesFromMap(inputMap map[interface{}]interface{}, yamlPath s
 		}
 	}
 
-	return schemaTypes, properties, err
+	return err
 }
 
-func resolveReferences(properties map[string]*Property) error {
+func resolveReferences() error {
 	var err error
 	log.Printf("ResolveReferences: resolving references in property map: %v\n", properties)
 	for _, property := range properties {
@@ -133,16 +125,16 @@ func resolveReferences(properties map[string]*Property) error {
 	return err
 }
 
-func retrieveNestedProperties(subMap map[interface{}]interface{}, yamlPath string) (schemaTypes map[string]*SchemaType, properties map[string]*Property, err error) {
+func retrieveNestedProperties(subMap map[interface{}]interface{}, yamlPath string) (err error) {
 	var schemaPropertiesMap map[interface{}]interface{}
 
 	propertiesObj, isPropertyPresent := subMap[OPENAPI_YAML_KEYWORD_PROPERTIES]
 	if isPropertyPresent {
 		schemaPropertiesMap = propertiesObj.(map[interface{}]interface{})
-		schemaTypes, properties, err = retrieveSchemaTypesFromMap(schemaPropertiesMap, yamlPath)
+		err = retrieveSchemaComponentsFromMap(schemaPropertiesMap, yamlPath)
 	}
 
-	return schemaTypes, properties, err
+	return err
 }
 
 func retrieveVarType(variableMap map[interface{}]interface{}, apiSchemaPartPath string) (varType string, cardinality Cardinality, err error) {
@@ -153,14 +145,12 @@ func retrieveVarType(variableMap map[interface{}]interface{}, apiSchemaPartPath 
 	if isTypePresent {
 		varType = varTypeObj.(string)
 		if varType == "array" {
-			var returnCardinality int
-			maxCardinality = 128
-			varType, returnCardinality, err = retrieveArrayType(variableMap, apiSchemaPartPath)
-			maxCardinality += returnCardinality
+			varType, err = retrieveArrayType(variableMap, apiSchemaPartPath)
+			maxCardinality = 128 * arrayDimensions
 		} else {
 			maxCardinality = 1
 		}
-		cardinality = Cardinality {min: getMinCardinality(variableMap), max: maxCardinality}
+		cardinality = Cardinality {min: 0, max: maxCardinality}
 	} else if isRefPresent {
 		varType = "$ref:" + refObj.(string)
 	} else {
@@ -170,8 +160,8 @@ func retrieveVarType(variableMap map[interface{}]interface{}, apiSchemaPartPath 
 	return varType, cardinality, err
 }
 
-func retrieveArrayType(varMap map[interface{}]interface{}, schemaPartPath string) (arrayType string, maxCardinality int, err error) {
-
+func retrieveArrayType(varMap map[interface{}]interface{}, schemaPartPath string) (arrayType string, err error) {
+	arrayDimensions += 1
 	itemsObj, isItemsPresent := varMap[OPENAPI_YAML_KEYWORD_ITEMS]
 	if isItemsPresent {
 		itemsMap := itemsObj.(map[interface{}]interface{})
@@ -181,17 +171,13 @@ func retrieveArrayType(varMap map[interface{}]interface{}, schemaPartPath string
 			allOfSlice := allOfObj.([]interface{})
 			itemsMap = allOfSlice[0].(map[interface{}]interface{})
 		}
-		var cardinality Cardinality
-		arrayType, cardinality, err = retrieveVarType(itemsMap, schemaPartPath)
-		if cardinality.max > 1 {
-			maxCardinality += 128
-		}
+		arrayType, _, err = retrieveVarType(itemsMap, schemaPartPath)
 		
 	} else {
 		err = openapi2beans_errors.NewError("RetrieveArrayType: Failed to find required items section for %v\n", schemaPartPath)
 	}
 
-	return arrayType, maxCardinality, err
+	return arrayType, err
 }
 
 func retrieveDescription(subMap map[interface{}]interface{}) (description string) {
@@ -202,15 +188,17 @@ func retrieveDescription(subMap map[interface{}]interface{}) (description string
 	return description
 }
 
-func getMinCardinality(varMap map[interface{}]interface{}) (minCardinality int) {
-	minCardinality = 0
-	requiredObj, isRequiredPresent := varMap[OPENAPI_YAML_KEYWORD_REQUIRED]
+func resolvePropertiesMinCardinalities(schemaTypeMap map[interface{}]interface{}, schemaTypeProps map[string]*Property, schemaTypePath string) {
+	requiredMapObj, isRequiredPresent := schemaTypeMap[OPENAPI_YAML_KEYWORD_REQUIRED]
 	if isRequiredPresent {
-		if requiredObj.(bool) {
-			minCardinality = 1
+		requiredMap := requiredMapObj.([]interface{})
+		for _, required := range requiredMap {
+			property, isPropertyNamePresent := schemaTypeProps[schemaTypePath + "/" + required.(string)]
+			if isPropertyNamePresent {
+				property.cardinality.min = 1
+			}
 		}
 	}
-	return minCardinality
 }
 
 func retrievePossibleValues(varMap map[interface{}]interface{}) (possibleValues map[string]string) {
@@ -224,4 +212,26 @@ func retrievePossibleValues(varMap map[interface{}]interface{}) (possibleValues 
 		}
 	}
 	return
+}
+
+func assignSchemaTypeToSchemaTypesMap(schemaTypeMap map[interface{}]interface{}, apiSchemaPartPath string, varName string, description string, ownProperty *Property) error {
+	resolvedType := NewSchemaType(varName, description, ownProperty, nil)
+	ownProperty.SetResolvedType(resolvedType)
+
+	schemaTypes[apiSchemaPartPath] = resolvedType
+
+	err := retrieveNestedProperties(schemaTypeMap, apiSchemaPartPath)
+
+	if err == nil {
+		resolvePropertiesMinCardinalities(schemaTypeMap, resolvedType.properties, apiSchemaPartPath)
+	}
+	return err
+}
+
+func assignPropertyToSchemaType(parentPath string, apiSchemaPartPath string, property *Property) {
+	localMap := schemaTypes
+	schemaType, isPropertyPartOfSchemaType := localMap[parentPath]
+	if isPropertyPartOfSchemaType {
+		schemaType.properties[apiSchemaPartPath] = property
+	}
 }
