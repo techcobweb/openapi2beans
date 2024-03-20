@@ -4,12 +4,19 @@ package {{JavaPackage.Name}};
 // {{.}}
 {{/Description}}
 public class {{Name}} {
+    // Constants //
+    {{#ConstantDataMembers}}
+    {{#Description}}
+    // {{&.}}
+    {{/Description}}
+    public static final {{MemberType}} {{Name}}{{#ConstantVal}} = {{&.}}{{/ConstantVal}};
+    {{/ConstantDataMembers}}
     // Class Variables //
     {{#DataMembers}}
     {{#Description}}
-    // {{.}}
+    // {{&.}}
     {{/Description}}
-    private {{#ConstantVal}}const {{/ConstantVal}}{{MemberType}} {{Name}}{{#ConstantVal}} = {{.}}{{/ConstantVal}};
+    private {{MemberType}} {{Name}};
     {{/DataMembers}}
 
     public {{Name}} ({{#RequiredMembers}}{{^IsFirst}}, {{/IsFirst}}{{DataMember.MemberType}} {{DataMember.Name}}{{/RequiredMembers}}) {
@@ -20,14 +27,14 @@ public class {{Name}} {
 
     // Getters //
     {{#DataMembers}}
-    public {{MemberType}} Get{{Name}}() {
+    public {{MemberType}} Get{{CamelCaseName}}() {
         return {{Name}};
     }
     {{/DataMembers}}
 
     // Setters //
     {{#DataMembers}}
-    public void Set{{Name}}({{MemberType}} {{Name}}) {
+    public void Set{{CamelCaseName}}({{MemberType}} {{Name}}) {
         this.{{Name}} = {{Name}};
     }
     {{/DataMembers}}

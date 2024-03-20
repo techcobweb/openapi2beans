@@ -1,20 +1,17 @@
 package dev.galasa.openapi2beans.example.generated;
 
-// A bean to test array property can contain any primitive property type
 public class BeanToTestArraysWithVariousPrimitiveTypes {
+    // Constants //
     // Class Variables //
-    private double[] aNumberArray;
     private boolean[] aBooleanArray;
     private String[] aStringArray;
     private int[] anIntArray;
+    private double[] aNumberArray;
 
     public BeanToTestArraysWithVariousPrimitiveTypes () {
     }
 
     // Getters //
-    public double[] GetaNumberArray() {
-        return aNumberArray;
-    }
     public boolean[] GetaBooleanArray() {
         return aBooleanArray;
     }
@@ -24,11 +21,11 @@ public class BeanToTestArraysWithVariousPrimitiveTypes {
     public int[] GetanIntArray() {
         return anIntArray;
     }
+    public double[] GetaNumberArray() {
+        return aNumberArray;
+    }
 
     // Setters //
-    public void SetaNumberArray(double[] aNumberArray) {
-        this.aNumberArray = aNumberArray;
-    }
     public void SetaBooleanArray(boolean[] aBooleanArray) {
         this.aBooleanArray = aBooleanArray;
     }
@@ -37,5 +34,8 @@ public class BeanToTestArraysWithVariousPrimitiveTypes {
     }
     public void SetanIntArray(int[] anIntArray) {
         this.anIntArray = anIntArray;
+    }
+    public void SetaNumberArray(double[] aNumberArray) {
+        this.aNumberArray = aNumberArray;
     }
 }

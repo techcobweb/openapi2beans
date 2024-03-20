@@ -1,20 +1,20 @@
 package dev.galasa.openapi2beans.example.generated;
 
-public class BeanWithArray {
+public class BeanWith2DNestedArray {
     // Constants //
     // Class Variables //
-    private String[] anArrayVariable;
+    private String[][] anArrayVariable;
 
-    public BeanWithArray () {
+    public BeanWith2DNestedArray () {
     }
 
     // Getters //
-    public String[] GetanArrayVariable() {
+    public String[][] GetanArrayVariable() {
         return anArrayVariable;
     }
 
     // Setters //
-    public void SetanArrayVariable(String[] anArrayVariable) {
+    public void SetanArrayVariable(String[][] anArrayVariable) {
         this.anArrayVariable = anArrayVariable;
     }
 }

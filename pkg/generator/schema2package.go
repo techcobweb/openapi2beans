@@ -1,22 +1,31 @@
 package generator
 
-import "strings"
+import (
+	"regexp"
+	"strings"
+)
 
 func translateSchemaTypesToJavaPackage(schemaTypes map[string]*SchemaType, packageName string) (javaPackage *JavaPackage){
 	javaPackage = NewJavaPackage(packageName)
 	for _, schemaType := range schemaTypes {
 		description := strings.Split(schemaType.description, "\n")
+		if len(description) == 1 {
+			description = nil
+		} else if len(description) > 1 {
+			description = description[:len(description)-2]
+		}
+		
 		if schemaType.ownProperty.IsEnum() {
 			enumValues := possibleValuesToEnumValues(schemaType.ownProperty.possibleValues)
 			
-			javaEnum := NewJavaEnum(schemaType.ownProperty.name, description, enumValues, javaPackage)
+			javaEnum := NewJavaEnum(convertToCamelCase(schemaType.ownProperty.name), description, enumValues, javaPackage)
 
-			javaPackage.Enums[schemaType.ownProperty.name] = javaEnum
+			javaPackage.Enums[convertToCamelCase(schemaType.ownProperty.name)] = javaEnum
 		} else {
-			dataMembers, requiredMembers := retrieveDataMembersFromSchemaType(schemaType)
+			dataMembers, requiredMembers, constantDataMembers := retrieveDataMembersFromSchemaType(schemaType)
 			
-			javaClass := NewJavaClass(schemaType.name, description, javaPackage, nil, dataMembers, requiredMembers)
-			javaPackage.Classes[schemaType.name] = javaClass
+			javaClass := NewJavaClass(convertToCamelCase(schemaType.name), description, javaPackage, nil, dataMembers, requiredMembers, constantDataMembers)
+			javaPackage.Classes[convertToCamelCase(schemaType.name)] = javaClass
 		}
 	}
 	return javaPackage
@@ -29,31 +38,53 @@ func possibleValuesToEnumValues(possibleValues map[string]string) (enumValues []
 	return enumValues
 }
 
-func retrieveDataMembersFromSchemaType(schemaType *SchemaType) (dataMembers []*DataMember, requiredMembers []*RequiredMember){
+func retrieveDataMembersFromSchemaType(schemaType *SchemaType) (dataMembers []*DataMember, requiredMembers []*RequiredMember, constantDataMembers []*DataMember){
 	for _, property := range schemaType.properties {
 		var constVal string
+		name := property.name
+		description := strings.Split(property.description, "\n")
+		if len(description) == 1 {
+			description = nil
+		} else if len(description) > 1 {
+			description = description[:len(description)-2]
+		}
 		if property.IsConstant() {
 			posVal := possibleValuesToEnumValues(property.GetPossibleValues())
-			constVal = posVal[0]
-		}
-		description := strings.Split(property.description, "\n")
-		dataMember := DataMember {
-			Name: property.name,
-			MemberType: propertyToJavaType(property),
-			Description: description,
-			ConstantVal: constVal,
-		}
-		dataMembers = append(dataMembers, &dataMember)
-		
-		if property.IsSetInConstructor() {
-			requiredMember := RequiredMember {
-				DataMember: &dataMember,
-				IsFirst: len(requiredMembers) == 0,
+			name = convertToConstName(name)
+			constVal = convertConstValueToJavaReadable(posVal[0], property.typeName)
+
+			constDataMember := DataMember {
+				Name: name,
+				CamelCaseName: convertToCamelCase(name),
+				MemberType: propertyToJavaType(property),
+				Description: description,
+				ConstantVal: constVal,
 			}
-			requiredMembers = append(requiredMembers, &requiredMember)
+
+			constantDataMembers = append(constantDataMembers, &constDataMember)
+
+		} else {
+
+			dataMember := DataMember {
+				Name: name,
+				CamelCaseName: convertToCamelCase(name),
+				MemberType: propertyToJavaType(property),
+				Description: description,
+				ConstantVal: constVal,
+			}
+			dataMembers = append(dataMembers, &dataMember)
+				
+			if property.IsSetInConstructor() {
+				requiredMember := RequiredMember {
+					DataMember: &dataMember,
+					IsFirst: len(requiredMembers) == 0,
+				}
+				requiredMembers = append(requiredMembers, &requiredMember)
+			}
 		}
+		
 	}
-	return dataMembers, requiredMembers
+	return dataMembers, requiredMembers, constantDataMembers
 }
 
 func propertyToJavaType(property *Property) string {
@@ -80,4 +111,27 @@ func propertyToJavaType(property *Property) string {
 	}
 
 	return javaType
+}
+
+func convertToCamelCase(name string) string {
+	initialLetter := name[0]
+	camelCaseName := string(initialLetter) + name[1:]
+	return camelCaseName
+}
+
+func convertToConstName(name string) string {
+	var matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
+	var matchAllCap   = regexp.MustCompile("([a-z0-9])([A-Z])")
+
+	constName := matchFirstCap.ReplaceAllString(name, "${1}_${2}")
+    constName  = matchAllCap.ReplaceAllString(constName, "${1}_${2}")
+
+    return strings.ToUpper(constName)
+}
+
+func convertConstValueToJavaReadable(constVal string, constType string) string {
+	if constType == "string" {
+		constVal = "\"" + constVal + "\""
+	}
+	return constVal
 }

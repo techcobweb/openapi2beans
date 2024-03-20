@@ -1,17 +1,20 @@
 package dev.galasa.openapi2beans.example.generated;
 
-// A bean with a mix of arrays and other primitive property types
 public class BeanWithMixOfArrayAndPrimitiveProperties {
+    // Constants //
     // Class Variables //
+    private String aStringVariable;
     private int[] anIntArray;
     private int anIntVariable;
     private String[] anArrayVariable;
-    private String aStringVariable;
 
     public BeanWithMixOfArrayAndPrimitiveProperties () {
     }
 
     // Getters //
+    public String GetaStringVariable() {
+        return aStringVariable;
+    }
     public int[] GetanIntArray() {
         return anIntArray;
     }
@@ -21,11 +24,11 @@ public class BeanWithMixOfArrayAndPrimitiveProperties {
     public String[] GetanArrayVariable() {
         return anArrayVariable;
     }
-    public String GetaStringVariable() {
-        return aStringVariable;
-    }
 
     // Setters //
+    public void SetaStringVariable(String aStringVariable) {
+        this.aStringVariable = aStringVariable;
+    }
     public void SetanIntArray(int[] anIntArray) {
         this.anIntArray = anIntArray;
     }
@@ -34,8 +37,5 @@ public class BeanWithMixOfArrayAndPrimitiveProperties {
     }
     public void SetanArrayVariable(String[] anArrayVariable) {
         this.anArrayVariable = anArrayVariable;
-    }
-    public void SetaStringVariable(String aStringVariable) {
-        this.aStringVariable = aStringVariable;
     }
 }

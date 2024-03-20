@@ -4,6 +4,7 @@ import (
 	"log"
 	"strings"
 
+	openapi2beans_errors "github.com/techcobweb/openapi2beans/pkg/errors"
 	"github.com/galasa-dev/cli/pkg/files"
 )
 
@@ -44,11 +45,15 @@ func generateDirectories(fs files.FileSystem, storeFilePath string) error {
 	return err
 }
 
-func handleErrList(errList []error) {
-	log.Println("Listing non-fatal errors:")
+func handleErrList(errList []error) error {
+	log.Println("Failing on non-fatal errors:")
+	var err error
+	errorString := ""
 	for _, individualError := range errList {
-		log.Println(individualError.Error())
+		errorString += "Error: " + individualError.Error()
 	}
+	err = openapi2beans_errors.NewError(errorString)
+	return err
 }
 
 func generateStoreFilePath(projectFilePath string, packageName string) string {

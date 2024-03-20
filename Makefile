@@ -15,7 +15,7 @@ tests: openapi2beans-source build/coverage.txt
 
 build/coverage.out : openapi2beans-source
 	mkdir -p build
-	go test -v -cover -coverprofile=build/coverage.out -coverpkg pkg/generator,./pkg/errors,./pkg/cmd,./pkg/embedded,./pkg/utils ./pkg/...
+	go test -v -cover -coverprofile=build/coverage.out -coverpkg ./pkg/generator,./pkg/errors,./pkg/cmd,./pkg/embedded,./pkg/utils ./pkg/...
 
 build/coverage.html : build/coverage.out
 	go tool cover -html=build/coverage.out -o build/coverage.html

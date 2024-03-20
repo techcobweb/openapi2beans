@@ -104,7 +104,7 @@ components:
     
     BeanWithEnumProperty:
       type: object
-      description: bean with an enum property
+      description: bean with a reference to an enum
       properties:
         anEnumProperty:
           type: string
@@ -113,9 +113,9 @@ components:
     
     BeanWithConstantProperty:
       type: object
-      description: bean with a constant property
+      description: bean with a reference to an enum
       properties:
-        aConstantProperty:
+        anEnumProperty:
           type: string
           description: a constant to test against.
           enum: [string1]

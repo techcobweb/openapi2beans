@@ -1,9 +1,8 @@
 package dev.galasa.openapi2beans.example.generated;
 
-// A bean that tests arrays
 public class BeanWithArrayOfReferenceToEmptyBean {
+    // Constants //
     // Class Variables //
-    // An empty bean with no properties
     private EmptyBean[] anArrayVariable;
 
     public BeanWithArrayOfReferenceToEmptyBean () {

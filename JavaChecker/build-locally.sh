@@ -47,9 +47,9 @@ note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" 
 function generate_code() {
     h2 "Generating code..."
 
-    cmd="${BASEDIR}/../bin/openapi2beans-darwin-arm64 \
+    cmd="${BASEDIR}/../bin/openapi2beans-darwin-arm64 generate \
         --yaml ${BASEDIR}/src/main/resources/test-reference.yaml \
-        --output ${BASEDIR}/src/main/java/dev/galasa/openapi2beans/example/generated \
+        --output ${BASEDIR}/src/main/java/ \
         --package dev.galasa.openapi2beans.example.generated"
 
     $cmd

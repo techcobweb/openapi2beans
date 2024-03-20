@@ -18,32 +18,39 @@ func NewJavaPackage(name string) *JavaPackage {
 }
 
 type JavaClass struct {
-	Name            string
-	Description     []string
-	JavaPackage     *JavaPackage
-	InheritedClass  *JavaAbstractClass
-	DataMembers     []*DataMember
-	RequiredMembers []*RequiredMember
+	Name                string
+	Description         []string
+	JavaPackage         *JavaPackage
+	InheritedClass      *JavaAbstractClass
+	DataMembers         []*DataMember
+	RequiredMembers     []*RequiredMember
+	ConstantDataMembers []*DataMember
 }
 
-func NewJavaClass(name string, description []string, javaPackage *JavaPackage, inheritedClass *JavaAbstractClass, dataMembers []*DataMember, requiredMembers []*RequiredMember) *JavaClass {
+func NewJavaClass(name string, description []string, javaPackage *JavaPackage, inheritedClass *JavaAbstractClass, dataMembers []*DataMember, requiredMembers []*RequiredMember, constantDataMembers []*DataMember) *JavaClass {
 	javaClass := JavaClass{
-		Name:            name,
-		Description:     description,
-		JavaPackage:     javaPackage,
-		InheritedClass:  inheritedClass,
-		DataMembers:     dataMembers,
-		RequiredMembers: requiredMembers,
+		Name:                name,
+		Description:         description,
+		JavaPackage:         javaPackage,
+		InheritedClass:      inheritedClass,
+		DataMembers:         dataMembers,
+		RequiredMembers:     requiredMembers,
+		ConstantDataMembers: constantDataMembers,
 	}
 	return &javaClass
 }
 
 type DataMember struct {
-	Name        string
-	MemberType  string
-	Description []string
-	Required    bool
-	ConstantVal string
+	Name          string
+	CamelCaseName string
+	MemberType    string
+	Description   []string
+	Required      bool
+	ConstantVal   string
+}
+
+func (dataMember DataMember) IsConstant() bool {
+	return dataMember.ConstantVal != ""
 }
 
 type RequiredMember struct {

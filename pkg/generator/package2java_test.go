@@ -42,18 +42,23 @@ func assertClassFileGeneratedOk(t *testing.T, generatedFile string, className st
 
 func assertVariablesGeneratedOk(t *testing.T, generatedFile string, dataMembers []*DataMember) {
 	for _, dataMember := range dataMembers {
-		if dataMember.ConstantVal == "" {
-			assert.Contains(t, generatedFile, "private " + dataMember.MemberType + " " + dataMember.Name)
-		} else {
-			assert.Contains(t, generatedFile, "private const " + dataMember.MemberType + " " + dataMember.Name + " = " + dataMember.ConstantVal)
-		}
+		assert.Contains(t, generatedFile, "private " + dataMember.MemberType + " " + dataMember.Name)
 		for _, line := range dataMember.Description {
 			assert.Contains(t, generatedFile, "// " + line)
 		}
-		assert.Contains(t, generatedFile, "public " + dataMember.MemberType + " Get" + dataMember.Name + "() {")
+		assert.Contains(t, generatedFile, "public " + dataMember.MemberType + " Get" + dataMember.CamelCaseName + "() {")
 		assert.Contains(t, generatedFile, "this." + dataMember.Name + " = " + dataMember.Name)
-		assert.Contains(t, generatedFile, "public void Set" + dataMember.Name + "(" + dataMember.MemberType + " " + dataMember.Name + ") {")
+		assert.Contains(t, generatedFile, "public void Set" + dataMember.CamelCaseName + "(" + dataMember.MemberType + " " + dataMember.Name + ") {")
 		assert.Contains(t, generatedFile, "this." + dataMember.Name + " = " + dataMember.Name)
+	}
+}
+
+func assertConstantsGeneratedOk(t *testing.T, generatedFile string, constDataMembers []*DataMember) {
+	for _, constDataMember := range constDataMembers{
+		assert.Contains(t, generatedFile, "public static final " + constDataMember.MemberType + " " + constDataMember.Name + " = " + constDataMember.ConstantVal)
+		for _, line := range constDataMember.Description {
+			assert.Contains(t, generatedFile, "// " + line)
+		}
 	}
 }
 
@@ -70,7 +75,7 @@ func TestPackageStructParsesToTemplate(t *testing.T) {
 	className := "MyBean"
 	var javaPackage JavaPackage
 	javaPackage.Name = TARGET_JAVA_PACKAGE
-	class := NewJavaClass(className, []string{}, &javaPackage, nil, nil, nil)
+	class := NewJavaClass(className, []string{}, &javaPackage, nil, nil, nil, nil)
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
@@ -96,7 +101,7 @@ func TestPackageStructParsesToTemplateWithClassWithMember(t *testing.T) {
 		MemberType: "String",
 	}
 	dataMembers := []*DataMember{&dataMember}
-	class := NewJavaClass(className, []string{}, &javaPackage, nil, dataMembers, nil)
+	class := NewJavaClass(className, []string{}, &javaPackage, nil, dataMembers, nil, nil)
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
@@ -129,7 +134,7 @@ func TestPackageStructParsesToTemplateWithClassWithMultipleMembers(t *testing.T)
 		MemberType: "String",
 	}
 	dataMembers := []*DataMember{&dataMember1, &dataMember2}
-	class := NewJavaClass(className, []string{}, &javaPackage, nil, dataMembers, nil)
+	class := NewJavaClass(className, []string{}, &javaPackage, nil, dataMembers, nil, nil)
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
@@ -156,7 +161,7 @@ func TestPackageStructParsesToTemplateWithClassWithArrayDataMember(t *testing.T)
 		MemberType: "String[]",
 	}
 	dataMembers := []*DataMember{&dataMember1}
-	class := NewJavaClass(className, []string{}, &javaPackage, nil, dataMembers, nil)
+	class := NewJavaClass(className, []string{}, &javaPackage, nil, dataMembers, nil, nil)
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
@@ -183,7 +188,7 @@ func TestPackageStructParsesToTemplateWithClassWithMultiDimensionalArrayDataMemb
 		MemberType: "String[][]",
 	}
 	dataMembers := []*DataMember{&dataMember1}
-	class := NewJavaClass(className, []string{}, &javaPackage, nil, dataMembers, nil)
+	class := NewJavaClass(className, []string{}, &javaPackage, nil, dataMembers, nil, nil)
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
@@ -216,7 +221,7 @@ func TestPackageStructParsesToTemplateWithClassWithMixedArrayAndPrimitiveDataMem
 		MemberType: "String",
 	}
 	dataMembers := []*DataMember{&dataMember1, &dataMember2}
-	class := NewJavaClass(className, []string{}, &javaPackage, nil, dataMembers, nil)
+	class := NewJavaClass(className, []string{}, &javaPackage, nil, dataMembers, nil, nil)
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
@@ -243,7 +248,7 @@ func TestPackageStructParsesToTemplateWithClassWithReferencedClassType(t *testin
 		MemberType: "ReferencedClass",
 	}
 	dataMembers := []*DataMember{&dataMember1}
-	class := NewJavaClass(className, []string{}, &javaPackage, nil, dataMembers, nil)
+	class := NewJavaClass(className, []string{}, &javaPackage, nil, dataMembers, nil, nil)
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
@@ -270,7 +275,7 @@ func TestPackageStructParsesToTemplateWithClassWithArrayOfReferencedClassType(t 
 		MemberType: "ReferencedClass[]",
 	}
 	dataMembers := []*DataMember{&dataMember1}
-	class := NewJavaClass(className, []string{}, &javaPackage, nil, dataMembers, nil)
+	class := NewJavaClass(className, []string{}, &javaPackage, nil, dataMembers, nil, nil)
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
@@ -304,7 +309,7 @@ func TestPackageStructParsesToTemplateWithClassWithRequiredProperty(t *testing.T
 	dataMembers = append(dataMembers, &dataMember1)
 	requiredMembers := []*RequiredMember{}
 	requiredMembers = append(requiredMembers, &requiredMember1)
-	class := NewJavaClass(className, []string{}, &javaPackage, nil, dataMembers, requiredMembers)
+	class := NewJavaClass(className, []string{}, &javaPackage, nil, dataMembers, requiredMembers, nil)
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
@@ -368,7 +373,7 @@ func TestPackageStructWithClassWithReferenceToEnumParsesCorrectly(t *testing.T) 
 		Required: true,
 	}
 	dataMembers := []*DataMember{dataMember}
-	class := NewJavaClass(className, classDesc, javaPackage, nil, dataMembers, nil)
+	class := NewJavaClass(className, classDesc, javaPackage, nil, dataMembers, nil, nil)
 	javaPackage.Classes[className] = class
 	javaPackage.Enums[enumName] = &javaEnum
 	mockFileSystem := files.NewMockFileSystem()
@@ -392,15 +397,15 @@ func TestPackageStructParsesToTemplateWithClassWithConstantMember(t *testing.T) 
 	className := "MyBean"
 	var javaPackage JavaPackage
 	javaPackage.Name = TARGET_JAVA_PACKAGE
-	memberName := "RandMember"
-	dataMember := DataMember {
+	memberName := "RAND_MEMBER"
+	constDataMember := DataMember {
 		Name: memberName,
 		Description: []string{"random constant member for test purposes"},
 		MemberType: "String",
 		ConstantVal: "random string thing",
 	}
-	dataMembers := []*DataMember{&dataMember}
-	class := NewJavaClass(className, []string{}, &javaPackage, nil, dataMembers, nil)
+	constDataMembers := []*DataMember{&constDataMember}
+	class := NewJavaClass(className, []string{}, &javaPackage, nil, nil, nil, constDataMembers)
 	mockFileSystem := files.NewMockFileSystem()
 	storeFilepath := "generated"
 	generatedCodeFilePath := storeFilepath + "/" + className + ".java"
@@ -412,5 +417,5 @@ func TestPackageStructParsesToTemplateWithClassWithConstantMember(t *testing.T) 
 	assert.Nil(t, err)
 	generatedFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
 	assertClassFileGeneratedOk(t, generatedFile, className)
-	assertVariablesGeneratedOk(t, generatedFile, dataMembers)
+	assertConstantsGeneratedOk(t, generatedFile, constDataMembers)
 }

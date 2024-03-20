@@ -1,9 +1,8 @@
 package dev.galasa.openapi2beans.example.generated;
 
-// bean with a reference to an enum
 public class BeanWithEnumProperty {
+    // Constants //
     // Class Variables //
-    // an enum with 2 values to test against.
     private anEnumProperty anEnumProperty;
 
     public BeanWithEnumProperty (anEnumProperty anEnumProperty) {

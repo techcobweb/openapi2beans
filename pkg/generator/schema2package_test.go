@@ -12,12 +12,29 @@ func assertJavaClassCorrectlyRelatesToSchemaType(t *testing.T, schemaType *Schem
 	schemaPath := "#/components/schemas/" + schemaType.name
 
 	if len(schemaType.properties) > 0 {
-		assert.Equal(t, len(schemaType.properties), len(class.DataMembers))
+		assert.Equal(t, len(schemaType.properties), len(class.DataMembers) + len(class.ConstantDataMembers))
 	}
+
+	// Data members generated ok
 	for _, dataMember := range class.DataMembers {
-		comparisonSchemaProperty, exists := schemaType.properties[schemaPath+"/"+dataMember.Name]
+		exists := false
+		var comparisonSchemaProperty *Property 
+		var expectedName string
+		if dataMember.ConstantVal != "" {
+			for _, prop := range schemaType.properties {
+				if convertToConstName(prop.name) == dataMember.Name {
+					expectedName = convertToConstName(prop.name)
+					comparisonSchemaProperty = prop
+					exists = true
+					break
+				}
+			}
+		} else {
+			comparisonSchemaProperty, exists = schemaType.properties[schemaPath+"/"+dataMember.Name]
+			expectedName = comparisonSchemaProperty.name
+		}
+		
 		assert.True(t, exists)
-		expectedName := comparisonSchemaProperty.name
 		assert.Equal(t, expectedName, dataMember.Name)
 		expectedType := getExpectedType(comparisonSchemaProperty)
 		assert.Equal(t, expectedType, dataMember.MemberType)
@@ -25,10 +42,36 @@ func assertJavaClassCorrectlyRelatesToSchemaType(t *testing.T, schemaType *Schem
 			assert.True(t, comparisonSchemaProperty.IsConstant())
 			posVal := possibleValuesToEnumValues(comparisonSchemaProperty.possibleValues)
 			assert.Equal(t, 1, len(posVal))
-			assert.Equal(t, posVal[0], dataMember.ConstantVal)
+			assert.Equal(t, convertConstValueToJavaReadable(posVal[0], comparisonSchemaProperty.typeName), dataMember.ConstantVal)
 		}
 	}
 
+	// Constant data members generated ok
+	for _, constDataMember := range class.ConstantDataMembers {
+		exists := false
+		var comparisonSchemaProperty *Property 
+		var expectedName string
+		assert.NotEmpty(t, constDataMember.ConstantVal)
+		for _, prop := range schemaType.properties {
+			if convertToConstName(prop.name) == constDataMember.Name {
+				expectedName = convertToConstName(prop.name)
+				comparisonSchemaProperty = prop
+				exists = true
+				break
+			}
+		}
+		
+		assert.True(t, exists)
+		assert.Equal(t, expectedName, constDataMember.Name)
+		expectedType := getExpectedType(comparisonSchemaProperty)
+		assert.Equal(t, expectedType, constDataMember.MemberType)
+		assert.True(t, comparisonSchemaProperty.IsConstant())
+		posVal := possibleValuesToEnumValues(comparisonSchemaProperty.possibleValues)
+		assert.Equal(t, 1, len(posVal))
+		assert.Equal(t, convertConstValueToJavaReadable(posVal[0], comparisonSchemaProperty.typeName), constDataMember.ConstantVal)
+	}
+
+	// Required data members generated ok
 	requiredPropertiesVisited := 0
 	for _, requiredMember := range class.RequiredMembers {
 		comparisonSchemaProperty, exists := schemaType.properties[schemaPath+"/"+requiredMember.DataMember.Name]
@@ -79,6 +122,9 @@ func getExpectedType(schemaProp *Property) string {
 func assertJavaEnumRelatesToSchemaType(t *testing.T, schemaType *SchemaType, javaEnum *JavaEnum) {
 	assert.Equal(t, schemaType.name, javaEnum.Name)
 	description := strings.Split(schemaType.description, "\n")
+	if len(description) == 1 {
+		description = nil
+	} 
 	assert.Equal(t, description, javaEnum.Description)
 	for _, enumValue := range javaEnum.EnumValues {
 		assert.NotNil(t, schemaType.ownProperty.possibleValues[enumValue])
@@ -374,6 +420,17 @@ func TestTranslateSchemaTypesToJavaPackageWithClassWithStringConstant(t *testing
 	// Then...
 	class, classExists := javaPackage.Classes[schemaName]
 	assert.True(t, classExists)
-	assert.NotEmpty(t, class.DataMembers)
+	assert.NotEmpty(t, class.ConstantDataMembers)
 	assertJavaClassCorrectlyRelatesToSchemaType(t, schemaType, class)
+}
+
+func TestConvertToConstName(t *testing.T) {
+	// Given...
+	name := "myConstantName"
+
+	// When..
+	constName := convertToConstName(name)
+
+	// Then.
+	assert.Equal(t, "MY_CONSTANT_NAME", constName)
 }
