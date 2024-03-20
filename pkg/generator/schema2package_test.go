@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -77,7 +78,8 @@ func getExpectedType(schemaProp *Property) string {
 
 func assertJavaEnumRelatesToSchemaType(t *testing.T, schemaType *SchemaType, javaEnum *JavaEnum) {
 	assert.Equal(t, schemaType.name, javaEnum.Name)
-	assert.Equal(t, schemaType.description, javaEnum.Description)
+	description := strings.Split(schemaType.description, "\n")
+	assert.Equal(t, description, javaEnum.Description)
 	for _, enumValue := range javaEnum.EnumValues {
 		assert.NotNil(t, schemaType.ownProperty.possibleValues[enumValue])
 	}

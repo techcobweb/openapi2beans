@@ -1,18 +1,21 @@
 package generator
 
+import "strings"
+
 func translateSchemaTypesToJavaPackage(schemaTypes map[string]*SchemaType, packageName string) (javaPackage *JavaPackage){
 	javaPackage = NewJavaPackage(packageName)
 	for _, schemaType := range schemaTypes {
+		description := strings.Split(schemaType.description, "\n")
 		if schemaType.ownProperty.IsEnum() {
 			enumValues := possibleValuesToEnumValues(schemaType.ownProperty.possibleValues)
 			
-			javaEnum := NewJavaEnum(schemaType.ownProperty.name, schemaType.ownProperty.description, enumValues, javaPackage)
+			javaEnum := NewJavaEnum(schemaType.ownProperty.name, description, enumValues, javaPackage)
 
 			javaPackage.Enums[schemaType.ownProperty.name] = javaEnum
 		} else {
 			dataMembers, requiredMembers := retrieveDataMembersFromSchemaType(schemaType)
 			
-			javaClass := NewJavaClass(schemaType.name, schemaType.description, javaPackage, nil, dataMembers, requiredMembers)
+			javaClass := NewJavaClass(schemaType.name, description, javaPackage, nil, dataMembers, requiredMembers)
 			javaPackage.Classes[schemaType.name] = javaClass
 		}
 	}
@@ -33,10 +36,11 @@ func retrieveDataMembersFromSchemaType(schemaType *SchemaType) (dataMembers []*D
 			posVal := possibleValuesToEnumValues(property.GetPossibleValues())
 			constVal = posVal[0]
 		}
+		description := strings.Split(property.description, "\n")
 		dataMember := DataMember {
 			Name: property.name,
 			MemberType: propertyToJavaType(property),
-			Description: property.description,
+			Description: description,
 			ConstantVal: constVal,
 		}
 		dataMembers = append(dataMembers, &dataMember)
