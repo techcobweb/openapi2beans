@@ -11,10 +11,10 @@ func TestGenerateFilesProducesFileFromSingleGenericObjectSchema(t *testing.T) {
 	// Given...
 	packageName := "generated"
 	mockFileSystem := files.NewMockFileSystem()
-	storeFilepath := "generated"
+	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + objectName + ".java"
+	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
 	testapiyaml := `openapi: 3.0.3
 components:
   schemas:
@@ -28,6 +28,7 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
+	assert.Nil(t, errList)
 	generatedClassFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
 	assertClassFileGeneratedOk(t, generatedClassFile, "MyBeanName")
 }

@@ -2,8 +2,8 @@ bin/
 build/
 temp/
 .vscode/
+previously-working-bins/
 
 JavaChecker/.vscode
-JavaChecker/src/main/java/dev/galasa/openapi2beans/example/generated
-JavaChecker/target/*
+**/target
 *.jar

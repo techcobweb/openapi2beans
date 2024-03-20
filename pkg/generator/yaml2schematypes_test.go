@@ -17,9 +17,10 @@ components:
       type: object
 `
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(schemaTypes))
 }
@@ -34,9 +35,10 @@ components:
 `
 
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -53,9 +55,10 @@ components:
       description: A simple example
 `
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -75,9 +78,10 @@ components:
           type: string
 `
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -102,9 +106,10 @@ components:
           description: a test string
 `
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -128,9 +133,10 @@ components:
           description: a test string
 `
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -154,9 +160,10 @@ components:
           description: a test string
 `
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -184,9 +191,10 @@ components:
           description: a test string
 `
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -217,9 +225,10 @@ components:
           description: a test string in addition to the other
 `
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -249,9 +258,10 @@ components:
           description: a second test string
 `
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -280,9 +290,10 @@ components:
             type: string
 `
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -309,9 +320,10 @@ components:
             - type: string
 `
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -339,9 +351,10 @@ components:
               type: string
 `
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -372,9 +385,10 @@ components:
                 type: string
 `
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -403,9 +417,10 @@ components:
 `
 
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -436,9 +451,10 @@ components:
 `
 
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -468,9 +484,10 @@ components:
           type: string
 `
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -502,9 +519,10 @@ components:
           type: string
 `
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -530,11 +548,12 @@ components:
 `
 
 	// When...
-	schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
-	schemaPath := SCHEMAS_PATH+"MyBeanName"
-	propertyPath := schemaPath + "/MyEnum"
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
 
 	// Then...
+	schemaPath := SCHEMAS_PATH+"MyBeanName"
+	propertyPath := schemaPath + "/MyEnum"
+	assert.Nil(t, errList)
 	assert.Nil(t, err)
 	schemaType, schemaTypeExists := schemaTypes[schemaPath]
 	assert.True(t, schemaTypeExists)
@@ -569,20 +588,52 @@ components:
           enum: [randValue1]
 `
 	
-		// When...
-		schemaTypes, err := getSchemaTypesFromYaml([]byte(apiYaml))
-		schemaPath := SCHEMAS_PATH+"MyBeanName"
-		propertyPath := schemaPath + "/MyConstant"
+	// When...
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
+
+	// Then...
+	schemaPath := SCHEMAS_PATH+"MyBeanName"
+	propertyPath := schemaPath + "/MyConstant"
+	assert.Nil(t, errList)
+	assert.Nil(t, err)
+	schemaType, schemaTypeExists := schemaTypes[schemaPath]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()[propertyPath]
+	assert.True(t, propertyExists)
+	assert.Equal(t, true, property1.IsConstant())
+	posValue, posValueExists := property1.GetPossibleValues()["randValue1"]
+	assert.True(t, posValueExists)
+	assert.Equal(t, "randValue1", posValue)
+}
+
+func TestGetSchemaTypesFromYamlParsesClassWithReferenceToPropertyInWiderSchemaMap(t *testing.T) {
+	// Given..
+	apiYaml := `openapi: 3.0.3
+components:
+  schemas:
+    MyBeanName:
+      type: object
+      properties:
+        myReferencingProperty:
+          $ref: '#/components/schemas/ReferencedProperty'
+    ReferencedProperty:
+      type: integer
+`
 	
-		// Then...
-		assert.Nil(t, err)
-		schemaType, schemaTypeExists := schemaTypes[schemaPath]
-		assert.True(t, schemaTypeExists)
-		assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
-		property1, propertyExists := schemaType.GetProperties()[propertyPath]
-		assert.True(t, propertyExists)
-		assert.Equal(t, true, property1.IsConstant())
-		posValue, posValueExists := property1.GetPossibleValues()["randValue1"]
-		assert.True(t, posValueExists)
-		assert.Equal(t, "randValue1", posValue)
+	// When...
+	schemaTypes, err, errList := getSchemaTypesFromYaml([]byte(apiYaml))
+
+	// Then...
+	schemaPath := SCHEMAS_PATH+"MyBeanName"
+	propertyPath := schemaPath + "/myReferencingProperty"
+	assert.Nil(t, errList)
+	assert.Nil(t, err)
+	schemaType, schemaTypeExists := schemaTypes[schemaPath]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()[propertyPath]
+	assert.True(t, propertyExists)
+	assert.Equal(t, "integer", property1.typeName)
+	assert.Equal(t, "myReferencingProperty", property1.name)
 }
