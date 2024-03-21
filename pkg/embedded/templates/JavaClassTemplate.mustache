@@ -1,7 +1,7 @@
 package {{JavaPackage.Name}};
 
 {{#Description}}
-// {{.}}
+// {{&.}}
 {{/Description}}
 public class {{Name}} {
     // Constants //
@@ -28,7 +28,7 @@ public class {{Name}} {
     // Getters //
     {{#DataMembers}}
     public {{MemberType}} Get{{CamelCaseName}}() {
-        return {{Name}};
+        return this.{{Name}};
     }
     {{/DataMembers}}
 

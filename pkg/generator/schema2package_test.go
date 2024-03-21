@@ -20,30 +20,13 @@ func assertJavaClassCorrectlyRelatesToSchemaType(t *testing.T, schemaType *Schem
 		exists := false
 		var comparisonSchemaProperty *Property 
 		var expectedName string
-		if dataMember.ConstantVal != "" {
-			for _, prop := range schemaType.properties {
-				if convertToConstName(prop.name) == dataMember.Name {
-					expectedName = convertToConstName(prop.name)
-					comparisonSchemaProperty = prop
-					exists = true
-					break
-				}
-			}
-		} else {
-			comparisonSchemaProperty, exists = schemaType.properties[schemaPath+"/"+dataMember.Name]
-			expectedName = comparisonSchemaProperty.name
-		}
+		comparisonSchemaProperty, exists = schemaType.properties[schemaPath+"/"+dataMember.Name]
+		expectedName = comparisonSchemaProperty.name
 		
 		assert.True(t, exists)
 		assert.Equal(t, expectedName, dataMember.Name)
 		expectedType := getExpectedType(comparisonSchemaProperty)
 		assert.Equal(t, expectedType, dataMember.MemberType)
-		if dataMember.ConstantVal != "" {
-			assert.True(t, comparisonSchemaProperty.IsConstant())
-			posVal := possibleValuesToEnumValues(comparisonSchemaProperty.possibleValues)
-			assert.Equal(t, 1, len(posVal))
-			assert.Equal(t, convertConstValueToJavaReadable(posVal[0], comparisonSchemaProperty.typeName), dataMember.ConstantVal)
-		}
 	}
 
 	// Constant data members generated ok
@@ -145,6 +128,23 @@ func TestTranslateSchemaTypesToJavaPackageReturnsPackageWithJavaClass(t *testing
 
 	// Then...
 	assert.Equal(t, "MyBean", javaPackage.Classes["MyBean"].Name)
+}
+
+func TestTranslateSchemaTypesToJavaPackageReturnsPackageWithJavaClassWithDescription(t *testing.T) {
+	// Given...
+	var schemaType *SchemaType
+	name := "MyBean"
+	ownProp := NewProperty(name, "#/components/schemas/MyBean", "", "object", nil, schemaType, Cardinality{min: 0, max: 1})
+	schemaType = NewSchemaType(name, "a lil description", ownProp, nil)
+	schemaTypeMap := make(map[string]*SchemaType)
+	schemaTypeMap["#/components/schemas/MyBean"] = schemaType
+
+	// When...
+	javaPackage := translateSchemaTypesToJavaPackage(schemaTypeMap, TARGET_JAVA_PACKAGE)
+
+	// Then...
+	assert.Equal(t, "MyBean", javaPackage.Classes["MyBean"].Name)
+	assert.Contains(t, javaPackage.Classes[name].Description, "a lil description")
 }
 
 func TestTranslateSchemaTypesToJavaPackageWithClassWithDataMember(t *testing.T) {
@@ -433,4 +433,15 @@ func TestConvertToConstName(t *testing.T) {
 
 	// Then.
 	assert.Equal(t, "MY_CONSTANT_NAME", constName)
+}
+
+func TestConvertToCamelCase(t *testing.T) {
+	// Given...
+	name := "myUnCamelledName"
+
+	// When...
+	cameledName := convertToCamelCase(name)
+
+	// Then...
+	assert.Equal(t, "MyUnCamelledName", cameledName)
 }

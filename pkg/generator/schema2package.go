@@ -9,7 +9,7 @@ func translateSchemaTypesToJavaPackage(schemaTypes map[string]*SchemaType, packa
 	javaPackage = NewJavaPackage(packageName)
 	for _, schemaType := range schemaTypes {
 		description := strings.Split(schemaType.description, "\n")
-		if len(description) == 1 {
+		if len(description) == 1 && description[0] == "" {
 			description = nil
 		} else if len(description) > 1 {
 			description = description[:len(description)-2]
@@ -43,7 +43,7 @@ func retrieveDataMembersFromSchemaType(schemaType *SchemaType) (dataMembers []*D
 		var constVal string
 		name := property.name
 		description := strings.Split(property.description, "\n")
-		if len(description) == 1 {
+		if len(description) == 1 && description[0] == "" {
 			description = nil
 		} else if len(description) > 1 {
 			description = description[:len(description)-2]
@@ -115,7 +115,7 @@ func propertyToJavaType(property *Property) string {
 
 func convertToCamelCase(name string) string {
 	initialLetter := name[0]
-	camelCaseName := string(initialLetter) + name[1:]
+	camelCaseName := strings.ToUpper(string(initialLetter)) + name[1:]
 	return camelCaseName
 }
 

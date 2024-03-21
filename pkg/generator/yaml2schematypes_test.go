@@ -40,6 +40,7 @@ components:
 	// Then...
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
 	assert.Equal(t, "MyBeanName", schemaType.GetName(), "Wrong bean name read out of the yaml!")
@@ -60,6 +61,7 @@ components:
 	// Then...
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
 	assert.Equal(t, "A simple example", schemaType.GetDescription(), "Wrong bean description read out of the yaml!")
@@ -83,6 +85,7 @@ components:
 	// Then...
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
 	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
@@ -111,6 +114,7 @@ components:
 	// Then...
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
 	property, propertyExists := schemaType.GetProperties()["#/components/schemas/MyBeanName/myStringVar"]
@@ -138,6 +142,7 @@ components:
 	// Then...
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
 	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
@@ -165,6 +170,7 @@ components:
 	// Then...
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
 	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
@@ -196,6 +202,7 @@ components:
 	// Then...
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
 	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
@@ -230,6 +237,7 @@ components:
 	// Then...
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
 	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
@@ -263,6 +271,7 @@ components:
 	// Then...
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
 	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
@@ -295,6 +304,7 @@ components:
 	// Then...
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
 	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
@@ -325,6 +335,7 @@ components:
 	// Then...
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
 	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
@@ -356,6 +367,7 @@ components:
 	// Then...
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
 	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
@@ -390,6 +402,7 @@ components:
 	// Then...
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
 	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
@@ -422,6 +435,7 @@ components:
 	// Then...
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 2, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
 	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
@@ -456,6 +470,7 @@ components:
 	// Then...
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 2, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
 	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
@@ -489,6 +504,7 @@ components:
 	// Then...
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 2, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
 	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
@@ -524,6 +540,7 @@ components:
 	// Then...
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 2, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
 	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
@@ -555,6 +572,7 @@ components:
 	propertyPath := schemaPath + "/MyEnum"
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 2, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[schemaPath]
 	assert.True(t, schemaTypeExists)
 	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
@@ -596,6 +614,7 @@ components:
 	propertyPath := schemaPath + "/MyConstant"
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[schemaPath]
 	assert.True(t, schemaTypeExists)
 	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
@@ -629,6 +648,7 @@ components:
 	propertyPath := schemaPath + "/myReferencingProperty"
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[schemaPath]
 	assert.True(t, schemaTypeExists)
 	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")

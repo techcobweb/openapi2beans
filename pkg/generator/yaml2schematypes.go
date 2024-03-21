@@ -88,11 +88,9 @@ func retrieveSchemaComponentsFromMap(inputMap map[string]interface{}, parentPath
 			if typeName == "object" {
 				err = assignSchemaTypeToSchemaTypesMap(subMap, apiSchemaPartPath, varName, description, property)
 			} else if property.IsEnum() {
-				enumSchemaType := NewSchemaType(varName, description, property, nil)
+				enumSchemaType := NewSchemaType(convertToCamelCase(varName), description, property, nil)
 				property.SetResolvedType(enumSchemaType)
 				schemaTypes[apiSchemaPartPath] = enumSchemaType
-			} else if property.IsConstant() {
-				property.name = strings.ToUpper(property.name)
 			}
 
 			if err == nil {
@@ -114,9 +112,7 @@ func resolveReferences() {
 				property.Resolve(referencedProp)
 			} else {
 				err := openapi2beans_errors.NewError("ResolveReferences: Failed to find referenced property for %v\n", property)
-				if err != nil {
-					errList = append(errList, err)
-				}
+				errList = append(errList, err)
 			}
 		}
 	}
@@ -212,7 +208,7 @@ func retrievePossibleValues(varMap map[string]interface{}) (possibleValues map[s
 }
 
 func assignSchemaTypeToSchemaTypesMap(schemaTypeMap map[string]interface{}, apiSchemaPartPath string, varName string, description string, ownProperty *Property) error {
-	resolvedType := NewSchemaType(varName, description, ownProperty, nil)
+	resolvedType := NewSchemaType(convertToCamelCase(varName), description, ownProperty, nil)
 
 	ownProperty.SetResolvedType(resolvedType)
 
