@@ -6,6 +6,7 @@ class JavaPackage {
 
 class JavaClass {
     {field} name : string
+    {field} description : string
     {field} includes : []string
 }
 
@@ -15,22 +16,35 @@ JavaPackage "1" *--> "*" JavaClass : classes
 class DataMember {
     {field} name : string
     {field} type : string
+    {field} description : string
+    {field} required : bool
 }
 
 JavaClass *--> DataMember : dataMembers
 
+class RequiredMember {
+    {field} IsFirst : bool
+}
+
+RequiredMember "1" *--> "1" DataMember : DataMember
+JavaClass "1" *--> "*" RequiredMember : requiredMembers
+
 class JavaEnum {
     {field} name : string
+    {field} description : string
+    {field} enumValues : []string
 }
 
-class EnumValue {
-    {field} name : string
-    {field} value : string
-}
-
-JavaEnum "1" *--> "*" EnumValue 
 JavaPackage "1" *--> JavaEnum : enums
 JavaEnum "*" --> "1" JavaPackage : javaPackage
 
+class JavaAbstractClass {
+    {field} name : string
+    {field} description : string
+}
+
+JavaAbstractClass "*" --> "1" JavaPackage : javaPackage
+JavaPackage "1" *--> "*" JavaAbstractClass : interfaces
+JavaClass "*" --> "1" JavaAbstractClass : inheritedAbstractClass
 
 @enduml

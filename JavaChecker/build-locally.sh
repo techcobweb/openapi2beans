@@ -44,22 +44,27 @@ bold() { printf "${bold}%s${reset}\n" "$@" ;}
 note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" "$@" ;}
 
 
-h2 "Making sure the plantuml tool is available"
-if [[ -e plantuml.jar ]]; then
-    info "Plantuml jar is already downloaded. No need to download it again"
-else 
-    info "Downloading the plantuml tool..."
-    url=https://github.com/plantuml/plantuml/releases/download/v1.2024.3/plantuml-epl-1.2024.3.jar
-    wget $url
-    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to download the plantuml tool jar." ; exit 1 ; fi
-    mv plantuml-*.jar plantuml.jar
-fi
-success "OK"
+function generate_code() {
+    h2 "Generating code..."
 
-h2 "Building using the make file."
-make all
-rc=$? ; if [[ "${rc}" != "0" ]]; then error "Make build failed." ; exit 1 ; fi
-success "OK"
+    cmd="${BASEDIR}/../bin/openapi2beans-darwin-arm64 generate \
+        --yaml ${BASEDIR}/src/main/resources/test-reference.yaml \
+        --output ${BASEDIR}/src/main/java/ \
+        --package dev.galasa.openapi2beans.example.generated"
 
-h2 "Running Java Checker."
-./JavaChecker/build-locally.sh
+    $cmd
+    rc=$?; if [[ "${rc}" != "0" ]]; then error "Failed to generate code" ; exit 1 ; fi
+
+    success "OK"
+}
+
+function check_code() {
+    h2 "Checking the generated code..."
+
+    mvn clean test
+    rc=$?; if [[ "${rc}" != "0" ]]; then error "Failed to build code" ; exit 1 ; fi
+    success "OK"
+}
+
+generate_code
+check_code

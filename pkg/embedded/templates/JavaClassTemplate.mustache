@@ -1,0 +1,41 @@
+package {{JavaPackage.Name}};
+
+{{#Description}}
+// {{&.}}
+{{/Description}}
+public class {{Name}} {
+    // Constants //
+    {{#ConstantDataMembers}}
+    {{#Description}}
+    // {{&.}}
+    {{/Description}}
+    public static final {{MemberType}} {{Name}}{{#ConstantVal}} = {{&.}}{{/ConstantVal}};
+    {{/ConstantDataMembers}}
+    // Class Variables //
+    {{#DataMembers}}
+    {{#Description}}
+    // {{&.}}
+    {{/Description}}
+    private {{MemberType}} {{Name}};
+    {{/DataMembers}}
+
+    public {{Name}} ({{#RequiredMembers}}{{^IsFirst}}, {{/IsFirst}}{{DataMember.MemberType}} {{DataMember.Name}}{{/RequiredMembers}}) {
+        {{#RequiredMembers}}
+        this.{{DataMember.Name}} = {{DataMember.Name}};
+        {{/RequiredMembers}}
+    }
+
+    // Getters //
+    {{#DataMembers}}
+    public {{MemberType}} Get{{CamelCaseName}}() {
+        return this.{{Name}};
+    }
+    {{/DataMembers}}
+
+    // Setters //
+    {{#DataMembers}}
+    public void Set{{CamelCaseName}}({{MemberType}} {{Name}}) {
+        this.{{Name}} = {{Name}};
+    }
+    {{/DataMembers}}
+}

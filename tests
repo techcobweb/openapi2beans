@@ -42,24 +42,3 @@ error() { printf "${red}✖ %s${reset}\n" "$@" ;}
 warn() { printf "${tan}➜ %s${reset}\n" "$@" ;}
 bold() { printf "${bold}%s${reset}\n" "$@" ;}
 note() { printf "\n${underline}${bold}${blue}Note:${reset} ${blue}%s${reset}\n" "$@" ;}
-
-
-h2 "Making sure the plantuml tool is available"
-if [[ -e plantuml.jar ]]; then
-    info "Plantuml jar is already downloaded. No need to download it again"
-else 
-    info "Downloading the plantuml tool..."
-    url=https://github.com/plantuml/plantuml/releases/download/v1.2024.3/plantuml-epl-1.2024.3.jar
-    wget $url
-    rc=$? ; if [[ "${rc}" != "0" ]]; then error "Failed to download the plantuml tool jar." ; exit 1 ; fi
-    mv plantuml-*.jar plantuml.jar
-fi
-success "OK"
-
-h2 "Building using the make file."
-make all
-rc=$? ; if [[ "${rc}" != "0" ]]; then error "Make build failed." ; exit 1 ; fi
-success "OK"
-
-h2 "Running Java Checker."
-./JavaChecker/build-locally.sh
