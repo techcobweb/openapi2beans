@@ -1,5 +1,6 @@
 package dev.galasa.openapi2beans.example.generated;
 
+// A bean with a single required primitive property
 public class BeanWithRequiredPrimitiveProperty {
     // Constants //
     // Class Variables //
@@ -10,12 +11,12 @@ public class BeanWithRequiredPrimitiveProperty {
     }
 
     // Getters //
-    public String GetaStringVariable() {
-        return aStringVariable;
+    public String GetAStringVariable() {
+        return this.aStringVariable;
     }
 
     // Setters //
-    public void SetaStringVariable(String aStringVariable) {
+    public void SetAStringVariable(String aStringVariable) {
         this.aStringVariable = aStringVariable;
     }
 }

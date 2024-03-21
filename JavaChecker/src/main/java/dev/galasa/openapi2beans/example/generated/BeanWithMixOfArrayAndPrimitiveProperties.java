@@ -1,41 +1,42 @@
 package dev.galasa.openapi2beans.example.generated;
 
+// A bean with a mix of arrays and other primitive property types
 public class BeanWithMixOfArrayAndPrimitiveProperties {
     // Constants //
     // Class Variables //
+    private String[] anArrayVariable;
     private String aStringVariable;
     private int[] anIntArray;
     private int anIntVariable;
-    private String[] anArrayVariable;
 
     public BeanWithMixOfArrayAndPrimitiveProperties () {
     }
 
     // Getters //
-    public String GetaStringVariable() {
-        return aStringVariable;
+    public String[] GetAnArrayVariable() {
+        return this.anArrayVariable;
     }
-    public int[] GetanIntArray() {
-        return anIntArray;
+    public String GetAStringVariable() {
+        return this.aStringVariable;
     }
-    public int GetanIntVariable() {
-        return anIntVariable;
+    public int[] GetAnIntArray() {
+        return this.anIntArray;
     }
-    public String[] GetanArrayVariable() {
-        return anArrayVariable;
+    public int GetAnIntVariable() {
+        return this.anIntVariable;
     }
 
     // Setters //
-    public void SetaStringVariable(String aStringVariable) {
+    public void SetAnArrayVariable(String[] anArrayVariable) {
+        this.anArrayVariable = anArrayVariable;
+    }
+    public void SetAStringVariable(String aStringVariable) {
         this.aStringVariable = aStringVariable;
     }
-    public void SetanIntArray(int[] anIntArray) {
+    public void SetAnIntArray(int[] anIntArray) {
         this.anIntArray = anIntArray;
     }
-    public void SetanIntVariable(int anIntVariable) {
+    public void SetAnIntVariable(int anIntVariable) {
         this.anIntVariable = anIntVariable;
-    }
-    public void SetanArrayVariable(String[] anArrayVariable) {
-        this.anArrayVariable = anArrayVariable;
     }
 }

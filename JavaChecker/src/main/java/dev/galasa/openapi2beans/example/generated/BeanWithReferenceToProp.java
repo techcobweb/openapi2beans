@@ -1,20 +1,22 @@
 package dev.galasa.openapi2beans.example.generated;
 
+// a bean with a reference to a property in the wider schema map
 public class BeanWithReferenceToProp {
     // Constants //
     // Class Variables //
+    // an array variable to be referenced by an array
     private String[] aReferencingVar;
 
     public BeanWithReferenceToProp () {
     }
 
     // Getters //
-    public String[] GetaReferencingVar() {
-        return aReferencingVar;
+    public String[] GetAReferencingVar() {
+        return this.aReferencingVar;
     }
 
     // Setters //
-    public void SetaReferencingVar(String[] aReferencingVar) {
+    public void SetAReferencingVar(String[] aReferencingVar) {
         this.aReferencingVar = aReferencingVar;
     }
 }

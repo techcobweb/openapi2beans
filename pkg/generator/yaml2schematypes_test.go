@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"log"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -415,7 +416,7 @@ components:
 }
 
 func TestGetSchemaTypesFromYamlParsesNestedObjects(t *testing.T) {
-	// Given..
+	// Given...
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -448,7 +449,7 @@ components:
 }
 
 func TestGetSchemaTypesFromYamlParsesReferenceToObject(t *testing.T) {
-	// Given..
+	// Given...
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -504,6 +505,7 @@ components:
 	// Then...
 	assert.Nil(t, errList)
 	assert.Nil(t, err)
+	log.Printf("WTF is Happening: %v", schemaTypes)
 	assert.Equal(t, 2, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -552,7 +554,7 @@ components:
 }
 
 func TestGetSchemaTypesFromYamlParsesEnum(t *testing.T) {
-	// Given..
+	// Given...
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -594,7 +596,7 @@ components:
 }
 
 func TestGetSchemaTypesFromYamlParsesEnumAsConstant(t *testing.T) {
-	// Given..
+	// Given...
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -627,7 +629,7 @@ components:
 }
 
 func TestGetSchemaTypesFromYamlParsesClassWithReferenceToPropertyInWiderSchemaMap(t *testing.T) {
-	// Given..
+	// Given...
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:

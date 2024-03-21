@@ -16,10 +16,10 @@ public class TestBeanWithMixOfArrayAndPrimitiveProperties {
     @Test
     public void TestCanSerialiseTheBean() throws Exception {
         BeanWithMixOfArrayAndPrimitiveProperties beanUnderTest = new BeanWithMixOfArrayAndPrimitiveProperties();
-        beanUnderTest.SetaStringVariable("hello");
-        beanUnderTest.SetanIntVariable(11);
-        beanUnderTest.SetanArrayVariable(new String[]{"string0", "string1"});
-        beanUnderTest.SetanIntArray(new int[]{1, 2});
+        beanUnderTest.SetAStringVariable("hello");
+        beanUnderTest.SetAnIntVariable(11);
+        beanUnderTest.SetAnArrayVariable(new String[]{"string0", "string1"});
+        beanUnderTest.SetAnIntArray(new int[]{1, 2});
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String serialisedForm = gson.toJson(beanUnderTest);
         assertThat(serialisedForm).contains("\"aStringVariable\": \"hello\"");

@@ -11,7 +11,7 @@ import (
 func GenerateFiles(fs files.FileSystem, projectFilePath string, apiFilePath string, packageName string) error {
 	var fatalErr error
 	var apiyaml string
-	var errList []error
+	var errList map[string]error
 
 	storeFilePath := generateStoreFilePath(projectFilePath, packageName)
 	fatalErr = generateDirectories(fs, storeFilePath)
@@ -45,7 +45,7 @@ func generateDirectories(fs files.FileSystem, storeFilePath string) error {
 	return err
 }
 
-func handleErrList(errList []error) error {
+func handleErrList(errList map[string]error) error {
 	log.Println("Failing on non-fatal errors:")
 	var err error
 	errorString := ""

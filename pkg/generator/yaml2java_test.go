@@ -73,7 +73,6 @@ components:
 
 	// Then...
 	assert.Nil(t, err)
-	assert.Nil(t, errList)
 	generatedClassFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
 	assertClassFileGeneratedOk(t, generatedClassFile, objectName)
 }

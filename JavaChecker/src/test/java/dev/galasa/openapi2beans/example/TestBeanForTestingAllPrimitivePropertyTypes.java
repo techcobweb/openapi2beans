@@ -14,10 +14,10 @@ public class TestBeanForTestingAllPrimitivePropertyTypes {
     @Test
     public void TestCanSerialiseTheBean() throws Exception {
         BeanForTestingAllPrimitivePropertyTypes beanUnderTest = new BeanForTestingAllPrimitivePropertyTypes();
-        beanUnderTest.SetaStringVariable("hello");
-        beanUnderTest.SetaBooleanVariable(true);
-        beanUnderTest.SetaIntVariable(11);
-        beanUnderTest.SetaNumberVariable(1.28);
+        beanUnderTest.SetAStringVariable("hello");
+        beanUnderTest.SetABooleanVariable(true);
+        beanUnderTest.SetAIntVariable(11);
+        beanUnderTest.SetANumberVariable(1.28);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String serialisedForm = gson.toJson(beanUnderTest);
         assertThat(serialisedForm).contains("\"aStringVariable\": \"hello\"");

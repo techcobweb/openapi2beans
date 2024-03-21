@@ -1,8 +1,10 @@
 package dev.galasa.openapi2beans.example.generated;
 
+// bean with a constant property
 public class BeanWithConstantProperty {
     // Constants //
-    public static final String ACONSTANTPROPERTY = "string1";
+    // a constant to test against.
+    public static final String A_CONSTANT_PROPERTY = "string1";
     // Class Variables //
 
     public BeanWithConstantProperty () {

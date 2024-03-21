@@ -1,5 +1,6 @@
 package dev.galasa.openapi2beans.example.generated;
 
+// A bean that tests arrays
 public class BeanWithArray {
     // Constants //
     // Class Variables //
@@ -9,12 +10,12 @@ public class BeanWithArray {
     }
 
     // Getters //
-    public String[] GetanArrayVariable() {
-        return anArrayVariable;
+    public String[] GetAnArrayVariable() {
+        return this.anArrayVariable;
     }
 
     // Setters //
-    public void SetanArrayVariable(String[] anArrayVariable) {
+    public void SetAnArrayVariable(String[] anArrayVariable) {
         this.anArrayVariable = anArrayVariable;
     }
 }

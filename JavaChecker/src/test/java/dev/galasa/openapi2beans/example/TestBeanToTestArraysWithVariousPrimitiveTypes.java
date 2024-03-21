@@ -14,10 +14,10 @@ public class TestBeanToTestArraysWithVariousPrimitiveTypes {
     @Test
     public void TestCanSerialiseTheBean() throws Exception {
         BeanToTestArraysWithVariousPrimitiveTypes beanUnderTest = new BeanToTestArraysWithVariousPrimitiveTypes();
-        beanUnderTest.SetaStringArray(new String[]{"randString0", "randString1"});
-        beanUnderTest.SetaBooleanArray(new boolean[]{true, false});
-        beanUnderTest.SetanIntArray(new int[]{2,3});
-        beanUnderTest.SetaNumberArray(new double[]{1.23, 4.56});
+        beanUnderTest.SetAStringArray(new String[]{"randString0", "randString1"});
+        beanUnderTest.SetABooleanArray(new boolean[]{true, false});
+        beanUnderTest.SetAnIntArray(new int[]{2,3});
+        beanUnderTest.SetANumberArray(new double[]{1.23, 4.56});
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String serialisedForm = gson.toJson(beanUnderTest);
         assertThat(serialisedForm).contains("\"aStringArray\": [\n" +
