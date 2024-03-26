@@ -4,15 +4,18 @@ package dev.galasa.openapi2beans.example.generated;
 public class BeanWithMixOfArrayAndPrimitiveProperties {
     // Constants //
     // Class Variables //
+    private int anIntVariable;
     private String[] anArrayVariable;
     private String aStringVariable;
     private int[] anIntArray;
-    private int anIntVariable;
 
     public BeanWithMixOfArrayAndPrimitiveProperties () {
     }
 
     // Getters //
+    public int GetAnIntVariable() {
+        return this.anIntVariable;
+    }
     public String[] GetAnArrayVariable() {
         return this.anArrayVariable;
     }
@@ -22,11 +25,11 @@ public class BeanWithMixOfArrayAndPrimitiveProperties {
     public int[] GetAnIntArray() {
         return this.anIntArray;
     }
-    public int GetAnIntVariable() {
-        return this.anIntVariable;
-    }
 
     // Setters //
+    public void SetAnIntVariable(int anIntVariable) {
+        this.anIntVariable = anIntVariable;
+    }
     public void SetAnArrayVariable(String[] anArrayVariable) {
         this.anArrayVariable = anArrayVariable;
     }
@@ -35,8 +38,5 @@ public class BeanWithMixOfArrayAndPrimitiveProperties {
     }
     public void SetAnIntArray(int[] anIntArray) {
         this.anIntArray = anIntArray;
-    }
-    public void SetAnIntVariable(int anIntVariable) {
-        this.anIntVariable = anIntVariable;
     }
 }

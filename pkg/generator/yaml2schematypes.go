@@ -9,6 +9,7 @@ import (
 )
 
 const (
+	OPENAPI_YAML_SCHEMAS_PATH = "#/components/schemas"
 	OPENAPI_YAML_KEYWORD_COMPONENTS  = "components"
 	OPENAPI_YAML_KEYWORD_SCHEMAS     = "schemas"
 	OPENAPI_YAML_KEYWORD_DESCRIPTION = "description"
@@ -27,7 +28,7 @@ func getSchemaTypesFromYaml(apiyaml []byte) (map[string]*SchemaType, map[string]
 		schemasMap map[string]interface{}
 		schemaTypes = make(map[string]*SchemaType)
 		properties = make(map[string]*Property)
-		errMap map[string]error
+		errMap = make(map[string]error)
 		fatalErr error
 	)
 
@@ -39,8 +40,8 @@ func getSchemaTypesFromYaml(apiyaml []byte) (map[string]*SchemaType, map[string]
 		schemasMap, fatalErr = retrieveSchemasMapFromEntireYamlMap(entireYamlMap)
 
 		if fatalErr == nil {
-			retrieveSchemaComponentsFromMap(schemasMap, "#/components/schemas", schemaTypes, properties, errMap)
-			resolveReferences(properties, errMap)
+			retrieveSchemaComponentsFromMap(schemasMap, OPENAPI_YAML_SCHEMAS_PATH, schemaTypes, properties, errMap)
+			resolveReferences(properties, schemaTypes, errMap)
 		}
 	}
 
@@ -91,25 +92,32 @@ func retrieveSchemaComponentsFromMap(
 			property := NewProperty(subMapKey, apiSchemaPartPath, description, typeName, possibleValues, nil, cardinality)
 			assignPropertyToSchemaType(parentPath, apiSchemaPartPath, property, schemaTypes)
 			
+			var schemaType *SchemaType
 			if typeName == "object" {
-				err = assignSchemaTypeToSchemaTypesMap(subMap, apiSchemaPartPath, varName, description, property, schemaTypes, properties, errMap)
+				if parentPath != OPENAPI_YAML_SCHEMAS_PATH {
+					varName = resolveNestedObjectName(varName, parentPath)
+				}
+				schemaType = assignSchemaTypeToSchemaTypesMap(subMap, apiSchemaPartPath, varName, description, property, schemaTypes, properties, errMap)
 			} else if property.IsEnum() {
-				enumSchemaType := NewSchemaType(convertToCamelCase(varName), description, property, nil)
-				property.SetResolvedType(enumSchemaType)
-				schemaTypes[apiSchemaPartPath] = enumSchemaType
+				schemaType = NewSchemaType(convertToCamelCase(varName), description, property, nil)
+				property.SetResolvedType(schemaType)
+				schemaTypes[apiSchemaPartPath] = schemaType
 			}
 
-			if err == nil {
-				properties[apiSchemaPartPath] = property
+			properties[apiSchemaPartPath] = property
+
+			if schemaTypeErrored(schemaType, errMap) {
+				removeSchemaTypeAndProps(schemaTypes, properties, apiSchemaPartPath)
 			}
 		}
+
 		if err != nil {
 			errMap[apiSchemaPartPath] = err
 		}
 	}
 }
 
-func resolveReferences(properties map[string]*Property, errMap map[string]error) {
+func resolveReferences(properties map[string]*Property, schemaTypes map[string]*SchemaType, errMap map[string]error) {
 	for _, property := range properties {
 		if property.IsReferencing() {
 			referencingPath := strings.Split(property.GetType(), ":")[1]
@@ -119,12 +127,13 @@ func resolveReferences(properties map[string]*Property, errMap map[string]error)
 			} else {
 				err := openapi2beans_errors.NewError("ResolveReferences: Failed to find referenced property for %v\n", property)
 				errMap[property.path] = err
+				removeSchemaTypesAndPropsFromProperty(schemaTypes, properties, property)
 			}
 		}
 	}
 }
 
-func retrieveNestedProperties(subMap map[string]interface{}, yamlPath string, schemaTypes map[string]*SchemaType, properties map[string]*Property, errMap map[string]error) (err error) {
+func retrieveNestedProperties(subMap map[string]interface{}, yamlPath string, schemaTypes map[string]*SchemaType, properties map[string]*Property, errMap map[string]error) {
 	var schemaPropertiesMap map[string]interface{}
 
 	propertiesObj, isPropertyPresent := subMap[OPENAPI_YAML_KEYWORD_PROPERTIES]
@@ -132,8 +141,6 @@ func retrieveNestedProperties(subMap map[string]interface{}, yamlPath string, sc
 		schemaPropertiesMap = propertiesObj.(map[string]interface{})
 		retrieveSchemaComponentsFromMap(schemaPropertiesMap, yamlPath, schemaTypes, properties, errMap)
 	}
-
-	return err
 }
 
 func retrieveVarType(variableMap map[string]interface{}, apiSchemaPartPath string) (varType string, cardinality Cardinality, err error) {
@@ -221,24 +228,61 @@ func assignSchemaTypeToSchemaTypesMap(
 	ownProperty *Property,
 	schemaTypes map[string]*SchemaType,
 	properties map[string]*Property,
-	errMap map[string]error) error {
+	errMap map[string]error) *SchemaType {
+
 	resolvedType := NewSchemaType(convertToCamelCase(varName), description, ownProperty, nil)
 
 	ownProperty.SetResolvedType(resolvedType)
-
 	schemaTypes[apiSchemaPartPath] = resolvedType
 
-	err := retrieveNestedProperties(schemaTypeMap, apiSchemaPartPath, schemaTypes, properties, errMap)
-
-	if err == nil {
-		resolvePropertiesMinCardinalities(schemaTypeMap, resolvedType.properties, apiSchemaPartPath)
-	}
-	return err
+	retrieveNestedProperties(schemaTypeMap, apiSchemaPartPath, schemaTypes, properties, errMap)
+	resolvePropertiesMinCardinalities(schemaTypeMap, resolvedType.properties, apiSchemaPartPath)
+	return resolvedType
 }
 
 func assignPropertyToSchemaType(parentPath string, apiSchemaPartPath string, property *Property, schemaTypes map[string]*SchemaType) {
 	schemaType, isPropertyPartOfSchemaType := schemaTypes[parentPath]
 	if isPropertyPartOfSchemaType {
 		schemaType.properties[apiSchemaPartPath] = property
+	}
+}
+
+func removeSchemaTypeAndProps(schemaTypes map[string]*SchemaType, properties map[string]*Property, schemaPath string) {
+	for propPath := range schemaTypes[schemaPath].properties {
+		delete(properties, propPath)
+	}
+	delete(properties, schemaTypes[schemaPath].ownProperty.path)
+	delete(schemaTypes, schemaPath)
+}
+
+func schemaTypeErrored(schemaType *SchemaType, errMap map[string]error) bool {
+	errors := false
+	if schemaType != nil {
+		for errPath := range errMap {
+			if strings.Contains(errPath, schemaType.ownProperty.path) {
+				errors = true
+				break
+			}
+		}
+	}
+	return errors
+}
+
+func resolveNestedObjectName(objectName string, parentPath string) string {
+	nameComponents := strings.Split(parentPath, "/")[3:]
+	newName := ""
+	for _, element := range nameComponents {
+		newName += element
+	}
+	newName += convertToCamelCase(objectName)
+	return newName
+}
+
+func removeSchemaTypesAndPropsFromProperty(schemaTypes map[string]*SchemaType, properties map[string]*Property, property *Property) {
+	for schemaPath, schemaType := range schemaTypes {
+		_, propExists := schemaType.properties[property.path]
+		if propExists {
+			removeSchemaTypeAndProps(schemaTypes, properties, schemaPath)
+		}
 	}
 }

@@ -8,6 +8,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func getGeneratedCodeFilePathWithPackage(storeFilepath string, packageName string, name string) string {
+	return storeFilepath + "/src/main/java/" + packageName + "/" + name + ".java"
+}
+
 func assertVariableSetCorrectly(t *testing.T, generatedFile string, description []string, name string, javaExpectedVarType string) {
 	assignmentLiteral := `private %s %s;`
 	assignment := fmt.Sprintf(assignmentLiteral, javaExpectedVarType, name)
@@ -59,7 +63,7 @@ func TestGenerateFilesProducesFileFromSingleGenericObjectSchema(t *testing.T) {
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	testapiyaml := `openapi: 3.0.3
 components:
   schemas:
@@ -84,7 +88,7 @@ func TestGenerateFilesProducesCorrectClassDescription(t *testing.T) {
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -111,7 +115,7 @@ func TestGenerateFilesProducesCorrectVariableCode(t *testing.T) {
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -144,7 +148,7 @@ func TestGenerateFilesProducesCorrectVariableDescription(t *testing.T) {
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -177,7 +181,7 @@ func TestGenerateFilesProducesMultipleVariables(t *testing.T) {
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -216,7 +220,7 @@ func TestGenerateFilesProducesVariablesOfAllPrimitiveTypes(t *testing.T) {
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -267,7 +271,7 @@ func TestGenerateFilesProcessesRequiredVariable(t *testing.T) {
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -304,7 +308,7 @@ func TestGenerateFilesProducesMultipleRequiredVariables(t *testing.T) {
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -348,7 +352,7 @@ func TestGenerateFilesProducesMultipleVariablesWithMixedRequiredStatus(t *testin
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -391,7 +395,7 @@ func TestGenerateFilesProducesArray(t *testing.T) {
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -426,7 +430,7 @@ func TestGenerateFilesProducesArrayWithAllOfPart(t *testing.T) {
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -462,7 +466,7 @@ func TestGenerateFilesProduces2DArrayFromNestedArrayStructure(t *testing.T) {
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -499,7 +503,7 @@ func TestGenerateFilesProduces3DArrayFromNestedArrayStructure(t *testing.T) {
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -538,7 +542,7 @@ func TestGenerateFilesProducesMultipleClassFilesFromNestedObject(t *testing.T) {
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -559,11 +563,11 @@ components:
 	assert.Nil(t, err)
 	generatedClassFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
 	assertClassFileGeneratedOk(t, generatedClassFile, objectName)
-	assertVariableMatchesGetter(t, generatedClassFile, "myNestedObject", "MyNestedObject", "MyNestedObject")
-	assertVariableMatchesSetter(t, generatedClassFile, "myNestedObject", "MyNestedObject", "MyNestedObject")
-	assertVariableSetCorrectly(t, generatedClassFile, []string{}, "myNestedObject", "MyNestedObject")
-	generatedNestedClassFile := openGeneratedFile(t, mockFileSystem, storeFilepath + "/" + packageName + "/MyNestedObject.java")
-	assertClassFileGeneratedOk(t, generatedNestedClassFile, "MyNestedObject")
+	assertVariableMatchesGetter(t, generatedClassFile, "myNestedObject", "MyNestedObject", "MyBeanNameMyNestedObject")
+	assertVariableMatchesSetter(t, generatedClassFile, "myNestedObject", "MyNestedObject", "MyBeanNameMyNestedObject")
+	assertVariableSetCorrectly(t, generatedClassFile, []string{}, "myNestedObject", "MyBeanNameMyNestedObject")
+	generatedNestedClassFile := openGeneratedFile(t, mockFileSystem, getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, "MyBeanNameMyNestedObject"))
+	assertClassFileGeneratedOk(t, generatedNestedClassFile, "MyBeanNameMyNestedObject")
 }
 
 func TestGenerateFilesProducesClassWithVariableOfTypeReferencedObject(t *testing.T) {
@@ -573,7 +577,7 @@ func TestGenerateFilesProducesClassWithVariableOfTypeReferencedObject(t *testing
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -599,7 +603,7 @@ components:
 	assertVariableMatchesGetter(t, generatedClassFile, "myReferencingProperty", "MyReferencingProperty", "MyReferencedObject")
 	assertVariableMatchesSetter(t, generatedClassFile, "myReferencingProperty", "MyReferencingProperty", "MyReferencedObject")
 	assertVariableSetCorrectly(t, generatedClassFile, []string{}, "myReferencingProperty", "MyReferencedObject")
-	generatedNestedClassFile := openGeneratedFile(t, mockFileSystem, storeFilepath + "/" + packageName + "/MyReferencedObject.java")
+	generatedNestedClassFile := openGeneratedFile(t, mockFileSystem, getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, "MyReferencedObject"))
 	assertClassFileGeneratedOk(t, generatedNestedClassFile, "MyReferencedObject")
 }
 
@@ -610,7 +614,7 @@ func TestGenerateFilesProducesArrayWithReferenceToObject(t *testing.T) {
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -638,7 +642,7 @@ components:
 	assertVariableMatchesGetter(t, generatedClassFile, "myArrayVar", "MyArrayVar", "MyReferencedObject[]")
 	assertVariableMatchesSetter(t, generatedClassFile, "myArrayVar", "MyArrayVar", "MyReferencedObject[]")
 	assertVariableSetCorrectly(t, generatedClassFile, []string{"a test array"}, "myArrayVar", "MyReferencedObject[]")
-	generatedNestedClassFile := openGeneratedFile(t, mockFileSystem, storeFilepath + "/" + packageName + "/MyReferencedObject.java")
+	generatedNestedClassFile := openGeneratedFile(t, mockFileSystem, getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, "MyReferencedObject"))
 	assertClassFileGeneratedOk(t, generatedNestedClassFile, "MyReferencedObject")
 }
 
@@ -649,7 +653,7 @@ func TestGenerateFilesProducesArrayWithAllOfPartWithReferenceToObject(t *testing
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -678,7 +682,7 @@ components:
 	assertVariableMatchesGetter(t, generatedClassFile, "myArrayVar", "MyArrayVar", "MyReferencedObject[]")
 	assertVariableMatchesSetter(t, generatedClassFile, "myArrayVar", "MyArrayVar", "MyReferencedObject[]")
 	assertVariableSetCorrectly(t, generatedClassFile, []string{"a test array"}, "myArrayVar", "MyReferencedObject[]")
-	generatedNestedClassFile := openGeneratedFile(t, mockFileSystem, storeFilepath + "/" + packageName + "/MyReferencedObject.java")
+	generatedNestedClassFile := openGeneratedFile(t, mockFileSystem, getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, "MyReferencedObject"))
 	assertClassFileGeneratedOk(t, generatedNestedClassFile, "MyReferencedObject")
 }
 
@@ -689,7 +693,7 @@ func TestGenerateFilesProducesEnumAndClass(t *testing.T) {
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -717,7 +721,7 @@ components:
 	assert.Contains(t, generatedClassFile, `    public MyBeanName (MyEnum myEnum) {
         this.myEnum = myEnum;
     }`)
-	generatedEnumFile := openGeneratedFile(t, mockFileSystem, storeFilepath + "/" + packageName + "/MyEnum.java")
+	generatedEnumFile := openGeneratedFile(t, mockFileSystem, getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, "MyEnum"))
 	assertEnumFilesGeneratedOkWithStringParams(t, generatedEnumFile, "MyEnum", "randValue1", "randValue2")
 }
 
@@ -728,7 +732,7 @@ func TestGenerateFilesProducesEnumWithNilValueIsntSetInConstructor(t *testing.T)
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -756,7 +760,7 @@ components:
 	assert.NotContains(t, generatedClassFile, `    public MyBeanName (MyEnum myEnum) {
         this.myEnum = myEnum;
     }`)
-	generatedEnumFile := openGeneratedFile(t, mockFileSystem, storeFilepath + "/" + packageName + "/MyEnum.java")
+	generatedEnumFile := openGeneratedFile(t, mockFileSystem, getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, "MyEnum"))
 	assertEnumFilesGeneratedOkWithStringParams(t, generatedEnumFile, "MyEnum", "randValue1", "nil")
 }
 
@@ -767,7 +771,7 @@ func TestGenerateFilesProducesConstantCorrectly(t *testing.T) {
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -799,7 +803,7 @@ func TestGenerateFilesProducesClassWithReferencedStringProperty(t *testing.T) {
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -834,7 +838,7 @@ func TestGenerateFilesProducesClassWithReferencedArrayProperty(t *testing.T) {
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:
@@ -871,7 +875,7 @@ func TestGenerateFilesProducesAcceptibleCodeUsingAllPreviousTestsAipYaml(t *test
 	storeFilepath := "dev/wyvinar"
 	apiFilePath := "test-resources/single-bean.yaml"
 	objectName := "MyBeanName"
-	generatedCodeFilePath := storeFilepath + "/" + packageName + "/" + objectName + ".java"
+	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
 	apiYaml := `openapi: 3.0.3
 components:
   schemas:

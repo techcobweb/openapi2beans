@@ -4,25 +4,25 @@ package dev.galasa.openapi2beans.example.generated;
 public class BeanWithMultiplePrimitiveProperties {
     // Constants //
     // Class Variables //
-    private int aIntVariable;
     private String aStringVariable;
+    private int aIntVariable;
 
     public BeanWithMultiplePrimitiveProperties () {
     }
 
     // Getters //
-    public int GetAIntVariable() {
-        return this.aIntVariable;
-    }
     public String GetAStringVariable() {
         return this.aStringVariable;
     }
+    public int GetAIntVariable() {
+        return this.aIntVariable;
+    }
 
     // Setters //
-    public void SetAIntVariable(int aIntVariable) {
-        this.aIntVariable = aIntVariable;
-    }
     public void SetAStringVariable(String aStringVariable) {
         this.aStringVariable = aStringVariable;
+    }
+    public void SetAIntVariable(int aIntVariable) {
+        this.aIntVariable = aIntVariable;
     }
 }

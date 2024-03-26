@@ -49,7 +49,7 @@ function generate_code() {
 
     cmd="${BASEDIR}/../bin/openapi2beans-darwin-arm64 generate \
         --yaml ${BASEDIR}/src/main/resources/test-reference.yaml \
-        --output ${BASEDIR}/src/main/java/ \
+        --output ${BASEDIR}/ \
         --package dev.galasa.openapi2beans.example.generated"
 
     $cmd

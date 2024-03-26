@@ -58,5 +58,5 @@ func handleErrList(errList map[string]error) error {
 
 func generateStoreFilePath(projectFilePath string, packageName string) string {
 	packageFilePath := strings.ReplaceAll(packageName, ".", "/")
-	return projectFilePath + "/" + packageFilePath
+	return projectFilePath + "/src/main/java/" + packageFilePath
 }
