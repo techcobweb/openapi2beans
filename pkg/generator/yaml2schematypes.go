@@ -18,6 +18,8 @@ const (
 	OPENAPI_YAML_KEYWORD_REQUIRED    = "required"
 	OPENAPI_YAML_KEYWORD_ITEMS       = "items"
 	OPENAPI_YAML_KEYWORD_ALLOF       = "allOf"
+	OPENAPI_YAML_KEYWORD_ONEOF       = "oneOf"
+	OPENAPI_YAML_KEYWORD_ANYOF       = "anyOf"
 	OPENAPI_YAML_KEYWORD_REF         = "$ref"
 	OPENAPI_YAML_KEYWORD_ENUM		 = "enum"
 )
@@ -147,6 +149,9 @@ func retrieveVarType(variableMap map[string]interface{}, apiSchemaPartPath strin
 	maxCardinality := 0
 	varTypeObj, isTypePresent := variableMap[OPENAPI_YAML_KEYWORD_TYPE]
 	refObj, isRefPresent := variableMap[OPENAPI_YAML_KEYWORD_REF]
+	_, isAllOfPresent := variableMap[OPENAPI_YAML_KEYWORD_ALLOF]
+	_, isOneOfPresent := variableMap[OPENAPI_YAML_KEYWORD_ONEOF]
+	_, isAnyOfPresent := variableMap[OPENAPI_YAML_KEYWORD_ANYOF]
 
 	if isTypePresent {
 		varType = varTypeObj.(string)
@@ -159,6 +164,12 @@ func retrieveVarType(variableMap map[string]interface{}, apiSchemaPartPath strin
 		cardinality = Cardinality {min: 0, max: maxCardinality}
 	} else if isRefPresent {
 		varType = "$ref:" + refObj.(string)
+	} else if isAllOfPresent {
+		err = openapi2beans_errors.NewError("RetrieveVarType: illegal allOf part found in %v\n", apiSchemaPartPath)
+	} else if isOneOfPresent {
+		err = openapi2beans_errors.NewError("RetrieveVarType: illegal oneOf part found in %v\n", apiSchemaPartPath)
+	} else if isAnyOfPresent {
+		
 	} else {
 		err = openapi2beans_errors.NewError("RetrieveVarType: Failed to find required type for %v\n", apiSchemaPartPath)
 	}
@@ -171,12 +182,6 @@ func retrieveArrayType(varMap map[string]interface{}, schemaPartPath string) (ar
 	itemsObj, isItemsPresent := varMap[OPENAPI_YAML_KEYWORD_ITEMS]
 	if isItemsPresent {
 		itemsMap := itemsObj.(map[string]interface{})
-
-		allOfObj, isAllOfPresent := itemsMap[OPENAPI_YAML_KEYWORD_ALLOF]
-		if isAllOfPresent {
-			allOfSlice := allOfObj.([]interface{})
-			itemsMap = allOfSlice[0].(map[string]interface{})
-		}
 		arrayType, _, err = retrieveVarType(itemsMap, schemaPartPath)
 		
 	} else {

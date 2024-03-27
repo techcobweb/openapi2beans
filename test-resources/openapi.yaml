@@ -1676,8 +1676,7 @@ components:
       type: array
       description: An array of API Errors relating to the resources that failed to complete as expected
       items:
-        allOf:
-          - $ref: '#/components/schemas/APIError'
+        $ref: '#/components/schemas/APIError'
     APIError:
       type: object
       properties:

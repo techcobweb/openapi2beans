@@ -4,21 +4,18 @@ package dev.galasa.openapi2beans.example.generated;
 public class BeanForTestingAllPrimitivePropertyTypes {
     // Constants //
     // Class Variables //
-    private boolean aBooleanVariable;
     // this should be a String in a java bean
     private String aStringVariable;
     // this should be an int in a java bean
     private int aIntVariable;
     // this should be a float in the java bean
     private double aNumberVariable;
+    private boolean aBooleanVariable;
 
     public BeanForTestingAllPrimitivePropertyTypes () {
     }
 
     // Getters //
-    public boolean GetABooleanVariable() {
-        return this.aBooleanVariable;
-    }
     public String GetAStringVariable() {
         return this.aStringVariable;
     }
@@ -28,11 +25,11 @@ public class BeanForTestingAllPrimitivePropertyTypes {
     public double GetANumberVariable() {
         return this.aNumberVariable;
     }
+    public boolean GetABooleanVariable() {
+        return this.aBooleanVariable;
+    }
 
     // Setters //
-    public void SetABooleanVariable(boolean aBooleanVariable) {
-        this.aBooleanVariable = aBooleanVariable;
-    }
     public void SetAStringVariable(String aStringVariable) {
         this.aStringVariable = aStringVariable;
     }
@@ -41,5 +38,8 @@ public class BeanForTestingAllPrimitivePropertyTypes {
     }
     public void SetANumberVariable(double aNumberVariable) {
         this.aNumberVariable = aNumberVariable;
+    }
+    public void SetABooleanVariable(boolean aBooleanVariable) {
+        this.aBooleanVariable = aBooleanVariable;
     }
 }

@@ -1,13 +1,244 @@
 package generator
 
 import (
-	"log"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 const SCHEMAS_PATH = "#/components/schemas/"
+func TestArrayWithoutItemsReturnsNonFatalError(t *testing.T) {
+	// Given...
+	apiYaml := `openapi: 3.0.3
+components:
+  schemas:
+    MyBeanName:
+      type: object
+      properties:
+        myTestArray:
+          type: array
+`
+	// When...
+	schemaTypes, errList, err := getSchemaTypesFromYaml([]byte(apiYaml))
+
+	// Then...
+	schemaPath := SCHEMAS_PATH+"MyBeanName"
+	assert.Nil(t, err)
+	assert.NotNil(t, errList)
+	err, errExists := errList[schemaPath + "/myTestArray"]
+	assert.True(t, errExists)
+	assert.Contains(t, err.Error(), "RetrieveArrayType: Failed to find required items section for ")
+	_, schemaTypeExists := schemaTypes[schemaPath]
+	assert.False(t, schemaTypeExists)
+}
+
+func TestArrayWithoutItemsReturnsNonFatalErrorButContinues(t *testing.T) {
+	// Given...
+	apiYaml := `openapi: 3.0.3
+components:
+  schemas:
+    MyBeanName:
+      type: object
+      properties:
+        myTestArray:
+          type: array
+    ReferencedObject:
+      type: object
+      properties:
+        randomString:
+          type: string
+`
+	// When...
+	schemaTypes, errList, err := getSchemaTypesFromYaml([]byte(apiYaml))
+
+	// Then...
+	schemaPath := SCHEMAS_PATH+"MyBeanName"
+	assert.NotNil(t, errList)
+	assert.Nil(t, err)
+	err, errExists := errList[schemaPath]
+	assert.True(t, errExists)
+	assert.Contains(t, err.Error(), "RetrieveVarType: Failed to find required type for ")
+	assert.Equal(t, 1, len(schemaTypes))
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"ReferencedObject"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/ReferencedObject/randomString"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, "randomString", property1.GetName(), "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "string", property1.GetType(), "Wrong bean variable type read out of the yaml!")
+	assert.Equal(t, false, property1.IsCollection(), "Wrong bean variable cardinality read out of the yaml!")
+}
+
+func TestYamlWithoutComponentsSectionReturnsFatalError(t *testing.T) {
+	// Given...
+	apiYaml := `openapi: 3.0.3
+schemas:
+  MyBeanName:
+    type: object
+`
+	// When...
+	schemaTypes, errList, err := getSchemaTypesFromYaml([]byte(apiYaml))
+
+	// Then...
+	schemaPath := SCHEMAS_PATH+"MyBeanName"
+	assert.NotNil(t, err)
+	assert.Empty(t, errList)
+	assert.Contains(t, err.Error(), "RetrieveSchemasMapFromEntireYamlMap: Failed to find components within ")
+	_, schemaTypeExists := schemaTypes[schemaPath]
+	assert.False(t, schemaTypeExists)
+}
+
+func TestYamlWithoutSchemasSectionReturnsFatalError(t *testing.T) {
+	// Given...
+	apiYaml := `openapi: 3.0.3
+components:
+  MyBeanName:
+    type: object
+`
+	// When...
+	schemaTypes, errList, err := getSchemaTypesFromYaml([]byte(apiYaml))
+
+	// Then...
+	schemaPath := SCHEMAS_PATH+"MyBeanName"
+	assert.NotNil(t, err)
+	assert.Empty(t, errList)
+	assert.Contains(t, err.Error(), "RetrieveSchemasMapFromEntireYamlMap: Failed to find schemas within ")
+	_, schemaTypeExists := schemaTypes[schemaPath]
+	assert.False(t, schemaTypeExists)
+}
+
+func TestSchemaThatReferencesNonExistentPropertyReturnsNonFatalError(t *testing.T) {
+	// Given...
+	apiYaml := `openapi: 3.0.3
+components:
+  schemas:
+    MyBeanName:
+      type: object
+      properties:
+        myTestArray:
+          type: array
+          items:
+            $ref: '#/components/schemas/randomSchema'
+`
+	// When...
+	schemaTypes, errList, err := getSchemaTypesFromYaml([]byte(apiYaml))
+
+	// Then...
+	schemaPath := SCHEMAS_PATH+"MyBeanName"
+	assert.Nil(t, err)
+	assert.NotNil(t, errList)
+	err, errExists := errList[SCHEMAS_PATH+"MyBeanName/myTestArray"]
+	assert.True(t, errExists)
+	assert.Contains(t, err.Error(), "ResolveReferences: Failed to find referenced property for ")
+	_, schemaTypeExists := schemaTypes[schemaPath]
+	assert.False(t, schemaTypeExists)
+}
+
+func TestSchemaThatHasNoTypeReturnsNonFatalError(t *testing.T) {
+	// Given...
+	apiYaml := `openapi: 3.0.3
+components:
+  schemas:
+    MyBeanName:
+      properties:
+        myTestArray:
+          type: array
+          items:
+            type: string
+`
+	// When...
+	schemaTypes, errList, err := getSchemaTypesFromYaml([]byte(apiYaml))
+
+	// Then...
+	schemaPath := SCHEMAS_PATH+"MyBeanName"
+	assert.Nil(t, err)
+	assert.NotNil(t, errList)
+	err, errExists := errList[schemaPath]
+	assert.True(t, errExists)
+	assert.Contains(t, err.Error(), "RetrieveVarType: Failed to find required type for ")
+	_, schemaTypeExists := schemaTypes[schemaPath]
+	assert.False(t, schemaTypeExists)
+}
+
+func TestArrayWithAllOfPartReturnsNonFatalErrorButContinues(t *testing.T) {
+	// Given...
+	apiYaml := `openapi: 3.0.3
+components:
+  schemas:
+    MyBeanName:
+      type: object
+      properties:
+        myTestArray:
+          type: array
+          items:
+            allOf:
+            - $ref: '#/components/schemas/ReferencedObject'
+    ReferencedObject:
+      type: object
+      properties:
+        randomString:
+          type: string
+`
+	// When...
+	schemaTypes, errList, err := getSchemaTypesFromYaml([]byte(apiYaml))
+
+	// Then...
+	schemaPath := SCHEMAS_PATH+"MyBeanName"
+	assert.NotNil(t, errList)
+	assert.Nil(t, err)
+	err, errExists := errList[schemaPath + "/myTestArray"]
+	assert.True(t, errExists)
+	assert.Contains(t, err.Error(), "RetrieveVarType: illegal allOf part found in ")
+	assert.Equal(t, 1, len(schemaTypes))
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"ReferencedObject"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/ReferencedObject/randomString"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, "randomString", property1.GetName(), "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "string", property1.GetType(), "Wrong bean variable type read out of the yaml!")
+	assert.Equal(t, false, property1.IsCollection(), "Wrong bean variable cardinality read out of the yaml!")
+}
+
+func TestArrayWithOneOfPartReturnsNonFatalErrorButContinues(t *testing.T) {
+	// Given...
+	apiYaml := `openapi: 3.0.3
+components:
+  schemas:
+    MyBeanName:
+      type: object
+      properties:
+        myTestArray:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ReferencedObject'
+    ReferencedObject:
+      type: object
+      properties:
+        randomString:
+          type: string
+`
+	// When...
+	schemaTypes, errList, err := getSchemaTypesFromYaml([]byte(apiYaml))
+
+	// Then...
+	schemaPath := SCHEMAS_PATH+"MyBeanName"
+	assert.NotNil(t, errList)
+	assert.Nil(t, err)
+	err, errExists := errList[schemaPath + "/myTestArray"]
+	assert.True(t, errExists)
+	assert.Contains(t, err.Error(), "RetrieveVarType: illegal oneOf part found in ")
+	assert.Equal(t, 1, len(schemaTypes))
+	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"ReferencedObject"]
+	assert.True(t, schemaTypeExists)
+	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
+	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/ReferencedObject/randomString"]
+	assert.True(t, propertyExists)
+	assert.Equal(t, "randomString", property1.GetName(), "Wrong bean variable name read out of the yaml!")
+	assert.Equal(t, "string", property1.GetType(), "Wrong bean variable type read out of the yaml!")
+	assert.Equal(t, false, property1.IsCollection(), "Wrong bean variable cardinality read out of the yaml!")
+}
 
 func TestGetSchemaTypesFromYamlReturns1BeanOK(t *testing.T) {
 	// Given...
@@ -316,7 +547,7 @@ components:
 	assert.Equal(t, true, property1.IsCollection(), "Wrong bean variable cardinality read out of the yaml!")
 }
 
-func TestGetSchemaTypesFromYamlParsesObjectWithArrayContainingAllOfPart(t *testing.T) {
+func TestGetSchemaTypesFromYamlParsesObjectWithArrayContainingAnyOfPart(t *testing.T) {
 	// Given...
 	apiYaml := `openapi: 3.0.3
 components:
@@ -327,7 +558,7 @@ components:
         myTestArray:
           type: array
           items:
-            allOf:
+            anyOf:
             - type: string
 `
 	// When...
@@ -512,7 +743,6 @@ components:
 	// Then...
 	assert.Empty(t, errList)
 	assert.Nil(t, err)
-	log.Printf("WTF is Happening: %v", schemaTypes)
 	assert.Equal(t, 2, len(schemaTypes))
 	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"MyBeanName"]
 	assert.True(t, schemaTypeExists)
@@ -524,7 +754,7 @@ components:
 	assert.Equal(t, true, property1.IsCollection(), "Wrong bean variable cardinality read out of the yaml!")
 }
 
-func TestGetSchemaTypesFromYamlParsesObjectWithArrayContainingAllOfRefToObject(t *testing.T) {
+func TestGetSchemaTypesFromYamlParsesObjectWithArrayContainingAnyOfRefToObject(t *testing.T) {
 	// Given...
 	apiYaml := `openapi: 3.0.3
 components:
@@ -535,7 +765,7 @@ components:
         myTestArray:
           type: array
           items:
-            allOf:
+            anyOf:
             - $ref: '#/components/schemas/ReferencedObject'
     ReferencedObject:
       type: object
@@ -665,153 +895,4 @@ components:
 	assert.True(t, propertyExists)
 	assert.Equal(t, "integer", property1.typeName)
 	assert.Equal(t, "myReferencingProperty", property1.name)
-}
-
-func TestArrayWithoutItemsReturnsNonFatalError(t *testing.T) {
-	// Given...
-	apiYaml := `openapi: 3.0.3
-components:
-  schemas:
-    MyBeanName:
-      type: object
-      properties:
-        myTestArray:
-          type: array
-`
-	// When...
-	schemaTypes, errList, err := getSchemaTypesFromYaml([]byte(apiYaml))
-
-	// Then...
-	schemaPath := SCHEMAS_PATH+"MyBeanName"
-	assert.Nil(t, err)
-	assert.NotNil(t, errList)
-	err, errExists := errList[schemaPath + "/myTestArray"]
-	assert.True(t, errExists)
-	assert.Contains(t, err.Error(), "RetrieveArrayType: Failed to find required items section for ")
-	_, schemaTypeExists := schemaTypes[schemaPath]
-	assert.False(t, schemaTypeExists)
-}
-
-func TestArrayWithoutItemsReturnsNonFatalErrorButContinues(t *testing.T) {
-	// Given...
-	apiYaml := `openapi: 3.0.3
-components:
-  schemas:
-    MyBeanName:
-      type: object
-      properties:
-        myTestArray:
-          type: array
-    ReferencedObject:
-      type: object
-      properties:
-        randomString:
-          type: string
-`
-	// When...
-	schemaTypes, errList, err := getSchemaTypesFromYaml([]byte(apiYaml))
-
-	// Then...
-	assert.NotNil(t, errList)
-	assert.Nil(t, err)
-	assert.Equal(t, 1, len(schemaTypes))
-	schemaType, schemaTypeExists := schemaTypes[SCHEMAS_PATH+"ReferencedObject"]
-	assert.True(t, schemaTypeExists)
-	assert.NotEmpty(t, schemaType.GetProperties(), "Bean must have variable!")
-	property1, propertyExists := schemaType.GetProperties()["#/components/schemas/ReferencedObject/randomString"]
-	assert.True(t, propertyExists)
-	assert.Equal(t, "randomString", property1.GetName(), "Wrong bean variable name read out of the yaml!")
-	assert.Equal(t, "string", property1.GetType(), "Wrong bean variable type read out of the yaml!")
-	assert.Equal(t, false, property1.IsCollection(), "Wrong bean variable cardinality read out of the yaml!")
-}
-
-func TestYamlWithoutComponentsSectionReturnsFatalError(t *testing.T) {
-	// Given...
-	apiYaml := `openapi: 3.0.3
-schemas:
-  MyBeanName:
-    type: object
-`
-	// When...
-	schemaTypes, errList, err := getSchemaTypesFromYaml([]byte(apiYaml))
-
-	// Then...
-	schemaPath := SCHEMAS_PATH+"MyBeanName"
-	assert.NotNil(t, err)
-	assert.Empty(t, errList)
-	assert.Contains(t, err.Error(), "RetrieveSchemasMapFromEntireYamlMap: Failed to find components within ")
-	_, schemaTypeExists := schemaTypes[schemaPath]
-	assert.False(t, schemaTypeExists)
-}
-
-func TestYamlWithoutSchemasSectionReturnsFatalError(t *testing.T) {
-	// Given...
-	apiYaml := `openapi: 3.0.3
-components:
-  MyBeanName:
-    type: object
-`
-	// When...
-	schemaTypes, errList, err := getSchemaTypesFromYaml([]byte(apiYaml))
-
-	// Then...
-	schemaPath := SCHEMAS_PATH+"MyBeanName"
-	assert.NotNil(t, err)
-	assert.Empty(t, errList)
-	assert.Contains(t, err.Error(), "RetrieveSchemasMapFromEntireYamlMap: Failed to find schemas within ")
-	_, schemaTypeExists := schemaTypes[schemaPath]
-	assert.False(t, schemaTypeExists)
-}
-
-func TestSchemaThatReferencesNonExistentPropertyReturnsNonFatalError(t *testing.T) {
-	// Given...
-	apiYaml := `openapi: 3.0.3
-components:
-  schemas:
-    MyBeanName:
-      type: object
-      properties:
-        myTestArray:
-          type: array
-          items:
-            $ref: '#/components/schemas/randomSchema'
-`
-	// When...
-	schemaTypes, errList, err := getSchemaTypesFromYaml([]byte(apiYaml))
-
-	// Then...
-	schemaPath := SCHEMAS_PATH+"MyBeanName"
-	assert.Nil(t, err)
-	assert.NotNil(t, errList)
-	err, errExists := errList[SCHEMAS_PATH+"MyBeanName/myTestArray"]
-	assert.True(t, errExists)
-	assert.Contains(t, err.Error(), "ResolveReferences: Failed to find referenced property for ")
-	_, schemaTypeExists := schemaTypes[schemaPath]
-	assert.False(t, schemaTypeExists)
-}
-
-func TestSchemaThatHasNoTypeReturnsNonFatalError(t *testing.T) {
-	// Given...
-	apiYaml := `openapi: 3.0.3
-components:
-  schemas:
-    MyBeanName:
-      properties:
-        myTestArray:
-          type: array
-          items:
-            type: string
-`
-	// When...
-	schemaTypes, errList, err := getSchemaTypesFromYaml([]byte(apiYaml))
-
-	// Then...
-	schemaPath := SCHEMAS_PATH+"MyBeanName"
-	assert.Nil(t, err)
-	assert.NotNil(t, errList)
-	err, errExists := errList[schemaPath]
-	assert.True(t, errExists)
-	assert.Contains(t, err.Error(), "RetrieveVarType: Failed to find required type for ")
-	_, schemaTypeExists := schemaTypes[schemaPath]
-	assert.False(t, schemaTypeExists)
 }
