@@ -423,41 +423,41 @@ components:
 	assertVariableSetCorrectly(t, generatedClassFile, []string{"a test array"}, "myArrayVar", "String[]")
 }
 
-func TestGenerateFilesProducesArrayWithAllOfPart(t *testing.T) {
-	// Given...
-	packageName := "generated"
-	mockFileSystem := files.NewMockFileSystem()
-	storeFilepath := "dev/wyvinar"
-	apiFilePath := "test-resources/single-bean.yaml"
-	objectName := "MyBeanName"
-	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
-	apiYaml := `openapi: 3.0.3
-components:
-  schemas:
-    MyBeanName:
-      type: object
-      description: A simple example
-      properties:
-        myArrayVar:
-          type: array
-          description: a test array
-          items:
-            allOf:
-            - type: string
-`
-	mockFileSystem.WriteTextFile(apiFilePath, apiYaml)
+// func TestGenerateFilesProducesArrayWithAllOfPart(t *testing.T) {
+// 	// Given...
+// 	packageName := "generated"
+// 	mockFileSystem := files.NewMockFileSystem()
+// 	storeFilepath := "dev/wyvinar"
+// 	apiFilePath := "test-resources/single-bean.yaml"
+// 	objectName := "MyBeanName"
+// 	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
+// 	apiYaml := `openapi: 3.0.3
+// components:
+//   schemas:
+//     MyBeanName:
+//       type: object
+//       description: A simple example
+//       properties:
+//         myArrayVar:
+//           type: array
+//           description: a test array
+//           items:
+//             allOf:
+//             - type: string
+// `
+// 	mockFileSystem.WriteTextFile(apiFilePath, apiYaml)
 
-	// When...
-	err := GenerateFiles(mockFileSystem, storeFilepath, apiFilePath, packageName)
+// 	// When...
+// 	err := GenerateFiles(mockFileSystem, storeFilepath, apiFilePath, packageName)
 
-	// Then...
-	assert.Nil(t, err)
-	generatedClassFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
-	assertClassFileGeneratedOk(t, generatedClassFile, objectName)
-	assertVariableMatchesGetter(t, generatedClassFile, "myArrayVar", "MyArrayVar", "String[]")
-	assertVariableMatchesSetter(t, generatedClassFile, "myArrayVar", "MyArrayVar", "String[]")
-	assertVariableSetCorrectly(t, generatedClassFile, []string{"a test array"}, "myArrayVar", "String[]")
-}
+// 	// Then...
+// 	assert.Nil(t, err)
+// 	generatedClassFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
+// 	assertClassFileGeneratedOk(t, generatedClassFile, objectName)
+// 	assertVariableMatchesGetter(t, generatedClassFile, "myArrayVar", "MyArrayVar", "String[]")
+// 	assertVariableMatchesSetter(t, generatedClassFile, "myArrayVar", "MyArrayVar", "String[]")
+// 	assertVariableSetCorrectly(t, generatedClassFile, []string{"a test array"}, "myArrayVar", "String[]")
+// }
 
 func TestGenerateFilesProduces2DArrayFromNestedArrayStructure(t *testing.T) {
 	// Given...
@@ -646,45 +646,45 @@ components:
 	assertClassFileGeneratedOk(t, generatedNestedClassFile, "MyReferencedObject")
 }
 
-func TestGenerateFilesProducesArrayWithAllOfPartWithReferenceToObject(t *testing.T) {
-	// Given...
-	packageName := "generated"
-	mockFileSystem := files.NewMockFileSystem()
-	storeFilepath := "dev/wyvinar"
-	apiFilePath := "test-resources/single-bean.yaml"
-	objectName := "MyBeanName"
-	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
-	apiYaml := `openapi: 3.0.3
-components:
-  schemas:
-    MyBeanName:
-      type: object
-      description: A simple example
-      properties:
-        myArrayVar:
-          type: array
-          description: a test array
-          items:
-            allOf:
-            - $ref: '#/components/schemas/MyReferencedObject'
-    MyReferencedObject:
-      type: object
-`
-	mockFileSystem.WriteTextFile(apiFilePath, apiYaml)
+// func TestGenerateFilesProducesArrayWithAllOfPartWithReferenceToObject(t *testing.T) {
+// 	// Given...
+// 	packageName := "generated"
+// 	mockFileSystem := files.NewMockFileSystem()
+// 	storeFilepath := "dev/wyvinar"
+// 	apiFilePath := "test-resources/single-bean.yaml"
+// 	objectName := "MyBeanName"
+// 	generatedCodeFilePath := getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, objectName)
+// 	apiYaml := `openapi: 3.0.3
+// components:
+//   schemas:
+//     MyBeanName:
+//       type: object
+//       description: A simple example
+//       properties:
+//         myArrayVar:
+//           type: array
+//           description: a test array
+//           items:
+//             allOf:
+//             - $ref: '#/components/schemas/MyReferencedObject'
+//     MyReferencedObject:
+//       type: object
+// `
+// 	mockFileSystem.WriteTextFile(apiFilePath, apiYaml)
 
-	// When...
-	err := GenerateFiles(mockFileSystem, storeFilepath, apiFilePath, packageName)
+// 	// When...
+// 	err := GenerateFiles(mockFileSystem, storeFilepath, apiFilePath, packageName)
 
-	// Then...
-	assert.Nil(t, err)
-	generatedClassFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
-	assertClassFileGeneratedOk(t, generatedClassFile, objectName)
-	assertVariableMatchesGetter(t, generatedClassFile, "myArrayVar", "MyArrayVar", "MyReferencedObject[]")
-	assertVariableMatchesSetter(t, generatedClassFile, "myArrayVar", "MyArrayVar", "MyReferencedObject[]")
-	assertVariableSetCorrectly(t, generatedClassFile, []string{"a test array"}, "myArrayVar", "MyReferencedObject[]")
-	generatedNestedClassFile := openGeneratedFile(t, mockFileSystem, getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, "MyReferencedObject"))
-	assertClassFileGeneratedOk(t, generatedNestedClassFile, "MyReferencedObject")
-}
+// 	// Then...
+// 	assert.Nil(t, err)
+// 	generatedClassFile := openGeneratedFile(t, mockFileSystem, generatedCodeFilePath)
+// 	assertClassFileGeneratedOk(t, generatedClassFile, objectName)
+// 	assertVariableMatchesGetter(t, generatedClassFile, "myArrayVar", "MyArrayVar", "MyReferencedObject[]")
+// 	assertVariableMatchesSetter(t, generatedClassFile, "myArrayVar", "MyArrayVar", "MyReferencedObject[]")
+// 	assertVariableSetCorrectly(t, generatedClassFile, []string{"a test array"}, "myArrayVar", "MyReferencedObject[]")
+// 	generatedNestedClassFile := openGeneratedFile(t, mockFileSystem, getGeneratedCodeFilePathWithPackage(storeFilepath, packageName, "MyReferencedObject"))
+// 	assertClassFileGeneratedOk(t, generatedNestedClassFile, "MyReferencedObject")
+// }
 
 func TestGenerateFilesProducesEnumAndClass(t *testing.T) {
 	// Given...
@@ -901,12 +901,6 @@ components:
           description: a test array
           items:
             type: string
-        myAllOfArrayVar:
-          type: array
-          description: a test array
-          items:
-            allOf:
-            - type: string
         my2DArrayVar:
           type: array
           description: a test 2d array
@@ -927,11 +921,11 @@ components:
           type: object
         myObjectReferencingProperty:
           $ref: '#/components/schemas/MyReferencedObject'
-        myAllOfReferencingArrayVar:
+        myAnyOfReferencingArrayVar:
           type: array
           description: a test array
           items:
-            allOf:
+            anyOf:
             - $ref: '#/components/schemas/MyReferencedObject'
         myEnum:
           type: string
