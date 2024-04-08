@@ -103,7 +103,7 @@ func getExpectedType(schemaProp *Property) string {
 }
 
 func assertJavaEnumRelatesToSchemaType(t *testing.T, schemaType *SchemaType, javaEnum *JavaEnum) {
-	assert.Equal(t, schemaType.name, javaEnum.Name)
+	assert.Equal(t, convertToCamelCase(schemaType.name), javaEnum.Name)
 	description := strings.Split(schemaType.description, "\n")
 	if len(description) == 1 {
 		description = nil
@@ -348,16 +348,16 @@ func TestTranslateSchemaTypesToJavaPackageWithEnum(t *testing.T) {
 	}
 	schemaTypeMap := make(map[string]*SchemaType)
 	var schemaType *SchemaType
-	schemaName := "MyEnum"
-	ownProp := NewProperty(schemaName, "#/components/schemas/MyEnum", "", "string", possibleValues, schemaType, Cardinality{min: 0, max: 1})
+	schemaName := "myEnum"
+	ownProp := NewProperty(schemaName, "#/components/schemas/myEnum", "", "string", possibleValues, schemaType, Cardinality{min: 0, max: 1})
 	schemaType = NewSchemaType(schemaName, "", ownProp, nil)
-	schemaTypeMap["#/components/schemas/MyEnum"] = schemaType
+	schemaTypeMap["#/components/schemas/myEnum"] = schemaType
 
 	// When...
 	javaPackage := translateSchemaTypesToJavaPackage(schemaTypeMap, TARGET_JAVA_PACKAGE)
 
 	// Then...
-	enum, enumExists := javaPackage.Enums[schemaName]
+	enum, enumExists := javaPackage.Enums[convertToCamelCase(schemaName)]
 	assert.True(t, enumExists)
 	assertJavaEnumRelatesToSchemaType(t, schemaType, enum)
 }
