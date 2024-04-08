@@ -98,6 +98,8 @@ func propertyToJavaType(property *Property) string {
 			javaType = "int"
 		} else if property.typeName == "number" {
 			javaType = "double"
+		}else if property.typeName == "" {
+			javaType = "Object"
 		} else {
 			javaType = property.typeName
 		}
