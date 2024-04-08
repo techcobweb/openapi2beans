@@ -2,9 +2,10 @@ package dev.galasa.openapi2beans.example.generated;
 
 // A bean with a single required primitive property
 public class BeanWithRequiredPrimitiveProperty {
-    // Constants //
     // Class Variables //
     private String aStringVariable;
+
+    // Constants //
 
     public BeanWithRequiredPrimitiveProperty (String aStringVariable) {
         this.aStringVariable = aStringVariable;

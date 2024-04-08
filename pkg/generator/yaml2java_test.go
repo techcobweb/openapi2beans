@@ -339,9 +339,9 @@ components:
 	assertVariableMatchesGetter(t, generatedClassFile, "myIntVar", "MyIntVar", "int")
 	assertVariableMatchesSetter(t, generatedClassFile, "myIntVar", "MyIntVar", "int")
 	assertVariableSetCorrectly(t, generatedClassFile, []string{"a test integer"}, "myIntVar", "int")
-	assert.Contains(t, generatedClassFile, `    public MyBeanName (String myStringVar, int myIntVar) {
-        this.myStringVar = myStringVar;
+	assert.Contains(t, generatedClassFile, `    public MyBeanName (int myIntVar, String myStringVar) {
         this.myIntVar = myIntVar;
+        this.myStringVar = myStringVar;
     }`)
 }
 

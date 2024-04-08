@@ -4,13 +4,6 @@ package {{JavaPackage.Name}};
 // {{&.}}
 {{/Description}}
 public class {{Name}} {
-    // Constants //
-    {{#ConstantDataMembers}}
-    {{#Description}}
-    // {{&.}}
-    {{/Description}}
-    public static final {{MemberType}} {{Name}}{{#ConstantVal}} = {{&.}}{{/ConstantVal}};
-    {{/ConstantDataMembers}}
     // Class Variables //
     {{#DataMembers}}
     {{#Description}}
@@ -18,6 +11,17 @@ public class {{Name}} {
     {{/Description}}
     private {{MemberType}} {{Name}};
     {{/DataMembers}}
+
+    // Constants //
+    {{#ConstantDataMembers}}
+    {{#Description}}
+    
+    {{/Description}}
+    {{#Description}}
+    // {{&.}}
+    {{/Description}}
+    public static final {{MemberType}} {{Name}}{{#ConstantVal}} = {{&.}}{{/ConstantVal}};
+    {{/ConstantDataMembers}}
 
     public {{Name}} ({{#RequiredMembers}}{{^IsFirst}}, {{/IsFirst}}{{DataMember.MemberType}} {{DataMember.Name}}{{/RequiredMembers}}) {
         {{#RequiredMembers}}

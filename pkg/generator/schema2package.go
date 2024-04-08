@@ -2,6 +2,7 @@ package generator
 
 import (
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -77,12 +78,17 @@ func retrieveDataMembersFromSchemaType(schemaType *SchemaType) (dataMembers []*D
 			if property.IsSetInConstructor() {
 				requiredMember := RequiredMember {
 					DataMember: &dataMember,
-					IsFirst: len(requiredMembers) == 0,
 				}
 				requiredMembers = append(requiredMembers, &requiredMember)
 			}
 		}
 		
+	}
+	sort.SliceStable(dataMembers, func (i int, j int) bool {return isDataMemberLessThanComparison(dataMembers[i], dataMembers[j])})
+	sort.SliceStable(requiredMembers, func (i int, j int) bool {return isDataMemberLessThanComparison(requiredMembers[i].DataMember, requiredMembers[j].DataMember)})
+	sort.SliceStable(constantDataMembers, func (i int, j int) bool {return isDataMemberLessThanComparison(constantDataMembers[i], constantDataMembers[j])})
+	if requiredMembers != nil {
+		requiredMembers[0].IsFirst = true
 	}
 	return dataMembers, requiredMembers, constantDataMembers
 }
@@ -136,4 +142,51 @@ func convertConstValueToJavaReadable(constVal string, constType string) string {
 		constVal = "\"" + constVal + "\""
 	}
 	return constVal
+}
+
+func isDataMemberLessThanComparison(dataMember *DataMember, comparisonMember *DataMember) bool {
+	less := true
+	switch memberType := dataMember.MemberType; {
+	case strings.Contains(memberType, "boolean"):
+		switch comparisonMemberTpye := comparisonMember.MemberType; {
+		case strings.Contains(comparisonMemberTpye, "boolean"):
+			less = dataMember.Name > comparisonMember.Name
+		default:
+			less = true
+		}
+	case strings.Contains(memberType, "int"):
+		switch comparisonMember.MemberType {
+		case "boolean": 
+			less = false
+		case "int":
+			less = dataMember.Name > comparisonMember.Name
+		default:
+			less = true
+		}
+	case strings.Contains(memberType, "double"):
+		switch comparisonMemberType := comparisonMember.MemberType; {
+		case strings.Contains(comparisonMemberType, "boolean"), strings.Contains(comparisonMemberType, "int"): 
+			less = false
+		case strings.Contains(comparisonMemberType, "double"):
+			less = dataMember.Name > comparisonMember.Name
+		default:
+			less = true
+		}
+	case strings.Contains(memberType, "String"):
+		switch comparisonMemberType := comparisonMember.MemberType; {
+		case strings.Contains(comparisonMemberType, "boolean"), strings.Contains(comparisonMemberType, "int"), strings.Contains(comparisonMemberType, "double"): 
+			less = false
+		case strings.Contains(comparisonMemberType, "String"):
+			less = dataMember.Name > comparisonMember.Name
+		default:
+			less = true
+		}
+	default:
+		if dataMember.MemberType == comparisonMember.MemberType {
+			less = dataMember.Name > comparisonMember.Name
+		} else {
+			less = dataMember.MemberType > comparisonMember.MemberType
+		}
+	}
+	return less
 }

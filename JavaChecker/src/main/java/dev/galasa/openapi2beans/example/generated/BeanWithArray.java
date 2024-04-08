@@ -2,9 +2,10 @@ package dev.galasa.openapi2beans.example.generated;
 
 // A bean that tests arrays
 public class BeanWithArray {
-    // Constants //
     // Class Variables //
     private String[] anArrayVariable;
+
+    // Constants //
 
     public BeanWithArray () {
     }
